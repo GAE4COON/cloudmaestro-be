@@ -2,6 +2,7 @@ package com.example.EC2.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+
 @Data // 이 어노테이션은 @Getter, @Setter, @RequiredArgsConstructor, @ToString, @EqualsAndHashCode를 포함합니다.
 @Entity
 @NoArgsConstructor
@@ -43,6 +44,7 @@ public class MemberEntity {
 
     @Column(name = "WindowsReserved")
     private String WindowsReserved;
+
 
 
     @Override

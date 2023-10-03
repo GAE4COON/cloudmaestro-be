@@ -34,4 +34,13 @@ public class MemberService {
                 ))
                 .collect(Collectors.toList());
     }
+
+    public List<MemberDTO> getMembersByAPIName(String APIName) {
+        return memberRepository.findByAPIName(APIName)
+                .stream()
+                .map(MemberDTO::new)
+                .collect(Collectors.toList());
+    }
+
+
 }
