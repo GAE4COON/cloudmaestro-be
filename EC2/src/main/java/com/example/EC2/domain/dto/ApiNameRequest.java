@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class ApiNameRequest {
-    private String APIName;
-    private String Platform;
+    private String platform;
+    private String instanceType;
 }
+

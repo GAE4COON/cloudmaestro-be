@@ -1,10 +1,12 @@
 package com.example.EC2.dto;
 import com.example.EC2.entity.MemberEntity;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MemberDTO {
     private int id;
     private String name;
