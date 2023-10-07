@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/vantage")
+@CrossOrigin(origins="http://localhost:3000")
 public class EC2Controller {
 
     private final EC2Service ec2Service;
