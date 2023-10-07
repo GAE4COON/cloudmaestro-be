@@ -1,10 +1,9 @@
-package com.example.EC2.service;
+package com.example.EC2.domain.service;
 
-import com.example.EC2.controller.MemberController;
-import com.example.EC2.dto.MemberDTO;
+import com.example.EC2.domain.dto.MemberDTO;
 
-import com.example.EC2.entity.MemberEntity;
-import com.example.EC2.repository.MemberRepository;
+import com.example.EC2.domain.entity.MemberEntity;
+import com.example.EC2.domain.repository.MemberRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -147,37 +147,9 @@ public class MemberService {
 
 
 
-    public List<String> getSplitByAPIName(String platform) {
-        List<MemberEntity> memberEntities;
-        logger.info("myname is memberentites{}",platform);
-        memberEntities = memberRepository.findAll();
-        Stream<MemberEntity> stream;
-        if(platform.equalsIgnoreCase("linux") ){
-            stream = memberEntities.stream()
-                    .filter(member ->
-                    !member.getLinuxOnDemand().equalsIgnoreCase("unavailable") &&
-                            !member.getLinuxReserved().equalsIgnoreCase("unavailable") &&
-                            !member.getLinuxSpot().equalsIgnoreCase("unavailable"));
-        }else if (platform.equalsIgnoreCase("windows")){
-            stream = memberEntities.stream()
-                    .filter(member ->
-                            !member.getWindowsOnDemand().equalsIgnoreCase("unavailable") &&
-                            !member.getWindowsReserved().equalsIgnoreCase("unavailable"));
-        }else{
-            return Collections.emptyList();
-        }
-
-        return stream.map(entity -> {
-                    String[] parts = entity.getAPIName().split("\\.");
-                    return parts.length > 0 ? parts[0] : entity.getAPIName();
-                })
-                .distinct() // 중복 제거
-                .collect(Collectors.toList());
-    }
-
     public List<String> getSplitByAPINameAndInstanceType(String platform, String InstanceType) {
         List<MemberEntity> memberEntities;
-        logger.info("myname is memberentites{}",platform);
+        logger.info("myname is getApiNameandInstanceType{}",platform);
         memberEntities = memberRepository.findAll();
         Stream<MemberEntity> stream;
         if(platform.equalsIgnoreCase("linux") ){
@@ -195,9 +167,43 @@ public class MemberService {
             return Collections.emptyList();
         }
 
+        return stream.filter(entity -> entity.getAPIName().contains(InstanceType))
+                .map(entity -> {
+                    String[] parts = entity.getAPIName().split("\\.");
+                    if (parts.length > 1 && parts[0].equalsIgnoreCase(InstanceType)) {
+                        return parts[1];
+                    } else {
+                        return null;
+                    }
+                })
+                .filter(Objects::nonNull)
+                .distinct() // 중복 제거
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getSplitByAPIName(String platform) {
+        List<MemberEntity> memberEntities;
+        logger.info("myname is memberentites{}",platform);
+        memberEntities = memberRepository.findAll();
+        Stream<MemberEntity> stream;
+        if(platform.equalsIgnoreCase("linux") ){
+            stream = memberEntities.stream()
+                    .filter(member ->
+                    !member.getLinuxOnDemand().equalsIgnoreCase("unavailable") &&
+                    !member.getLinuxReserved().equalsIgnoreCase("unavailable") &&
+                    !member.getLinuxSpot().equalsIgnoreCase("unavailable"));
+        }else if (platform.equalsIgnoreCase("windows")){
+            stream = memberEntities.stream()
+                    .filter(member ->
+                    !member.getWindowsOnDemand().equalsIgnoreCase("unavailable") &&
+                    !member.getWindowsReserved().equalsIgnoreCase("unavailable"));
+        }else{
+            return Collections.emptyList();
+        }
+
         return stream.map(entity -> {
                     String[] parts = entity.getAPIName().split("\\.");
-                    return parts.length > 0 ? parts[0] : entity.getAPIName();
+                    return parts.length > 0 ? parts[0]: entity.getAPIName();
                 })
                 .distinct() // 중복 제거
                 .collect(Collectors.toList());

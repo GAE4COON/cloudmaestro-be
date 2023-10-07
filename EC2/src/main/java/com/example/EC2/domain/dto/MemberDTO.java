@@ -1,5 +1,5 @@
-package com.example.EC2.dto;
-import com.example.EC2.entity.MemberEntity;
+package com.example.EC2.domain.dto;
+import com.example.EC2.domain.entity.MemberEntity;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 

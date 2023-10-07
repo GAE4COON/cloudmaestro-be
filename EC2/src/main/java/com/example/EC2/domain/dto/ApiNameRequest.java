@@ -1,4 +1,4 @@
-package com.example.EC2.dto;
+package com.example.EC2.domain.dto;
 
 import lombok.Data;
 

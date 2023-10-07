@@ -1,13 +1,11 @@
-package com.example.EC2.repository;
+package com.example.EC2.domain.repository;
 
-import com.example.EC2.dto.MemberDTO;
-import com.example.EC2.entity.MemberEntity;
+import com.example.EC2.domain.entity.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 
 @Repository

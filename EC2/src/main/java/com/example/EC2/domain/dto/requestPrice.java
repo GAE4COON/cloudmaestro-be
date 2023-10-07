@@ -6,7 +6,8 @@ import lombok.Data;
 
 
 @Data
-public class SplitApiRequest {
+public class requestPrice {
     private String Platform;
-    private String InstanceType;
+    private String Instance;
+    private String LifeCycle;
 }

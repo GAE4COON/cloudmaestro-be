@@ -1,4 +1,4 @@
-package com.example.EC2.entity;
+package com.example.EC2.domain.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -7,6 +7,7 @@ import lombok.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 @Table(name = "ec2")
 public class MemberEntity {
 
@@ -47,20 +48,5 @@ public class MemberEntity {
 
 
 
-    @Override
-    public String toString() {
-        return "MemberEntity{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", APIName='" + APIName + '\'' +
-                ", InstanceMemory='" + InstanceMemory + '\'' +
-                ", Network='" + Network + '\'' +
-                ", LinuxOnDemand='" + LinuxOnDemand + '\'' +
-                ", LinuxReserved='" + LinuxReserved + '\'' +
-                ", LinuxSpot='" + LinuxSpot + '\'' +
-                ", WindowsOnDemand='" + WindowsOnDemand + '\'' +
-                ", WindowsReserved='" + WindowsReserved + '\'' +
-                '}';
-    }
 
 }

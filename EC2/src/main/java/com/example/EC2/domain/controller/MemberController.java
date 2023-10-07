@@ -1,9 +1,9 @@
-package com.example.EC2.controller;
+package com.example.EC2.domain.controller;
 
-import com.example.EC2.dto.ApiNameRequest;
-import com.example.EC2.dto.MemberDTO;
-import com.example.EC2.dto.SplitApiNRequest;
-import com.example.EC2.service.MemberService;
+import com.example.EC2.domain.dto.ApiNameRequest;
+import com.example.EC2.domain.dto.MemberDTO;
+
+import com.example.EC2.domain.service.MemberService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +11,6 @@ import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/ec2")
@@ -28,7 +27,7 @@ public class MemberController {
     public MemberController(MemberService memberService) {
         this.memberService = memberService;
     }
-//똥
+
     @GetMapping("/all")
     public List<MemberDTO> getAllMembers() {
         List<MemberDTO> members = memberService.getAllMembers();
@@ -42,34 +41,18 @@ public class MemberController {
         return members;
     }
 
-    @PostMapping(value = "/platform", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<MemberDTO> getMembersByAPIName(@RequestBody ApiNameRequest request) {
-        List<MemberDTO> allMembers;
-
-        if(request.getInstanceType() == null) {
-            // Only platform provided
-            allMembers = memberService.getMembersByAPIName(request.getPlatform());
-            logger.info("Fetched members by platform '{}': {}", request.getPlatform(), allMembers);
-        } else {
-            // Both platform and instanceType provided
-            allMembers = memberService.getMembersByAPINameAndInstanceType(request.getPlatform(), request.getInstanceType());
-            logger.info("Fetched members by platform '{}' and instanceType '{}': {}", request.getPlatform(), request.getInstanceType(), allMembers);
-        }
-
-        return allMembers;
-    }
 
     @PostMapping(value = "/apiname", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public List<String> getMembersByAPIName(@RequestBody SplitApiNRequest request) {
+    public List<String> getMembersByAPIName(@RequestBody ApiNameRequest request) {
         List<String> splitAPIname = null;
-
+        logger.info("hello world '{}': {}", request.getPlatform(), request.getInstanceType());
         if(request.getInstanceType() == null) {
             // Only platform provided
             splitAPIname = memberService.getSplitByAPIName(request.getPlatform());
             logger.info("Fetched members by platform '{}': {}", request.getPlatform(), splitAPIname);
         } else {
             splitAPIname = memberService.getSplitByAPINameAndInstanceType(request.getPlatform(), request.getInstanceType());
-            logger.info("Fetched members by platform '{}': {}", request.getPlatform(), splitAPIname);
+            logger.info("Fetched members by instance '{}': {}", request.getInstanceType(), splitAPIname);
         }
 
 
