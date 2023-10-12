@@ -1,12 +1,11 @@
 package com.gae4coon.cloudmaestro.domain.file.service.impl;
 
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
+import com.google.gson.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import org.springframework.stereotype.Service;
 
 import java.io.InputStream;
@@ -139,7 +138,14 @@ public class FileServiceImpl implements FileService {
         return root.toString();
     }
 
-    @Override
+    public void summaryFileParse(String file){
+        Gson gson = new Gson();
+
+
+    }
+
+
+
     public String getCellValue(Cell cell) {
         switch (cell.getCellType()) {
             case STRING:
@@ -153,7 +159,6 @@ public class FileServiceImpl implements FileService {
         }
     }
 
-    @Override
     public boolean isMergedRegion(Sheet sheet, Cell cell) {
         for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
             if (mergedRegion.isInRange(cell.getRowIndex(), cell.getColumnIndex())) {
@@ -163,7 +168,6 @@ public class FileServiceImpl implements FileService {
         return false;
     }
 
-    @Override
     public CellAddress getMergedAddress(Sheet sheet, Cell cell) {
         for (CellRangeAddress mergedRegion : sheet.getMergedRegions()) {
             if (mergedRegion.isInRange(cell.getRowIndex(), cell.getColumnIndex())) {
