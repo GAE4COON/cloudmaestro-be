@@ -58,7 +58,6 @@ public class StandardController {
             responseBody.put("linkKeyProperty","key");
             responseBody.put("nodeDataArray",finalData.get("nodeDataArray"));
             responseBody.put("linkDataArray", finalData.get("linkDataArray"));
-            //responseBody.put("addGroupList", finalData.get("addGroupList"))
 
             HashMap<String, Object> finalBody = new HashMap<>();
             finalBody.put("result",responseBody);
