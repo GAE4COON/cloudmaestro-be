@@ -60,9 +60,10 @@ public class StandardController {
 
 
     @PostMapping("/network")
-    public ResponseEntity<?> postNetworkData(@RequestBody(required = false) String postData) {
+    public ResponseEntity<HashMap<String, Object> > postNetworkData(@RequestBody(required = false) String postData) {
         ObjectMapper mapper = new ObjectMapper();
         try {
+            System.out.println("postData: "+postData);
             GraphLinksModel graphData = mapper.readValue(postData, GraphLinksModel.class);
             List<NodeData> nodes = graphData.getNodeDataArray();
             List<LinkData> linkData = graphData.getLinkDataArray();
@@ -75,21 +76,26 @@ public class StandardController {
 
             Map<String, Object> responseBody = new HashMap<>();
 
-            responseBody.put("class",graphData.getClassName());
-            responseBody.put("linkKeyProperty",graphData.getLinkKeyProperty());
+            responseBody.put("class","GraphLinksModel");
+            responseBody.put("linkKeyProperty","key");
             responseBody.put("nodeDataArray",finalData.get("nodeDataArray"));
             responseBody.put("linkDataArray", finalData.get("linkDataArray"));
-            //responseBody.put("addGroupList", finalData.get("addGroupList"));
-            Map<String, Object> finalBody = new HashMap<>();
-            finalBody.put("data",responseBody);
+            //responseBody.put("addGroupList", finalData.get("addGroupList"))
 
+            HashMap<String, Object> finalBody = new HashMap<>();
+            finalBody.put("result",responseBody);
+            System.out.println("finalBody: "+finalBody);
 
+            return ResponseEntity.ok().body(finalBody);
 
-            return new ResponseEntity<>(finalBody, HttpStatus.OK);
         } catch (Exception e) {
             ObjectNode errorNode = mapper.createObjectNode();
             errorNode.put("error", e.getMessage());
-            return new ResponseEntity<>(errorNode, HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("error:"+ e.getMessage());
+
+            HashMap<String, Object> ErrorBody = new HashMap<>();
+            ErrorBody.put("result","fail");
+            return ResponseEntity.ok().body(ErrorBody);
         }
     }
 
