@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.security.Key;
 import java.sql.Array;
 import java.util.*;
 
@@ -137,12 +138,15 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         // from : AD3 -> to : Network_WAF / from : Network_WAF -> to : else 인거 AD3->else1, else2, .. 묶기
         List<LinkData> modifiedLinkDataList = addLogic(addLogicList);
 
-        //List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
+        List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
+
+        // 같은 링크 중복 제거하기
+        List<LinkData> unique = unique(modifiedLinkDataList);
 
 
-        result.put("nodeDataArray", nodeDataList);
-        result.put("linkDataArray", modifiedLinkDataList);
-        //result.put("addGroupList", addGroupList);
+        result.put("nodeDataArray", modifiedNodeList );
+        result.put("linkDataArray", unique);
+        result.put("addGroupList", nodeDataList);
 
         return result;
     }
@@ -167,30 +171,30 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         int index = 0;
         for (LinkData linkData : originalList) {
 
-                String from = linkData.getFrom();
-                String to = linkData.getTo();
-                String nextFrom = to;
+            String from = linkData.getFrom();
+            String to = linkData.getTo();
+            String nextFrom = to;
 
-                // While the 'to' doesn't start with "WS", we try to find the next link
-                while (!to.startsWith("WS") || !to.startsWith("SVR")) {
-                    boolean linkFound = false;
+            // While the 'to' doesn't start with "WS", we try to find the next link
+            while (!to.startsWith("WS") || !to.startsWith("SVR")) {
+                boolean linkFound = false;
 
-                    for (LinkData nextLink : originalList) {
-                        if (nextLink.getFrom().equals(to)) {
-                            to = nextLink.getTo(); // nextlink 다음으로 가기
-                            nextFrom = nextLink.getFrom(); // nextlink 처음으로 가기
-                            linkFound = true;
-                            break;
-                        }
+                for (LinkData nextLink : originalList) {
+                    if (nextLink.getFrom().equals(to)) {
+                        to = nextLink.getTo(); // nextlink 다음으로 가기
+                        nextFrom = nextLink.getFrom(); // nextlink 처음으로 가기
+                        linkFound = true;
+                        break;
                     }
-
-                    // If we don't find a link, we exit the loop
-                    if (!linkFound) break;
                 }
 
-                // At this point, 'to' should be the end of the chain or a "WS" node
-                resultList.add(new LinkData(from, nextFrom, index -= 1));
+                // If we don't find a link, we exit the loop
+                if (!linkFound) break;
             }
+
+            // At this point, 'to' should be the end of the chain or a "WS" node
+            resultList.add(new LinkData(from, nextFrom, index -= 1));
+        }
 
 
         return resultList;
@@ -225,21 +229,57 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
 
     @Override
-    public List<Object> addLogicaddNodeLogic(List<Object> nodeDataList){
-//
-//        List<Object> NewNodeDataList = new ArrayList<>();
-//        for(Object nodedata: nodeDataList){
-//            if(nodedata["key"])
-//
-//
-//        }
+    public List<Object> addNodeLogic(List<Object> nodeDataList){
+
+        List<Object> NewNodeDataList = new ArrayList<>();
+        for(Object data: nodeDataList){
+            if (data instanceof NodeData) {
+                NodeData nodedata = (NodeData) data;
+                String key = nodedata.getKey();
+                if (!key.startsWith("Network") && !key.startsWith("FW")) {
+                    NewNodeDataList.add(nodedata);
+                }
+            }
+            if(data instanceof GroupData){
+
+                NewNodeDataList.add(data);
+
+            }
 
 
+        }
 
-        return nodeDataList;
+        return NewNodeDataList;
+    }
+
+
+    public List<LinkData> unique(List<LinkData> modifiedLinkDataList){
+
+        Set<List<String>> set = new HashSet<>();
+        Map<String,LinkData> temp = new HashMap<>();
+        List<List> templist = new ArrayList<>();
+
+        List<LinkData> uniquelink = new ArrayList<>();
+        for(LinkData linkdata : modifiedLinkDataList){
+            List<String> list = new LinkedList<>();
+            list.add(linkdata.getFrom());
+            list.add(linkdata.getTo());
+            templist.add(list);
+        }
+
+        for(List tempdata: templist){
+            set.add(tempdata);
+        }
+        int i = 0;
+        for(List<String> data : set){
+            uniquelink.add(new LinkData(data.get(0), data.get(1), i-=1));
+
+        }
+
+        return uniquelink;
+
     }
 }
-
 
 
 

@@ -28,7 +28,7 @@ public class dbService {
                 Method method = dbEntity.class.getMethod("get" + inputField); // Get the method
 
                 String value = (String) method.invoke(entity); // Invoke the method
-                if (value!=null&&!value.contains("unavailable")) {
+                if (value!=null && !value.contains("unavailable")) {
                     apiNames.add(entity.getApiName());
                     //System.out.println(entity.getApiName());
                 }
@@ -52,7 +52,7 @@ public class dbService {
         result.put("instanceType", instanceType);
         result.put("instanceSize", instanceSize);
         // 확인을 위한 출력
-       // System.out.println("Instance: " + result);
+        // System.out.println("Instance: " + result);
 
 
         return result;

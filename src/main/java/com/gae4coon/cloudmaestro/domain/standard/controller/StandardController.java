@@ -35,34 +35,13 @@ public class StandardController {
 
 
 
-//    @PostMapping("/ec2")
-//    public ResponseEntity<?> postMember (@RequestBody Map<String, Object> postData){
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            StringBuilder sb = new StringBuilder();
-//            postData.entrySet().forEach(map -> {
-//                String key = map.getKey();
-//                String value = map.getValue();
-//
-//            });
-//
-//            return new ResponseEntity<>(sb.toString(), HttpStatus.OK);
-//        } catch (Exception e) {
-//
-//            ObjectNode errorNode = mapper.createObjectNode();
-//            errorNode.put("error", e.getMessage());
-//
-//            return new ResponseEntity<>(errorNode, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//    }
-
 
 
     @PostMapping("/network")
-    public ResponseEntity<?> postNetworkData(@RequestBody(required = false) String postData) {
+    public ResponseEntity<HashMap<String, Object> > postNetworkData(@RequestBody(required = false) String postData) {
         ObjectMapper mapper = new ObjectMapper();
         try {
+            System.out.println("postData: "+postData);
             GraphLinksModel graphData = mapper.readValue(postData, GraphLinksModel.class);
             List<NodeData> nodes = graphData.getNodeDataArray();
             List<LinkData> linkData = graphData.getLinkDataArray();
@@ -70,29 +49,34 @@ public class StandardController {
 
             // 정말 단순한 일대일 대응
             Map<String, Object> nodesData =  standardService.processNodeData(nodes);
-
+            // 알고리즘 짜기
             Map<String, Object> finalData = algorithmService.algorithmDataList(nodesData, linkData);
 
             Map<String, Object> responseBody = new HashMap<>();
 
-            responseBody.put("class",graphData.getClassName());
-            responseBody.put("linkKeyProperty",graphData.getLinkKeyProperty());
+            responseBody.put("class","GraphLinksModel");
+            responseBody.put("linkKeyProperty","key");
             responseBody.put("nodeDataArray",finalData.get("nodeDataArray"));
             responseBody.put("linkDataArray", finalData.get("linkDataArray"));
-            responseBody.put("addGroupList", finalData.get("addGroupList"));
 
+            HashMap<String, Object> finalBody = new HashMap<>();
+            finalBody.put("result",responseBody);
+            System.out.println("finalBody: "+finalBody);
 
+            return ResponseEntity.ok().body(finalBody);
 
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
         } catch (Exception e) {
             ObjectNode errorNode = mapper.createObjectNode();
             errorNode.put("error", e.getMessage());
-            return new ResponseEntity<>(errorNode, HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("error:"+ e.getMessage());
+
+            HashMap<String, Object> ErrorBody = new HashMap<>();
+            ErrorBody.put("result","fail");
+            return ResponseEntity.ok().body(ErrorBody);
         }
     }
 
 
 }
-
 
 
