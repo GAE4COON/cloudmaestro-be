@@ -79,11 +79,13 @@ public class StandardController {
             responseBody.put("linkKeyProperty",graphData.getLinkKeyProperty());
             responseBody.put("nodeDataArray",finalData.get("nodeDataArray"));
             responseBody.put("linkDataArray", finalData.get("linkDataArray"));
-            responseBody.put("addGroupList", finalData.get("addGroupList"));
+            //responseBody.put("addGroupList", finalData.get("addGroupList"));
+            Map<String, Object> finalBody = new HashMap<>();
+            finalBody.put("data",responseBody);
 
 
 
-            return new ResponseEntity<>(responseBody, HttpStatus.OK);
+            return new ResponseEntity<>(finalBody, HttpStatus.OK);
         } catch (Exception e) {
             ObjectNode errorNode = mapper.createObjectNode();
             errorNode.put("error", e.getMessage());

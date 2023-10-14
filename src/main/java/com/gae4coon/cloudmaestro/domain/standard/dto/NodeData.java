@@ -1,6 +1,7 @@
 package com.gae4coon.cloudmaestro.domain.standard.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.List;
@@ -16,8 +17,7 @@ public class NodeData {
     private String figure;
     @JsonIgnore
     private String isGroup;
-
-
-
-    // getters and setters
 }
+
+
+

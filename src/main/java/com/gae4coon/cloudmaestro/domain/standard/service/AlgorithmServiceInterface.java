@@ -14,7 +14,6 @@ public interface AlgorithmServiceInterface {
 
     List<LinkData> addLogic(List<LinkData> originalList);
 
-    List<Object> addLogicaddNodeLogic(List<Object> nodeDataList);
-
+    List<Object> addNodeLogic(List<Object> nodeDataList);
 
 }

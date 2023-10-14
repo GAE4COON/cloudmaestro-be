@@ -137,12 +137,12 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         // from : AD3 -> to : Network_WAF / from : Network_WAF -> to : else 인거 AD3->else1, else2, .. 묶기
         List<LinkData> modifiedLinkDataList = addLogic(addLogicList);
 
-        //List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
+        List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
 
 
-        result.put("nodeDataArray", nodeDataList);
+        result.put("nodeDataArray", modifiedNodeList );
         result.put("linkDataArray", modifiedLinkDataList);
-        //result.put("addGroupList", addGroupList);
+        result.put("addGroupList", nodeDataList);
 
         return result;
     }
@@ -225,18 +225,29 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
 
     @Override
-    public List<Object> addLogicaddNodeLogic(List<Object> nodeDataList){
-//
-//        List<Object> NewNodeDataList = new ArrayList<>();
-//        for(Object nodedata: nodeDataList){
-//            if(nodedata["key"])
-//
-//
-//        }
+    public List<Object> addNodeLogic(List<Object> nodeDataList){
+
+       List<Object> NewNodeDataList = new ArrayList<>();
+        System.out.println("comeon");
+       for(Object data: nodeDataList){
+           if (data instanceof NodeData) {
+               NodeData nodedata = (NodeData) data;
+               String key = nodedata.getKey();
+               if (!key.startsWith("Network") && !key.startsWith("FW")) {
+                   System.out.println("들어옴"+nodedata);
+                   NewNodeDataList.add(nodedata);
+               }
+           }
+           if(data instanceof GroupData){
+
+               NewNodeDataList.add(data);
+
+           }
 
 
+        }
 
-        return nodeDataList;
+        return NewNodeDataList;
     }
 }
 
