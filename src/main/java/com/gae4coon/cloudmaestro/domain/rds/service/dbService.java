@@ -28,7 +28,7 @@ public class dbService {
                 Method method = dbEntity.class.getMethod("get" + inputField); // Get the method
 
                 String value = (String) method.invoke(entity); // Invoke the method
-                if (!value.contains("unavailable")) {
+                if (value!=null&&!value.contains("unavailable")) {
                     apiNames.add(entity.getApiName());
                     //System.out.println(entity.getApiName());
                 }

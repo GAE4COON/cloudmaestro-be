@@ -1,6 +1,8 @@
 package com.gae4coon.cloudmaestro.domain.file.service;
 
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +12,6 @@ public interface FileService {
 
     String dataToinput(List<Map<String, String>> inputData);
 
-    void summaryFileParse(String file);
+    Map<String, Object> summaryFileParse(MultipartFile file);
 
     }
