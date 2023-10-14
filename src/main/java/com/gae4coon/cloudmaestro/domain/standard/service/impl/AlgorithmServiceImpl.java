@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.security.Key;
 import java.sql.Array;
 import java.util.*;
 
@@ -139,9 +140,12 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
         List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
 
+        // 같은 링크 중복 제거하기
+        List<LinkData> unique = unique(modifiedLinkDataList);
+
 
         result.put("nodeDataArray", modifiedNodeList );
-        result.put("linkDataArray", modifiedLinkDataList);
+        result.put("linkDataArray", unique);
         result.put("addGroupList", nodeDataList);
 
         return result;
@@ -228,13 +232,11 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     public List<Object> addNodeLogic(List<Object> nodeDataList){
 
        List<Object> NewNodeDataList = new ArrayList<>();
-        System.out.println("comeon");
        for(Object data: nodeDataList){
            if (data instanceof NodeData) {
                NodeData nodedata = (NodeData) data;
                String key = nodedata.getKey();
                if (!key.startsWith("Network") && !key.startsWith("FW")) {
-                   System.out.println("들어옴"+nodedata);
                    NewNodeDataList.add(nodedata);
                }
            }
@@ -248,6 +250,34 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         }
 
         return NewNodeDataList;
+    }
+
+
+    public List<LinkData> unique(List<LinkData> modifiedLinkDataList){
+
+        Set<List<String>> set = new HashSet<>();
+        Map<String,LinkData> temp = new HashMap<>();
+        List<List> templist = new ArrayList<>();
+
+        List<LinkData> uniquelink = new ArrayList<>();
+        for(LinkData linkdata : modifiedLinkDataList){
+            List<String> list = new LinkedList<>();
+            list.add(linkdata.getFrom());
+            list.add(linkdata.getTo());
+            templist.add(list);
+        }
+
+        for(List tempdata: templist){
+            set.add(tempdata);
+        }
+        int i = 0;
+        for(List<String> data : set){
+            uniquelink.add(new LinkData(data.get(0), data.get(1), i-=1));
+
+        }
+
+        return uniquelink;
+
     }
 }
 

@@ -35,28 +35,6 @@ public class StandardController {
 
 
 
-//    @PostMapping("/ec2")
-//    public ResponseEntity<?> postMember (@RequestBody Map<String, Object> postData){
-//        ObjectMapper mapper = new ObjectMapper();
-//        try {
-//            StringBuilder sb = new StringBuilder();
-//            postData.entrySet().forEach(map -> {
-//                String key = map.getKey();
-//                String value = map.getValue();
-//
-//            });
-//
-//            return new ResponseEntity<>(sb.toString(), HttpStatus.OK);
-//        } catch (Exception e) {
-//
-//            ObjectNode errorNode = mapper.createObjectNode();
-//            errorNode.put("error", e.getMessage());
-//
-//            return new ResponseEntity<>(errorNode, HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//
-//    }
-
 
 
     @PostMapping("/network")
@@ -71,7 +49,7 @@ public class StandardController {
 
             // 정말 단순한 일대일 대응
             Map<String, Object> nodesData =  standardService.processNodeData(nodes);
-
+            // 알고리즘 짜기
             Map<String, Object> finalData = algorithmService.algorithmDataList(nodesData, linkData);
 
             Map<String, Object> responseBody = new HashMap<>();

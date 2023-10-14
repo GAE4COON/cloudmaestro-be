@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/vantage")
+@RequestMapping("/api/v1/pricing-api")
 public class EC2Controller {
 
     private final EC2Service ec2Service;
