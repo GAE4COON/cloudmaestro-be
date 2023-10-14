@@ -50,18 +50,7 @@ public class FileController {
 
     @PostMapping(value = "/summary")
     public ResponseEntity<?> summaryFile(@RequestParam("file") MultipartFile file) throws IOException {
-//        if (file.isEmpty()) {
-//            return ResponseEntity.badRequest().body("File is empty.");
-//        }
-//
-//        // 파일의 내용을 문자열로 읽기
-//        String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-//
-//        // JSON 문자열을 DTO로 변환
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        InputData inputData = objectMapper.readValue(content, InputData.class);
-//        OutputData outputData = transformData(inputData);
+        System.out.println(file);
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("File is empty.");
         }
