@@ -186,7 +186,9 @@ public class NodeService {
     public List<String> getSplitByAPIName(String platform) {
         List<MemberEntity> memberEntities;
         logger.info("myname is memberentites{}",platform);
+
         memberEntities = nodeRepository.findAll();
+        logger.info(" iam is memberentites{}",memberEntities);
         Stream<MemberEntity> stream;
         if(platform.equalsIgnoreCase("linux") ){
             stream = memberEntities.stream()

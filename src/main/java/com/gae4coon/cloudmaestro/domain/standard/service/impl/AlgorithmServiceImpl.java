@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.security.Key;
 import java.sql.Array;
 import java.util.*;
 
@@ -140,7 +141,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
 
         // 같은 링크 중복 제거하기
-        Set<List> unique = unique(modifiedLinkDataList);
+        List<LinkData> unique = unique(modifiedLinkDataList);
 
 
         result.put("nodeDataArray", modifiedNodeList );
@@ -252,11 +253,13 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     }
 
 
-    public Set<List> unique(List<LinkData> modifiedLinkDataList){
-        //Set<LinkData> set = new HashSet<>(modifiedLinkDataList);
-        Set<List> set = new HashSet<>();
+    public List<LinkData> unique(List<LinkData> modifiedLinkDataList){
+
+        Set<List<String>> set = new HashSet<>();
         Map<String,LinkData> temp = new HashMap<>();
-        List<List> templist = new LinkedList<>();
+        List<List> templist = new ArrayList<>();
+
+        List<LinkData> uniquelink = new ArrayList<>();
         for(LinkData linkdata : modifiedLinkDataList){
             List<String> list = new LinkedList<>();
             list.add(linkdata.getFrom());
@@ -267,8 +270,13 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         for(List tempdata: templist){
             set.add(tempdata);
         }
+        int i = 0;
+        for(List<String> data : set){
+            uniquelink.add(new LinkData(data.get(0), data.get(1), i-=1));
 
-        return set;
+        }
+
+        return uniquelink;
 
     }
 }

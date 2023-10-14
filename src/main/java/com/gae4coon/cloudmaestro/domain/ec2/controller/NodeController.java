@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/ec2")
+@RequestMapping("/api/v1/db-api")
 public class NodeController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeController.class);
@@ -41,7 +41,7 @@ public class NodeController {
     }
 
 
-    @PostMapping(value = "/apiname", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/ec2", produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
     public List<String> getMembersByAPIName(@RequestBody ApiNameRequest request) {
         List<String> splitAPIname = null;
         logger.info("hello world '{}': {}", request.getPlatform(), request.getInstanceType());
