@@ -15,5 +15,3 @@ public class NodeData {
     @JsonIgnore
     private String isGroup;
 }
-
-

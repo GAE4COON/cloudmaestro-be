@@ -2,17 +2,12 @@ package com.gae4coon.cloudmaestro.domain.file.service.impl;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gae4coon.cloudmaestro.domain.file.dto.InputData;
-import com.gae4coon.cloudmaestro.domain.file.dto.NodeData;
-import com.gae4coon.cloudmaestro.domain.file.dto.OutputData;
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
 import com.google.gson.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -100,8 +95,6 @@ public class FileServiceImpl implements FileService {
                     map.remove(key);
                 }
             }
-
-            // Add the transformed map 'count' number of times
             for (int i = 0; i < count; i++) {
                 JsonObject tempNode = node.deepCopy(); // 반복마다 새로운 JsonObject 인스턴스를 생성
                 tempNode.addProperty("type", "Network_icon");
@@ -228,77 +221,6 @@ public class FileServiceImpl implements FileService {
         }
         return null;
     }
-
-    private OutputData transformData(InputData inputData) {
-        // 변환 로직 구현
-        Map<String, Object> compute = new HashMap<>();
-        Map<String, Object> database = new HashMap<>();
-        Map<String, Object> storage = new HashMap<>();
-
-        for (NodeData nodeData : inputData.getNodeDataArray()) {
-            Map<String, Object> matchedCost = null;
-            for (Map<String, Object> costItem : inputData.getCost()) {
-                if (costItem.containsKey(nodeData.getKey())) {
-                    matchedCost = (Map<String, Object>) costItem.get(nodeData.getKey());
-                    break;
-                }
-            }
-
-            if (matchedCost == null) {
-                continue;
-            }
-
-            if ("Compute".equals(nodeData.getType())) {
-                Map<String, Object> comDetails = new HashMap<>();
-                if (matchedCost.containsKey("platform")) {
-                    comDetails.put("platform", matchedCost.get("platform"));
-                }
-                if (matchedCost.containsKey("instancetype")) {
-                    comDetails.put("instancetype", matchedCost.get("instancetype"));
-                }
-                if (matchedCost.containsKey("size")) {
-                    comDetails.put("size", matchedCost.get("size"));
-                }
-                if (matchedCost.containsKey("billing")) {
-                    comDetails.put("billing", matchedCost.get("billing"));
-                }
-                if (matchedCost.containsKey("cost")) {
-                    comDetails.put("cost", matchedCost.get("cost"));
-                }
-                compute.put(nodeData.getKey(), comDetails);
-
-            } else if ("Database".equals(nodeData.getType())) {
-                Map<String, Object> dbDetails = new HashMap<>();
-                if (matchedCost.containsKey("engine")) {
-                    dbDetails.put("engine", matchedCost.get("engine"));
-                }
-                if (matchedCost.containsKey("instancetype")) {
-                    dbDetails.put("instancetype", matchedCost.get("instancetype"));
-                }
-                if (matchedCost.containsKey("size")) {
-                    dbDetails.put("size", matchedCost.get("size"));
-                }
-                if (matchedCost.containsKey("cost")) {
-                    dbDetails.put("cost", matchedCost.get("cost"));
-                }
-                // Add other attributes if needed...
-
-                database.put(nodeData.getKey(), dbDetails);
-
-            } else if ("Storage".equals(nodeData.getType())) {
-                storage.put(nodeData.getKey(), matchedCost);
-            }
-        }
-
-        OutputData outputData = new OutputData();
-        outputData.setCompute(compute);
-        outputData.setDatabase(database);
-        outputData.setStorage(storage);
-
-        return outputData;
-
-    }
-
 
 
 }
