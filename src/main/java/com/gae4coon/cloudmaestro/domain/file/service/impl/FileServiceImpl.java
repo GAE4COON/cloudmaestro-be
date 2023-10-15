@@ -96,7 +96,6 @@ public class FileServiceImpl implements FileService {
                 }
 
                 node.addProperty(newKey, newValue);
-
                 if (!newKey.equals(key)) {
                     map.remove(key);
                 }
