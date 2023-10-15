@@ -43,7 +43,7 @@ public class dbEntity {
     @Column(name = "SQLServerStandard", length = 45)
     private String SQLServer;
 
-    @Column(name = "AuroraPostgresMySQL", length = 45)
+    @Column(name = "aurora_postgres_mysql", length = 45)
     private String AuroraPostgresMySQL;
 
     @Column(name = "MariaDB", length = 45)
