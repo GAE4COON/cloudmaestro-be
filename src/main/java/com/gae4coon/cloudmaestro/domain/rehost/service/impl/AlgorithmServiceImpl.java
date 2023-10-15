@@ -9,6 +9,7 @@ import com.gae4coon.cloudmaestro.domain.rehost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.rehost.service.AlgorithmServiceInterface;
 
 
+import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -136,8 +137,15 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         List<LinkData> unique = unique(modifiedLinkDataList);
 
 
-        result.put("nodeDataArray", modifiedNodeList );
-        result.put("linkDataArray", unique);
+        // svr/sv->ec2, database -> rds
+        Map<String,Object> awsKey = fixKey(modifiedNodeList, unique);
+
+
+
+
+
+        result.put("nodeDataArray", awsKey.get("nodeDataArray") );
+        result.put("linkDataArray", awsKey.get("linkDataArray"));
         result.put("addGroupList", nodeDataList);
 
         return result;
@@ -228,7 +236,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
             if (data instanceof NodeData) {
                 NodeData nodedata = (NodeData) data;
                 String key = nodedata.getKey();
-                if (!key.startsWith("Network") && !key.startsWith("FW")) {
+                if (!key.startsWith("Network") && !key.startsWith("FW") && !key.startsWith("WAF")) {
                     NewNodeDataList.add(nodedata);
                 }
             }
@@ -270,6 +278,81 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
         return uniquelink;
 
+    }
+
+    public Map<String,Object> fixKey(List<Object> modifiedNodeList, List<LinkData> unique) {
+        Map<String, Object> fixkey = new HashMap<>();
+        Map<String, String> Awsnode = new HashedMap<>();
+        int EC2_index = 0;
+        int RDS_index = 0;
+        int Shield_index = 0;
+
+        for(Object node : modifiedNodeList) {
+
+            if(node instanceof NodeData){
+                NodeData nodedata = (NodeData) node;
+                String key = nodedata.getKey();
+                if(key.contains("database")){
+                    if(Awsnode.containsKey(key)){
+                        nodedata.setKey(Awsnode.get(key));
+                    }else{
+                        nodedata.setKey("RDS" + RDS_index);
+                        RDS_index += 1;
+                        Awsnode.put(key,nodedata.getKey());
+
+                    }
+
+                }
+                if(key.contains("WS")){
+                    if(Awsnode.containsKey(key)){
+                        nodedata.setKey(Awsnode.get(key));
+                    }else{
+                        nodedata.setKey("EC2" + EC2_index);
+                        EC2_index += 1;
+                        Awsnode.put(key,nodedata.getKey());
+
+                    }
+                }
+                if(key.contains("SVR")){
+                    if(Awsnode.containsKey(key)){
+                        nodedata.setKey(Awsnode.get(key));
+                    }else{
+                        nodedata.setKey("EC2" + EC2_index);
+                        EC2_index += 1;
+                        Awsnode.put(key,nodedata.getKey());
+
+                    }
+                }
+                if(key.contains("AD")){
+                    if(Awsnode.containsKey(key)){
+                        nodedata.setKey(Awsnode.get(key));
+                    }else{
+                        nodedata.setKey("Shield" + Shield_index);
+                        Shield_index += 1;
+                        Awsnode.put(key,nodedata.getKey());
+
+                    }
+                }
+            }
+
+        }
+
+        logger.info("nodeDataList444: {}", modifiedNodeList);
+
+        for(LinkData link : unique){
+            if(Awsnode.containsKey(link.getFrom())){
+                link.setFrom(Awsnode.get(link.getFrom()));
+            }
+            if(Awsnode.containsKey(link.getTo())){
+                link.setTo(Awsnode.get(link.getTo()));
+            }
+
+        }
+
+        fixkey.put("linkDataArray",unique);
+        fixkey.put("nodeDataArray",modifiedNodeList);
+
+        return fixkey;
     }
 }
 
