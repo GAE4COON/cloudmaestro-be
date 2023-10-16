@@ -66,7 +66,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         int index = 0;
         List<LinkData> addGroupList = new ArrayList<>();
         for (String key : groupedByFrom.keySet()) {
-            if (key.contains("FW") || key.contains("WAF")) {
+            if (key.contains("FW")) {
                 List<LinkData> modifiedLinks = addGroup(groupedByFrom.get(key), index);
                 addGroupList.addAll(modifiedLinks);
                 index += 1;
@@ -146,7 +146,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
         result.put("nodeDataArray", awsKey.get("nodeDataArray") );
         result.put("linkDataArray", awsKey.get("linkDataArray"));
-        result.put("addGroupList", nodeDataList);
+        result.put("addGroupList", addGroupList);
 
         return result;
     }
@@ -157,7 +157,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     // 일단 group을 null 이라고 해서 이렇게 값이 들어오게 하는건 성공
     public List<LinkData> addGroup(List<LinkData> linkData, int index) {
         for (LinkData data : linkData) {
-            if (data.getTo().toLowerCase().startsWith("ws") || data.getTo().toLowerCase().startsWith("svr")) {
+            if (data.getTo().toLowerCase().startsWith("ws") || data.getTo().toLowerCase().startsWith("svr") || data.getTo().toLowerCase().startsWith("db")) {
                 data.setGroup("SecurityGroup" + index);
             }
         }
@@ -168,12 +168,14 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     @Override
     public List<LinkData> generateLinksFromToWS(List<LinkData> originalList) {
         List<LinkData> resultList = new ArrayList<>();
+        logger.info("originalList",originalList);
         int index = 0;
         for (LinkData linkData : originalList) {
 
             String from = linkData.getFrom();
             String to = linkData.getTo();
             String nextFrom = to;
+
 
             // While the 'to' doesn't start with "WS", we try to find the next link
             while (!to.startsWith("WS") || !to.startsWith("SVR") || !to.startsWith("RDS")) {
