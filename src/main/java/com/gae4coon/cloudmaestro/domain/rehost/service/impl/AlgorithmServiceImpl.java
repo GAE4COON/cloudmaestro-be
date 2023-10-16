@@ -126,19 +126,19 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
         List<LinkData> addLogicList = generateLinksFromToWS2(addGroupList);
         System.out.println("addLogicList"+addLogicList);
+        List<LinkData> unique = unique(addLogicList);
 
 
         // 추가 로직 하기
         // from : AD3 -> to : Network_WAF / from : Network_WAF -> to : else 인거 AD3->else1, else2, .. 묶기
 
-//        List<LinkData> modifiedLinkDataList = addLogic(addLogicList);
-//        System.out.println("modifiedLinkDataList"+modifiedLinkDataList);
+        List<LinkData> modifiedLinkDataList = addLogic(nodeDataList, unique);
+        System.out.println("modifiedLinkDataList"+modifiedLinkDataList);
 
         List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
         System.out.println("modifiedNodeList"+ modifiedNodeList);
 
         // 같은 링크 중복 제거하기
-        List<LinkData> unique = unique(addLogicList);
 
         // svr/sv->ec2, database -> rds
         Map<String,Object> awsKey = fixKey(modifiedNodeList, unique);
@@ -257,12 +257,34 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
 
     @Override
-    public List<LinkData> addLogic(List<LinkData> originalList) {
+    public List<LinkData> addLogic( List<Object> nodeDataList, List<LinkData> originalList) {
+
+        for(var nodeData: nodeDataList){
+            if(nodeData instanceof NodeData){
+                ((NodeData) nodeData).getGroup();
+            }
+        }
+
         List<LinkData> resultList = new ArrayList<>();
         int index = 0;
         for(LinkData original : originalList) {
             String from = original.getFrom();
             String to = original.getTo();
+            System.out.println("from "+from+" to "+to+" group "+original.getGroup());
+
+            for(var nodeData: nodeDataList){
+                if(nodeData instanceof NodeData){
+                    if(((NodeData) nodeData).getKey().equals(from)){
+                        System.out.println(from);
+                        System.out.println(((NodeData) nodeData).getGroup());
+                        System.out.println(to);
+                        if(((NodeData) nodeData).getGroup().equals(to)){
+                            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+                            break;
+                        }
+                    }
+                }
+            }
 
             if(from.startsWith("AD") || from.startsWith("WS") ||  from.startsWith("SVR")){
                 while(!to.startsWith("WS") || !to.startsWith("SVR")){
