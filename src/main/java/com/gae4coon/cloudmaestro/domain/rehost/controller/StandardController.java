@@ -38,6 +38,7 @@ public class StandardController {
         ObjectMapper mapper = new ObjectMapper();
         try {
             System.out.println("postData: "+postData);
+
             GraphLinksModel graphData = mapper.readValue(postData, GraphLinksModel.class);
             List<NodeData> nodes = graphData.getNodeDataArray();
             List<LinkData> linkData = graphData.getLinkDataArray();

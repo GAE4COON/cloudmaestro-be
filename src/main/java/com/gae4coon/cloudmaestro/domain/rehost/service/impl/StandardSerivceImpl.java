@@ -109,36 +109,13 @@ public class StandardSerivceImpl implements StandardServiceInterface {
     }
 
 
-//    public List<LinkData> NetToAws(List<LinkData> linkdata){
-//        String network;
-//        // getTo 변환
-//
-//        // Network -> Aws로 변환
-//        for(LinkData node: linkdata) {
-//            String networkFrom = NetToAws(node.getFrom());
-//            node.setFrom(networkFrom);
-//
-//            // getSet 변환
-//            String networkTo = NetToAws(node.getTo());
-//            node.setTo(networkTo);
-//
-//        }
-//
-//        // 개수 세기
-//
-//
-//
-//        return linkdata;
-
-    //}
-
     @Override
     public String NetToAws(String nodeKey, String nodeText) {
         if (nodeKey.contains("WS") || nodeKey.contains("SVR")) {
             nodeKey = "EC2";
             return nodeKey;
         }
-        if (nodeKey.contains("database")) {
+        if (nodeKey.contains("DB")) {
             nodeKey = "RDS";
             return nodeKey;
         }
@@ -153,8 +130,6 @@ public class StandardSerivceImpl implements StandardServiceInterface {
         } else {
             return nodeText;
         }
-
-
     }
 
     @Override

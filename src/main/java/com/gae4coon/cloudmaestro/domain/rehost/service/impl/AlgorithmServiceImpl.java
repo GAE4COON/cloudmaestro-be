@@ -21,8 +21,6 @@ import java.util.List;
 
 @Service
 public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
-
-
     // 방화벽 밑에 1단을 기준으로 security group을 묶는다.
 
     private static final Logger logger = LoggerFactory.getLogger(AlgorithmServiceImpl.class);
@@ -37,7 +35,6 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         Object rawNodeData = nodesData.get("nodeDataArray");
         Map<String, Object> result = new HashMap<>();
 
-
         List<Object> nodeDataList = null;
         if (rawNodeData instanceof List) {
             nodeDataList = (List<Object>) rawNodeData;
@@ -45,7 +42,6 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
             logger.error("Unexpected type for nodeDataArray. Expected List but got: {}", rawNodeData.getClass().getName());
             return Collections.emptyMap();
         }
-
 
         logger.info("nodeDataList2: {}", nodeDataList);
 
@@ -58,7 +54,6 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
             String fromKey = link.getFrom();
             groupedByFrom.putIfAbsent(fromKey, new ArrayList<>());
             groupedByFrom.get(fromKey).add(link);
-
         }
 
         // Security group 찾기 ( waf/ fw -> svr/ was ) 찾아서 security group으로 묶기
@@ -90,12 +85,15 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                 for (LinkData linkdata : addGroupList) {
                     if (fixGroupData.getKey().equals(linkdata.getTo())
                             && linkdata.getGroup() != null) {
+
+                        // security group 생생
                         GroupData groupNode = new GroupData();
                         groupNode.setIsGroup(true);
                         groupNode.setKey(linkdata.getGroup());
-                        groupNode.setStroke("rgba(255,165,0,0.3)");
+                        groupNode.setStroke("rgb(221,52,76)");
                         groupNode.setType("group");
                         groupNode.setGroup(fixGroupData.getGroup());
+
                         boolean nodeExistsInToAddList = nodesToAdd.stream()
                                 .filter(n -> n instanceof GroupData)
                                 .map(n -> (GroupData) n)
@@ -117,7 +115,6 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
         nodeDataList.addAll(nodesToAdd);
 
-
         // 이제부터는 새로운 알고리즘 시작 ..하하 ( 연결고리 정보 건들기 )
         // 2. linkDataArray 정보를 활용해서 연결 고리 정보를 확인합시다
 
@@ -125,29 +122,31 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         //  fw / network_waf는 빼야 한다.
 
         // currentlist.to = nextlist.from 이 같은 거 연결
-        List<LinkData> addLogicList = generateLinksFromToWS(addGroupList);
+        System.out.println("addGroupList"+addGroupList);
+
+        List<LinkData> addLogicList = generateLinksFromToWS2(addGroupList);
+        System.out.println("addLogicList"+addLogicList);
+
 
         // 추가 로직 하기
         // from : AD3 -> to : Network_WAF / from : Network_WAF -> to : else 인거 AD3->else1, else2, .. 묶기
-        List<LinkData> modifiedLinkDataList = addLogic(addLogicList);
+
+//        List<LinkData> modifiedLinkDataList = addLogic(addLogicList);
+//        System.out.println("modifiedLinkDataList"+modifiedLinkDataList);
 
         List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
+        System.out.println("modifiedNodeList"+ modifiedNodeList);
 
         // 같은 링크 중복 제거하기
-        List<LinkData> unique = unique(modifiedLinkDataList);
-
+        List<LinkData> unique = unique(addLogicList);
 
         // svr/sv->ec2, database -> rds
         Map<String,Object> awsKey = fixKey(modifiedNodeList, unique);
 
-
-
-
-
         result.put("nodeDataArray", awsKey.get("nodeDataArray") );
         result.put("linkDataArray", awsKey.get("linkDataArray"));
         result.put("addGroupList", nodeDataList);
-
+        System.out.println("result"+result);
         return result;
     }
 
@@ -157,7 +156,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     // 일단 group을 null 이라고 해서 이렇게 값이 들어오게 하는건 성공
     public List<LinkData> addGroup(List<LinkData> linkData, int index) {
         for (LinkData data : linkData) {
-            if (data.getTo().toLowerCase().startsWith("ws") || data.getTo().toLowerCase().startsWith("svr")) {
+            if (data.getTo().toLowerCase().startsWith("ws") || data.getTo().toLowerCase().startsWith("svr") || data.getTo().toLowerCase().startsWith("db")) {
                 data.setGroup("SecurityGroup" + index);
             }
         }
@@ -188,17 +187,74 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                     }
                 }
 
-                // If we don't find a link, we exit the loop
                 if (!linkFound) break;
             }
-
-            // At this point, 'to' should be the end of the chain or a "WS" node
+            System.out.println("new LinkData(from, nextFrom, index -= 1)"+ new LinkData(from, nextFrom, index -= 1));
             resultList.add(new LinkData(from, nextFrom, index -= 1));
         }
 
 
         return resultList;
     }
+
+    public List<LinkData> generateLinksFromToWS2(List<LinkData> originalList) {
+        List<LinkData> resultList = new ArrayList<>();
+        int index = 0;
+        for (LinkData linkData : originalList) {
+
+            String from = linkData.getFrom();
+            String to = linkData.getTo();
+            String nextTo=null;
+
+            if (!to.startsWith("WS") || !to.startsWith("SVR") || !to.startsWith("RDS")) {
+                for (LinkData nextLink : originalList) {
+                    if(nextLink==linkData) continue;
+
+                    if(linkData.getGroup()!=null){
+                        from = linkData.getGroup();
+
+                        if(!(linkData.getGroup().equals(nextLink.getGroup()))&&nextLink.getGroup()!=null){
+                            nextTo = nextLink.getGroup();
+                            resultList.add(new LinkData(from, nextTo, index -= 1));
+                            break;
+                        }
+                    }
+
+                    if (to.startsWith("FW")&&nextLink.getFrom().equals(to)) {
+
+                        if(nextLink.getGroup()!=null){
+                            nextTo = nextLink.getGroup();
+                        }
+                        else {
+                            nextTo = nextLink.getTo(); // nextlink 다음으로 가기
+                        }
+                        System.out.println("add parameter" +linkData.getFrom()+"12" + new LinkData(from, nextTo, 2));
+                    }
+                    if(nextTo!=null)
+                        resultList.add(new LinkData(from, nextTo, index -= 1));
+
+                    else{
+
+                        if(linkData.getGroup()!=null&&nextLink.getGroup()!=null&&!(linkData.getGroup().equals(nextLink.getGroup()))){
+                            System.out.println(linkData.getGroup()+"!!"+nextLink.getGroup());
+
+                            resultList.add(new LinkData(linkData.getGroup(), nextLink.getGroup(),index -= 1));
+                            System.out.println("add parameter" +linkData.getFrom()+"12" + new LinkData(linkData.getGroup(), nextLink.getGroup(),index -= 1));
+
+                        }
+                        else
+                            resultList.add(new LinkData(from, to, index -= 1));
+
+                    }
+
+                }
+            }
+        }
+
+
+        return resultList;
+    }
+
 
     @Override
     public List<LinkData> addLogic(List<LinkData> originalList) {
@@ -221,9 +277,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                     }
                 }
             }
-
         }
-
         return resultList;
     }
 
@@ -243,12 +297,8 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
             if(data instanceof GroupData){
 
                 NewNodeDataList.add(data);
-
             }
-
-
         }
-
         return NewNodeDataList;
     }
 
@@ -293,14 +343,13 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
             if(node instanceof NodeData){
                 NodeData nodedata = (NodeData) node;
                 String key = nodedata.getKey();
-                if(key.contains("database")){
+                if(key.contains("DB")){
                     if(Awsnode.containsKey(key)){
                         nodedata.setKey(Awsnode.get(key));
                     }else{
                         nodedata.setKey("RDS" + RDS_index);
                         RDS_index += 1;
                         Awsnode.put(key,nodedata.getKey());
-
                     }
 
                 }
