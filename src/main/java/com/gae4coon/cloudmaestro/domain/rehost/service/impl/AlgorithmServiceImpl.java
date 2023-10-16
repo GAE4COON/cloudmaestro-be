@@ -176,7 +176,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
             String nextFrom = to;
 
             // While the 'to' doesn't start with "WS", we try to find the next link
-            while (!to.startsWith("WS") || !to.startsWith("SVR")) {
+            while (!to.startsWith("WS") || !to.startsWith("SVR") || !to.startsWith("RDS")) {
                 boolean linkFound = false;
 
                 for (LinkData nextLink : originalList) {
@@ -286,6 +286,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         int EC2_index = 0;
         int RDS_index = 0;
         int Shield_index = 0;
+        int Rds_index = 0;
 
         for(Object node : modifiedNodeList) {
 
@@ -329,6 +330,16 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                     }else{
                         nodedata.setKey("Shield" + Shield_index);
                         Shield_index += 1;
+                        Awsnode.put(key,nodedata.getKey());
+
+                    }
+                }
+                if(key.contains("DB")){
+                    if(Awsnode.containsKey(key)){
+                        nodedata.setKey(Awsnode.get(key));
+                    }else{
+                        nodedata.setKey("RDS" + Rds_index);
+                        Rds_index += 1;
                         Awsnode.put(key,nodedata.getKey());
 
                     }
