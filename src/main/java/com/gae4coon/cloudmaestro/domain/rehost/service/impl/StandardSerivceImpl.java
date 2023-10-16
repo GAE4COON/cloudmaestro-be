@@ -138,7 +138,7 @@ public class StandardSerivceImpl implements StandardServiceInterface {
             nodeKey = "EC2";
             return nodeKey;
         }
-        if (nodeKey.contains("database")) {
+        if (nodeKey.contains("DB")) {
             nodeKey = "RDS";
             return nodeKey;
         }

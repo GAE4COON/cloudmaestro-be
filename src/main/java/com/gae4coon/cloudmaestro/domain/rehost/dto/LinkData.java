@@ -10,7 +10,7 @@ public class LinkData {
     private String from;
     private String to;
     private int key;
-    @JsonIgnore
+    //@JsonIgnore
     private String group;
     public LinkData(String from, String to, int key) {
         this.from = from;
