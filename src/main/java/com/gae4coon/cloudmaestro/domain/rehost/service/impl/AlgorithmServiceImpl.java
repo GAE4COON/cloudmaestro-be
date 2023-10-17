@@ -122,32 +122,129 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         //  fw / network_waf는 빼야 한다.
 
         // currentlist.to = nextlist.from 이 같은 거 연결
-        System.out.println("addGroupList"+addGroupList);
+        System.out.println("addGroupList" + addGroupList);
 
-        List<LinkData> addLogicList = generateLinksFromToWS2(addGroupList);
-        System.out.println("addLogicList"+addLogicList);
-        List<LinkData> unique = unique(addLogicList);
+        List<LinkData> link1 = generateLinksFromToWS2(addGroupList);
 
+        System.out.println("link1 " + link1);
 
-        // 추가 로직 하기
-        // from : AD3 -> to : Network_WAF / from : Network_WAF -> to : else 인거 AD3->else1, else2, .. 묶기
+        // group link 끊기
+        List<LinkData> nonGroupLink = closeGroupLink(link1, nodeDataList);
+        System.out.println("nonGroupLink " + nonGroupLink);
 
-        List<LinkData> modifiedLinkDataList = addLogic(nodeDataList, unique);
-        System.out.println("modifiedLinkDataList"+modifiedLinkDataList);
+        // node -> exclude되야할 node 연결되어있으면 nextnode로 연결
+        List<LinkData> excludeLink = excludeInstance(nonGroupLink, nodeDataList, addGroupList);
+
+        List<LinkData> unique = unique(excludeLink);
 
         List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
-        System.out.println("modifiedNodeList"+ modifiedNodeList);
 
-        // 같은 링크 중복 제거하기
+        Map<String, Object> awsKey = fixKey(modifiedNodeList, unique);
 
-        // svr/sv->ec2, database -> rds
-        Map<String,Object> awsKey = fixKey(modifiedNodeList, unique);
-
-        result.put("nodeDataArray", awsKey.get("nodeDataArray") );
+        result.put("nodeDataArray", awsKey.get("nodeDataArray"));
         result.put("linkDataArray", awsKey.get("linkDataArray"));
-        result.put("addGroupList", nodeDataList);
-        System.out.println("result"+result);
+        result.put("addGroupList", addGroupList);
         return result;
+    }
+
+    private List<LinkData> excludeInstance(List<LinkData> LinkArray, List<Object> NodeDataArray, List<LinkData> addGroupList) {
+        int index = 0;
+
+        List<LinkData> result = new ArrayList<>();
+        result.addAll(LinkArray);
+
+        for (LinkData link : LinkArray) {
+            String linkFrom = link.getFrom();
+            String linkTo = link.getTo();
+
+            if(linkTo.contains("IPS")||linkTo.contains("IDS")) {
+
+                for (Object nextFrom : addGroupList) {
+
+                    if (nextFrom instanceof LinkData && ((LinkData) nextFrom).getFrom().equals(linkTo)){
+                        System.out.println("from "+linkFrom+" to "+linkTo);
+                        for (Object nextnextFrom : addGroupList) {
+                            if (nextnextFrom instanceof LinkData && ((LinkData) nextnextFrom).getFrom().equals(((LinkData) nextFrom).getTo())) {
+                                linkTo = ((LinkData) nextnextFrom).getGroup();
+                                System.out.println("from "+linkFrom+" to "+linkTo);
+
+                                result.add(new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+                            }
+                        }
+
+                    }
+                }
+            }
+
+        }
+        result.removeIf(linkData -> linkData.getFrom().contains("IPS")
+                || linkData.getFrom().contains("IDS")
+                || linkData.getTo().contains("IPS")
+                || linkData.getTo().contains("IDS"));
+
+        System.out.println("result "+result);
+        return result;
+    }
+
+
+    private List<LinkData> closeGroupLink(List<LinkData> LinkArray, List<Object> NodeDataArray) {
+        int index = 0;
+
+        List<LinkData> result = new ArrayList<>();
+        for (LinkData link : LinkArray) {
+            String linkFrom = link.getFrom();
+            String linkTo = link.getTo();
+
+            for (Object fromNode : NodeDataArray) {
+
+                // fromNode == Node && toNode == Group
+                if (fromNode instanceof NodeData && ((NodeData) fromNode).getKey().equals(linkFrom)) {
+                    for (Object toNode : NodeDataArray) {
+                        if (toNode instanceof GroupData && ((GroupData) toNode).getKey().equals(linkTo)) {
+                            System.out.println("from " + ((NodeData) fromNode).getKey() + " to " + ((GroupData) toNode).getKey() + " from group " + ((NodeData) fromNode).getGroup() + " to group " + ((GroupData) toNode).getGroup());
+
+                            // 그룹 안의 노드가 다른 그룹을 가르키는 것을 막기 위해
+                            if (((NodeData) fromNode).getGroup() != null) {
+                                System.out.println("if (((NodeData) fromNode).getGroup() != null && ((NodeData) toNode).getIsGroup().equals(\"true\")) {\n");
+                                result.add(new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+
+                                break;
+                            }
+                            System.out.println("add " + new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+                        }
+
+                    }
+
+                }
+
+                // fromNode is Group == true && toNode is Node
+                else if (fromNode instanceof GroupData && ((GroupData) fromNode).getKey().equals(linkFrom)) {
+                    for (Object toNode : NodeDataArray) {
+                        if (toNode instanceof NodeData && ((NodeData) toNode).getKey().equals(linkTo)) {
+                            System.out.println("!from " + ((GroupData) fromNode).getKey() + " to " + ((NodeData) toNode).getKey() + " from group " + ((GroupData) fromNode).getGroup() + " to group " + ((NodeData) toNode).getGroup());
+
+
+                            if (((NodeData) toNode).getGroup().equals(((GroupData) fromNode).getKey())) {
+                                System.out.println("else if(((NodeData) fromNode).getIsGroup().equals(\"true\")&&((NodeData) toNode).getGroup().equals(((NodeData) fromNode).getKey())){\n");
+                                result.add(new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+
+                                break;
+                            }
+                            System.out.println("add " + new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+                        }
+
+                    }
+                }
+            }
+        }
+
+        List<LinkData> difference = new ArrayList<>(LinkArray);
+        difference.removeAll(result);
+
+        System.out.println("final result2 " + LinkArray);
+        System.out.println("final result " + result);
+        System.out.println("diff " + difference);
+        return difference;
     }
 
 
@@ -189,8 +286,8 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
                 if (!linkFound) break;
             }
-            System.out.println("new LinkData(from, nextFrom, index -= 1)"+ new LinkData(from, nextFrom, index -= 1));
-            resultList.add(new LinkData(from, nextFrom, index -= 1));
+            System.out.println("new LinkData(from, nextFrom, index -= 1)" + new LinkData(from, nextFrom, index -= 1, "-1"));
+            resultList.add(new LinkData(from, nextFrom, index -= 1, "-1"));
         }
 
 
@@ -204,46 +301,40 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
             String from = linkData.getFrom();
             String to = linkData.getTo();
-            String nextTo=null;
+            String nextTo = null;
 
             if (!to.startsWith("WS") || !to.startsWith("SVR") || !to.startsWith("RDS")) {
                 for (LinkData nextLink : originalList) {
-                    if(nextLink==linkData) continue;
+                    if (nextLink == linkData) continue;
 
-                    if(linkData.getGroup()!=null){
+                    if (linkData.getGroup() != null) {
                         from = linkData.getGroup();
 
-                        if(!(linkData.getGroup().equals(nextLink.getGroup()))&&nextLink.getGroup()!=null){
+                        if (!(linkData.getGroup().equals(nextLink.getGroup())) && nextLink.getGroup() != null) {
                             nextTo = nextLink.getGroup();
-                            resultList.add(new LinkData(from, nextTo, index -= 1));
+                            resultList.add(new LinkData(from, nextTo, index -= 1, "-1"));
                             break;
                         }
                     }
 
-                    if (to.startsWith("FW")&&nextLink.getFrom().equals(to)) {
+                    if (to.startsWith("FW") && nextLink.getFrom().equals(to)) {
 
-                        if(nextLink.getGroup()!=null){
+                        if (nextLink.getGroup() != null) {
                             nextTo = nextLink.getGroup();
-                        }
-                        else {
+                        } else {
                             nextTo = nextLink.getTo(); // nextlink 다음으로 가기
                         }
-                        System.out.println("add parameter" +linkData.getFrom()+"12" + new LinkData(from, nextTo, 2));
-                    }
-                    if(nextTo!=null)
-                        resultList.add(new LinkData(from, nextTo, index -= 1));
-
-                    else{
-
-                        if(linkData.getGroup()!=null&&nextLink.getGroup()!=null&&!(linkData.getGroup().equals(nextLink.getGroup()))){
-                            System.out.println(linkData.getGroup()+"!!"+nextLink.getGroup());
-
-                            resultList.add(new LinkData(linkData.getGroup(), nextLink.getGroup(),index -= 1));
-                            System.out.println("add parameter" +linkData.getFrom()+"12" + new LinkData(linkData.getGroup(), nextLink.getGroup(),index -= 1));
-
+                        if (linkData.getGroup() != null && nextLink.getGroup() != null) {
+                            nextTo = null;
                         }
-                        else
-                            resultList.add(new LinkData(from, to, index -= 1));
+                    }
+                    if (nextTo != null) {
+                        resultList.add(new LinkData(from, nextTo, index -= 1, "-1"));
+                        System.out.println("add parameter" + linkData.getFrom() + " " + linkData.getTo() + " " + new LinkData(from, nextTo, 2, "-1"));
+                    } else {
+                        if (linkData.getGroup() != null && nextLink.getGroup() != null && !(linkData.getGroup().equals(nextLink.getGroup()))) {
+                        } else
+                            resultList.add(new LinkData(from, to, index -= 1, "-1"));
 
                     }
 
@@ -257,58 +348,49 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
 
     @Override
-    public List<LinkData> addLogic( List<Object> nodeDataList, List<LinkData> originalList) {
-
-        for(var nodeData: nodeDataList){
-            if(nodeData instanceof NodeData){
+    public List<LinkData> addLogic(List<Object> nodeDataList, List<LinkData> originalList) {
+        System.out.println("nodeDataList" + nodeDataList);
+        for (var nodeData : nodeDataList) {
+            if (nodeData instanceof NodeData) {
                 ((NodeData) nodeData).getGroup();
             }
         }
 
         List<LinkData> resultList = new ArrayList<>();
         int index = 0;
-        for(LinkData original : originalList) {
+        for (LinkData original : originalList) {
             String from = original.getFrom();
             String to = original.getTo();
-            System.out.println("from "+from+" to "+to+" group "+original.getGroup());
+            System.out.println("from " + from + " to " + to + " group " + original.getGroup());
 
-            for(var nodeData: nodeDataList){
-                if(nodeData instanceof NodeData){
-                    if(((NodeData) nodeData).getKey().equals(from)){
-                        System.out.println(from);
-                        System.out.println(((NodeData) nodeData).getGroup());
-                        System.out.println(to);
-                        if(((NodeData) nodeData).getGroup().equals(to)){
+            for (var nodeData : nodeDataList) {
+                if (nodeData instanceof NodeData) {
+                    if (((NodeData) nodeData).getKey().equals(to)) {
+                        System.out.println("from " + from + " to " + to + " group " + ((NodeData) nodeData).getGroup());
+
+                        if (((NodeData) nodeData).getGroup().equals(from)) {
                             System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
                             break;
-                        }
+                        } else if (((NodeData) nodeData).getGroup().equals("-1")) break;
+
+                        resultList.add(new LinkData(from, to, index -= 1, "-1"));
                     }
                 }
             }
 
-            if(from.startsWith("AD") || from.startsWith("WS") ||  from.startsWith("SVR")){
-                while(!to.startsWith("WS") || !to.startsWith("SVR")){
-                    boolean linkFound = false;
-                    for(LinkData nextLink : originalList){
-                        if(nextLink.getFrom().equals(to)){
-                            resultList.add(new LinkData(from, nextLink.getTo(), index -= 1));
-                        }
-                    }
-                    if(!linkFound){
-                        break;
-                    }
-                }
-            }
+
         }
+        System.out.println("resultList" + resultList);
         return resultList;
     }
 
 
     @Override
-    public List<Object> addNodeLogic(List<Object> nodeDataList){
+    public List<Object> addNodeLogic(List<Object> nodeDataList) {
 
         List<Object> NewNodeDataList = new ArrayList<>();
-        for(Object data: nodeDataList){
+        for (Object data : nodeDataList) {
             if (data instanceof NodeData) {
                 NodeData nodedata = (NodeData) data;
                 String key = nodedata.getKey();
@@ -316,8 +398,7 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                     NewNodeDataList.add(nodedata);
                 }
             }
-            if(data instanceof GroupData){
-
+            if (data instanceof GroupData) {
                 NewNodeDataList.add(data);
             }
         }
@@ -325,34 +406,74 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     }
 
 
-    public List<LinkData> unique(List<LinkData> modifiedLinkDataList){
-
-        Set<List<String>> set = new HashSet<>();
-        Map<String,LinkData> temp = new HashMap<>();
-        List<List> templist = new ArrayList<>();
-
+    //    public List<LinkData> unique(List<LinkData> modifiedLinkDataList) {
+//
+//        Set<List<String>> set = new HashSet<>();
+//        Map<String, LinkData> temp = new HashMap<>();
+//        List<List> templist = new ArrayList<>();
+//
+//        List<LinkData> uniquelink = new ArrayList<>();
+//        for (LinkData linkdata : modifiedLinkDataList) {
+//            List<String> list = new LinkedList<>();
+//            list.add(linkdata.getFrom());
+//            list.add(linkdata.getTo());
+//            templist.add(list);
+//        }
+//
+//        for (List tempdata : templist) {
+//            set.add(tempdata);
+//        }
+//        int i = 0;
+//        for (List<String> data : set) {
+//            uniquelink.add(new LinkData(data.get(0), data.get(1), i -= 1));
+//
+//        }
+//
+//        return uniquelink;
+//
+//    }
+    public List<LinkData> unique(List<LinkData> modifiedLinkDataList) {
+        Set<Pair> seen = new HashSet<>();
         List<LinkData> uniquelink = new ArrayList<>();
-        for(LinkData linkdata : modifiedLinkDataList){
-            List<String> list = new LinkedList<>();
-            list.add(linkdata.getFrom());
-            list.add(linkdata.getTo());
-            templist.add(list);
-        }
-
-        for(List tempdata: templist){
-            set.add(tempdata);
-        }
         int i = 0;
-        for(List<String> data : set){
-            uniquelink.add(new LinkData(data.get(0), data.get(1), i-=1));
+        for (LinkData linkdata : modifiedLinkDataList) {
+            Pair pair = new Pair(linkdata.getFrom(), linkdata.getTo());
+            if (!seen.contains(pair)) {
+                uniquelink.add(new LinkData(linkdata.getFrom(), linkdata.getTo(), i -= 1, "-1"));
+                seen.add(pair);
 
+            }
+        }
+        return uniquelink;
+    }
+
+    // Inner Pair class to represent a pair of from and to strings
+    private static class Pair {
+        private final String from;
+        private final String to;
+
+        public Pair(String from, String to) {
+            this.from = from;
+            this.to = to;
         }
 
-        return uniquelink;
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Pair pair = (Pair) o;
+            return Objects.equals(from, pair.from) &&
+                    Objects.equals(to, pair.to);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(from, to);
+        }
 
     }
 
-    public Map<String,Object> fixKey(List<Object> modifiedNodeList, List<LinkData> unique) {
+    public Map<String, Object> fixKey(List<Object> modifiedNodeList, List<LinkData> unique) {
         Map<String, Object> fixkey = new HashMap<>();
         Map<String, String> Awsnode = new HashedMap<>();
         int EC2_index = 0;
@@ -360,58 +481,58 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         int Shield_index = 0;
         int Rds_index = 0;
 
-        for(Object node : modifiedNodeList) {
+        for (Object node : modifiedNodeList) {
 
-            if(node instanceof NodeData){
+            if (node instanceof NodeData) {
                 NodeData nodedata = (NodeData) node;
                 String key = nodedata.getKey();
-                if(key.contains("DB")){
-                    if(Awsnode.containsKey(key)){
+                if (key.contains("DB")) {
+                    if (Awsnode.containsKey(key)) {
                         nodedata.setKey(Awsnode.get(key));
-                    }else{
+                    } else {
                         nodedata.setKey("RDS" + RDS_index);
                         RDS_index += 1;
-                        Awsnode.put(key,nodedata.getKey());
+                        Awsnode.put(key, nodedata.getKey());
                     }
 
                 }
-                if(key.contains("WS")){
-                    if(Awsnode.containsKey(key)){
+                if (key.contains("WS")) {
+                    if (Awsnode.containsKey(key)) {
                         nodedata.setKey(Awsnode.get(key));
-                    }else{
+                    } else {
                         nodedata.setKey("EC2" + EC2_index);
                         EC2_index += 1;
-                        Awsnode.put(key,nodedata.getKey());
+                        Awsnode.put(key, nodedata.getKey());
 
                     }
                 }
-                if(key.contains("SVR")){
-                    if(Awsnode.containsKey(key)){
+                if (key.contains("SVR")) {
+                    if (Awsnode.containsKey(key)) {
                         nodedata.setKey(Awsnode.get(key));
-                    }else{
+                    } else {
                         nodedata.setKey("EC2" + EC2_index);
                         EC2_index += 1;
-                        Awsnode.put(key,nodedata.getKey());
+                        Awsnode.put(key, nodedata.getKey());
 
                     }
                 }
-                if(key.contains("AD")){
-                    if(Awsnode.containsKey(key)){
+                if (key.contains("AD")) {
+                    if (Awsnode.containsKey(key)) {
                         nodedata.setKey(Awsnode.get(key));
-                    }else{
+                    } else {
                         nodedata.setKey("Shield" + Shield_index);
                         Shield_index += 1;
-                        Awsnode.put(key,nodedata.getKey());
+                        Awsnode.put(key, nodedata.getKey());
 
                     }
                 }
-                if(key.contains("DB")){
-                    if(Awsnode.containsKey(key)){
+                if (key.contains("DB")) {
+                    if (Awsnode.containsKey(key)) {
                         nodedata.setKey(Awsnode.get(key));
-                    }else{
+                    } else {
                         nodedata.setKey("RDS" + Rds_index);
                         Rds_index += 1;
-                        Awsnode.put(key,nodedata.getKey());
+                        Awsnode.put(key, nodedata.getKey());
 
                     }
                 }
@@ -421,18 +542,18 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
 
         logger.info("nodeDataList444: {}", modifiedNodeList);
 
-        for(LinkData link : unique){
-            if(Awsnode.containsKey(link.getFrom())){
+        for (LinkData link : unique) {
+            if (Awsnode.containsKey(link.getFrom())) {
                 link.setFrom(Awsnode.get(link.getFrom()));
             }
-            if(Awsnode.containsKey(link.getTo())){
+            if (Awsnode.containsKey(link.getTo())) {
                 link.setTo(Awsnode.get(link.getTo()));
             }
 
         }
 
-        fixkey.put("linkDataArray",unique);
-        fixkey.put("nodeDataArray",modifiedNodeList);
+        fixkey.put("linkDataArray", unique);
+        fixkey.put("nodeDataArray", modifiedNodeList);
 
         return fixkey;
     }
