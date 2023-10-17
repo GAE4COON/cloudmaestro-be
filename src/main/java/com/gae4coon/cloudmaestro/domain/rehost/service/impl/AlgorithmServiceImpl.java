@@ -44,24 +44,32 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         }
 
         logger.info("nodeDataList2: {}", nodeDataList);
-
+        List<LinkData> vpcLinkData = vpcLink(nodeDataList, linkData);
 
         //어떤 그룹을 security group 묶을 건지
         Map<String, List<LinkData>> groupedByFrom = new HashMap<>();
 
         // 일단은 from 키를 묶어서 해결 -> 여기까지는 잘 들어가는 걸 확인
-        for (LinkData link : linkData) {
+        for (LinkData link : vpcLinkData) {
             String fromKey = link.getFrom();
             groupedByFrom.putIfAbsent(fromKey, new ArrayList<>());
-            groupedByFrom.get(fromKey).add(link);
+            // groupedByFrom에 From key에 해당하는 key 값이 있으면 연결
+            if(link.getFrom().equals(fromKey)){
+                groupedByFrom.get(fromKey).add(link);
+            }
         }
+
+
+
+
+
 
         // Security group 찾기 ( waf/ fw -> svr/ was ) 찾아서 security group으로 묶기
         // 일단 group을 null 이라고 해서 전체 데이터가 들어오게 하는 건 성공
         int index = 0;
         List<LinkData> addGroupList = new ArrayList<>();
         for (String key : groupedByFrom.keySet()) {
-            if (key.contains("FW") || key.contains("WAF")) {
+            if (key.contains("FW")) {
                 List<LinkData> modifiedLinks = addGroup(groupedByFrom.get(key), index);
                 addGroupList.addAll(modifiedLinks);
                 index += 1;
@@ -124,12 +132,36 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         // currentlist.to = nextlist.from 이 같은 거 연결
         System.out.println("addGroupList" + addGroupList);
 
-        List<LinkData> link1 = generateLinksFromToWS2(addGroupList);
+        Map<String, List<LinkData>> groupedByVpc = new HashMap<>();
 
-        System.out.println("link1 " + link1);
+        for (LinkData link : addGroupList) {
+            String vpcKey = link.getVpcgroup();
+            groupedByVpc.putIfAbsent(vpcKey, new ArrayList<>());
+            // groupedByFrom에 From key에 해당하는 key 값이 있으면 연결
+            if(link.getVpcgroup().equals(vpcKey)){
+                groupedByVpc.get(vpcKey).add(link);
+            }
+        }
+
+        System.out.println("keySet: " + groupedByVpc.keySet());
+        List<LinkData> entireLogicList = new ArrayList<>();
+
+        for (Map.Entry<String, List<LinkData>> entry : groupedByVpc.entrySet()) {
+
+            System.out.println("entry"+entry);
+            List<LinkData> addLogicList = generateLinksFromToWS2(entry.getValue());
+            System.out.println("addloglcList" + addLogicList);
+            entireLogicList.addAll(addLogicList);
+        }
+
+
+
+        //List<LinkData> link1 = generateLinksFromToWS2(addGroupList);
+
+        //System.out.println("link1 " + link1);
 
         // group link 끊기
-        List<LinkData> nonGroupLink = closeGroupLink(link1, nodeDataList);
+        List<LinkData> nonGroupLink = closeGroupLink(entireLogicList, nodeDataList);
         System.out.println("nonGroupLink " + nonGroupLink);
 
         // node -> exclude되야할 node 연결되어있으면 nextnode로 연결
@@ -150,6 +182,8 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
     private List<LinkData> excludeInstance(List<LinkData> LinkArray, List<Object> NodeDataArray, List<LinkData> addGroupList) {
         int index = 0;
 
+        System.out.println("LinkArray2222"+LinkArray);
+
         List<LinkData> result = new ArrayList<>();
         result.addAll(LinkArray);
 
@@ -167,8 +201,13 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                             if (nextnextFrom instanceof LinkData && ((LinkData) nextnextFrom).getFrom().equals(((LinkData) nextFrom).getTo())) {
                                 linkTo = ((LinkData) nextnextFrom).getGroup();
                                 System.out.println("from "+linkFrom+" to "+linkTo);
+                                if(linkTo == null){
+                                    continue;
+                                }else{
+                                    result.add(new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+                                }
 
-                                result.add(new LinkData(linkFrom, linkTo, index -= 1, "-1"));
+
                             }
                         }
 
@@ -556,6 +595,32 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         fixkey.put("nodeDataArray", modifiedNodeList);
 
         return fixkey;
+    }
+    public List<LinkData> vpcLink(List<Object>nodeDataList, List<LinkData>linkData){
+
+        List<LinkData> vpcLinkData = new ArrayList<>();
+        for(Object node : nodeDataList){
+            for (LinkData link : linkData) {
+                String from = link.getFrom();
+                String to = link.getTo();
+                int key = link.getKey();
+                if(node instanceof NodeData){
+                    if (link.getFrom().equals(((NodeData) node).getKey())) {
+                        LinkData newLink = new LinkData(link.getFrom(), link.getTo(),((NodeData) node).getGroup(),link.getKey() );
+                        vpcLinkData.add(newLink);
+                    }
+                    if (link.getTo().equals(((NodeData) node).getKey())) {
+                        LinkData newLink = new LinkData(link.getFrom(), link.getTo(),((NodeData) node).getGroup(),link.getKey() );
+                        vpcLinkData.add(newLink);
+                    }
+                }
+            }
+
+
+        }
+        System.out.println("vpcLink"+vpcLinkData);
+        return vpcLinkData;
+
     }
 }
 
