@@ -7,18 +7,18 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.gae4coon.cloudmaestro.domain.standard.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.standard.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.standard.dto.NodeData;
-import com.gae4coon.cloudmaestro.domain.standard.service.AlgorithmServiceInterface;
+//import com.gae4coon.cloudmaestro.domain.standard.service.AlgorithmServiceInterface;
 import com.gae4coon.cloudmaestro.domain.standard.service.StandardServiceInterface;
-
-
 import io.micrometer.observation.annotation.Observed;
 import io.swagger.v3.oas.models.links.Link;
+import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import org.springframework.stereotype.Service;
 
 import java.awt.*;
+import java.io.FileWriter;
 import java.security.Key;
 import java.sql.Array;
 import java.util.*;
@@ -26,259 +26,91 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Log4j2
 @Service
-public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
+public class AlgorithmServiceImpl {
 
+    public Map<String, Object> algorithmDataList(Object nodesData, Object linkData) {
+        List<NodeData> nodes = new ArrayList<>();
+        List<LinkData> links = new ArrayList<>();
+        List<GroupData> groups = new ArrayList<>();
+        List<Object> combinedList = new ArrayList<Object>();
 
-    // 방화벽 밑에 1단을 기준으로 security group을 묶는다.
-
-    private static final Logger logger = LoggerFactory.getLogger(AlgorithmServiceImpl.class);
-
-    @Override
-    public Map<String, Object> algorithmDataList(Map<String, Object> nodesData, List<LinkData> linkData) {
-
-
-        // 1. security group으로 묶기
-        // nodeData로 캐스팅하기
-        ObjectMapper mapper = new ObjectMapper();
-        Object rawNodeData = nodesData.get("nodeDataArray");
-        Map<String, Object> result = new HashMap<>();
-
-
-        List<Object> nodeDataList = null;
-        if (rawNodeData instanceof List) {
-            nodeDataList = (List<Object>) rawNodeData;
-        } else {
-            logger.error("Unexpected type for nodeDataArray. Expected List but got: {}", rawNodeData.getClass().getName());
-            return Collections.emptyMap();
-        }
-
-
-        logger.info("nodeDataList2: {}", nodeDataList);
-
-
-        //어떤 그룹을 security group 묶을 건지
-        Map<String, List<LinkData>> groupedByFrom = new HashMap<>();
-
-        // 일단은 from 키를 묶어서 해결 -> 여기까지는 잘 들어가는 걸 확인
-        for (LinkData link : linkData) {
-            String fromKey = link.getFrom();
-            groupedByFrom.putIfAbsent(fromKey, new ArrayList<>());
-            groupedByFrom.get(fromKey).add(link);
-
-        }
-
-        // Security group 찾기 ( waf/ fw -> svr/ was ) 찾아서 security group으로 묶기
-        // 일단 group을 null 이라고 해서 전체 데이터가 들어오게 하는 건 성공
-        int index = 0;
-        List<LinkData> addGroupList = new ArrayList<>();
-        for (String key : groupedByFrom.keySet()) {
-            if (key.contains("FW") || key.contains("WAF")) {
-                List<LinkData> modifiedLinks = addGroup(groupedByFrom.get(key), index);
-                addGroupList.addAll(modifiedLinks);
-                index += 1;
-            } else {
-                addGroupList.addAll(groupedByFrom.get(key));
+        if (nodesData instanceof List<?>) {
+            for (Object obj : (List<?>) nodesData) {
+                if (obj instanceof NodeData) {
+                    nodes.add((NodeData) obj);
+                } else if (obj instanceof GroupData) {
+                    groups.add((GroupData) obj);
+                } else {
+                    log.error("nodesData 리스트에 예상치 못한 객체 타입 발견: " + obj.getClass().getName());
+                }
             }
-
         }
 
+        if (linkData instanceof List<?>) {
+            for (Object obj : (List<?>) linkData) {
+                if (obj instanceof LinkData) {
+                    links.add((LinkData) obj);
+                } else {
+                    log.error("linkData 리스트에 예상치 못한 객체 타입 발견: " + obj.getClass().getName());
+                }
+            }
+        }
 
-        // Step2 : linkDataArray를 순회하면서 해당 LinkData를 NodeData에 연결
-        //addGroupList (즉, LinkData 리스트)의 각 항목마다 to 필드 값을 확인
-        //해당 to 값이 nodesData (즉, NodeData 리스트)의 어떤 항목의 key 값과 일치하는 지 확인
-        //만약 일치한다면, 해당 NodeData 항목의 group 값을 LinkData의 group 값으로 변경
+        List<NodeData> newNodes = new ArrayList<>();  // 초기 노드로 초기화
+        List<LinkData> newLinks = new ArrayList<>();  // 초기 링크로 초기화
+        int count = 0; // count 변수를 외부로 이동
 
-        // NodesData - securityGroup도 여기서 묶자
-        List<Object> nodesToAdd = new ArrayList<>();
-        for (Object obj : nodeDataList) {
-            if (obj instanceof NodeData) {
-                NodeData fixGroupData = (NodeData) obj;
-                for (LinkData linkdata : addGroupList) {
-                    if (fixGroupData.getKey().equals(linkdata.getTo())
-                            && linkdata.getGroup() != null) {
-                        GroupData groupNode = new GroupData();
-                        groupNode.setIsGroup(true);
-                        groupNode.setKey(linkdata.getGroup());
-                        groupNode.setStroke("rgba(255,165,0,0.3)");
-                        groupNode.setType("group");
-                        groupNode.setGroup(fixGroupData.getGroup());
-                        boolean nodeExistsInToAddList = nodesToAdd.stream()
-                                .filter(n -> n instanceof GroupData)
-                                .map(n -> (GroupData) n)
-                                .anyMatch(existingNode -> existingNode.getKey().equals(groupNode.getKey()));
-                        if (!nodeExistsInToAddList) {
-                            nodesToAdd.add(groupNode);
-                        }
-                        fixGroupData.setGroup(linkdata.getGroup());
+        for (NodeData item : nodes) {
+            if (item.getKey().contains("FW")) {
+                GroupData groupNode = new GroupData();
+                groupNode.setIsGroup(true);
+                groupNode.setKey("Security Group" + count++);
+                groupNode.setStroke("rgba(0,0,198,0.3)");
+                groupNode.setType("AWS_Groups");
+                groupNode.setGroup(item.getGroup());
+                groups.add(groupNode);
 
-                        break;
-
+                Iterator<LinkData> iterator = links.iterator();
+                while (iterator.hasNext()) {
+                    LinkData link = iterator.next();
+                    if (link.getTo().equals(item.getKey())) {
+                        link.setTo(groupNode.getKey());
+                        newLinks.add(link);
+                        iterator.remove();  // Remove it from the original list to avoid processing it again
+                    } else if (link.getFrom().equals(item.getKey())) {
+                        nodes.stream()
+                                .filter(searchNode -> searchNode.getKey().equals(link.getTo()))
+                                .forEach(searchNode -> {
+                                    NodeData tempNode = new NodeData(searchNode);  // 복제 생성자를 사용
+                                    tempNode.setGroup(groupNode.getKey());
+                                    newNodes.add(tempNode);  // 새로운 노드 목록에 추가
+                                });
+                        iterator.remove();  // Remove it from the original list to avoid processing it again
                     }
                 }
-            } else {
-                // Error handling: obj is not an instance of NodeData
-                logger.error("Unexpected object type in nodeDataList: {}", obj.getClass().getName());
             }
         }
 
-        nodeDataList.addAll(nodesToAdd);
+        // Remaining links that are not related to FW nodes
+        newLinks.addAll(links);
 
+        for (NodeData node : nodes) {
+            if (!node.getKey().contains("FW")) {
+                newNodes.add(node);
+            }
+        }
 
-        // 이제부터는 새로운 알고리즘 시작 ..하하 ( 연결고리 정보 건들기 )
-        // 2. linkDataArray 정보를 활용해서 연결 고리 정보를 확인합시다
+        combinedList.addAll(newNodes);
+        combinedList.addAll(groups);
+        HashMap<String, Object> result = new HashMap<String, Object>();
 
-        // ips / ids 는 따로 아이콘으로 빼기
-        //  fw / network_waf는 빼야 한다.
-
-        // currentlist.to = nextlist.from 이 같은 거 연결
-        List<LinkData> addLogicList = generateLinksFromToWS(addGroupList);
-
-        // 추가 로직 하기
-        // from : AD3 -> to : Network_WAF / from : Network_WAF -> to : else 인거 AD3->else1, else2, .. 묶기
-        List<LinkData> modifiedLinkDataList = addLogic(addLogicList);
-
-        List<Object> modifiedNodeList = addNodeLogic(nodeDataList);
-
-        // 같은 링크 중복 제거하기
-        List<LinkData> unique = unique(modifiedLinkDataList);
-
-
-        result.put("nodeDataArray", modifiedNodeList );
-        result.put("linkDataArray", unique);
-        result.put("addGroupList", nodeDataList);
-
+        result.put("nodeDataArray", combinedList);
+        result.put("linkDataArray", newLinks);
         return result;
     }
 
-
-    @Override
-    // security group으로 무엇을 묶을 것인지 결정을 한다.
-    // 일단 group을 null 이라고 해서 이렇게 값이 들어오게 하는건 성공
-    public List<LinkData> addGroup(List<LinkData> linkData, int index) {
-        for (LinkData data : linkData) {
-            if (data.getTo().toLowerCase().startsWith("ws") || data.getTo().toLowerCase().startsWith("svr")) {
-                data.setGroup("SecurityGroup" + index);
-            }
-        }
-        return linkData;  // 이제 linkData는 수정된 리스트입니다.
-    }
-
-
-    @Override
-    public List<LinkData> generateLinksFromToWS(List<LinkData> originalList) {
-        List<LinkData> resultList = new ArrayList<>();
-        int index = 0;
-        for (LinkData linkData : originalList) {
-
-                String from = linkData.getFrom();
-                String to = linkData.getTo();
-                String nextFrom = to;
-
-                // While the 'to' doesn't start with "WS", we try to find the next link
-                while (!to.startsWith("WS") || !to.startsWith("SVR")) {
-                    boolean linkFound = false;
-
-                    for (LinkData nextLink : originalList) {
-                        if (nextLink.getFrom().equals(to)) {
-                            to = nextLink.getTo(); // nextlink 다음으로 가기
-                            nextFrom = nextLink.getFrom(); // nextlink 처음으로 가기
-                            linkFound = true;
-                            break;
-                        }
-                    }
-
-                    // If we don't find a link, we exit the loop
-                    if (!linkFound) break;
-                }
-
-                // At this point, 'to' should be the end of the chain or a "WS" node
-                resultList.add(new LinkData(from, nextFrom, index -= 1));
-            }
-
-
-        return resultList;
-    }
-
-    @Override
-    public List<LinkData> addLogic(List<LinkData> originalList) {
-        List<LinkData> resultList = new ArrayList<>();
-        int index = 0;
-        for(LinkData original : originalList) {
-            String from = original.getFrom();
-            String to = original.getTo();
-
-            if(from.startsWith("AD") || from.startsWith("WS") ||  from.startsWith("SVR")){
-                while(!to.startsWith("WS") || !to.startsWith("SVR")){
-                    boolean linkFound = false;
-                    for(LinkData nextLink : originalList){
-                        if(nextLink.getFrom().equals(to)){
-                            resultList.add(new LinkData(from, nextLink.getTo(), index -= 1));
-                        }
-                    }
-                    if(!linkFound){
-                        break;
-                    }
-                }
-            }
-
-        }
-
-        return resultList;
-    }
-
-
-    @Override
-    public List<Object> addNodeLogic(List<Object> nodeDataList){
-
-       List<Object> NewNodeDataList = new ArrayList<>();
-       for(Object data: nodeDataList){
-           if (data instanceof NodeData) {
-               NodeData nodedata = (NodeData) data;
-               String key = nodedata.getKey();
-               if (!key.startsWith("Network") && !key.startsWith("FW")) {
-                   NewNodeDataList.add(nodedata);
-               }
-           }
-           if(data instanceof GroupData){
-
-               NewNodeDataList.add(data);
-
-           }
-
-
-        }
-
-        return NewNodeDataList;
-    }
-
-
-    public List<LinkData> unique(List<LinkData> modifiedLinkDataList){
-
-        Set<List<String>> set = new HashSet<>();
-        Map<String,LinkData> temp = new HashMap<>();
-        List<List> templist = new ArrayList<>();
-
-        List<LinkData> uniquelink = new ArrayList<>();
-        for(LinkData linkdata : modifiedLinkDataList){
-            List<String> list = new LinkedList<>();
-            list.add(linkdata.getFrom());
-            list.add(linkdata.getTo());
-            templist.add(list);
-        }
-
-        for(List tempdata: templist){
-            set.add(tempdata);
-        }
-        int i = 0;
-        for(List<String> data : set){
-            uniquelink.add(new LinkData(data.get(0), data.get(1), i-=1));
-
-        }
-
-        return uniquelink;
-
-    }
 }
 
 

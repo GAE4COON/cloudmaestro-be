@@ -2,27 +2,27 @@ package com.gae4coon.cloudmaestro.domain.standard.service.impl;
 
 
 import com.gae4coon.cloudmaestro.domain.standard.dto.GroupData;
+import com.gae4coon.cloudmaestro.domain.standard.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.standard.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.standard.service.StandardServiceInterface;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class StandardSerivceImpl implements StandardServiceInterface {
-
+//    public Map<Object, Object> processNodeData(List<NodeData> node, List<LinkData> link) {
 
     // network를 group 별로 분리
     @Override
-    public Map<String, Object> processNodeData(List<NodeData> data) {
+    public Map<String, Object>  processNodeData(List<NodeData> node, List<LinkData> link) {
         Map<String, List<NodeData>> groupedData = new HashMap<>();
+        Map<String, Object> result = new HashMap<>();
+        List<Object> nodeDataArray = new ArrayList<>();
 
-        for (NodeData item : data) {
+        for (NodeData item : node) {
             String group = item.getGroup();
             if (group != null) {
                 groupedData
@@ -31,8 +31,6 @@ public class StandardSerivceImpl implements StandardServiceInterface {
             }
         }
 
-        Map<String, Object> result = new HashMap<>();
-        List<Object> nodeDataArray = new ArrayList<>();
         int count = 1;
 
         for (String key : groupedData.keySet()) {
@@ -48,20 +46,66 @@ public class StandardSerivceImpl implements StandardServiceInterface {
             nodeDataArray.add(groupNode); // GroupData 객체를 리스트에 추가
 
             List<NodeData> groupList = groupedData.get(key);
-            for (NodeData node : groupList) {
-                node.setGroup("Virtual private cloud (VPC)" + count);
-                NetToAws(node);
-                node.setFigure("Rectangle");
-                nodeDataArray.add(node);
+            for (NodeData item : groupList) {
+                item.setGroup("Virtual private cloud (VPC)" + count);
+                NetToAws(item);
+                item.setFigure("Rectangle");
+                nodeDataArray.add(item);
             }
 
             count++;
         }
 
-        result.put("nodeDataArray", nodeDataArray);
+        // link 1 : 1 rehost
+        for (LinkData item: link) {
+            LinkRehost(item);
+          //  System.out.println(item);
+        }
 
-        return result;
+//        for (Object item: nodeDataArray) {
+//            System.out.println(item);
+//        }
+
+
+        result.put("nodeDataArray", nodeDataArray);
+        result.put("linkDataArray", link);
+
+       return result;
     }
+
+    @Override
+    public void LinkRehost(LinkData link) {
+        link.setFrom(StringRehost(link.getFrom()));
+        link.setTo(StringRehost(link.getTo()));
+    }
+
+    @Override
+    public String StringRehost(String linkObj){
+        String numberPart = "";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d+)$");
+        java.util.regex.Matcher matcher = pattern.matcher(linkObj);
+
+        if (matcher.find()) {
+            numberPart = matcher.group(1);
+        }
+
+        if (linkObj.contains("WS") || linkObj.contains("SVR")) {
+            return "EC2" + numberPart;
+        }
+        if (linkObj.contains("DB")) {
+            return "RDS" + numberPart;
+        }
+        if (linkObj.contains("AD")) {
+            return "Shield" + numberPart;
+        }
+        if (linkObj.contains("Network_WAF")) {
+            return "AWS_WAF" + numberPart;
+        }
+        return linkObj;
+    }
+
+
+
 
 
     @Override
@@ -75,87 +119,63 @@ public class StandardSerivceImpl implements StandardServiceInterface {
         }
         String imagePath = "";
         String typePath = "";
+        String NodeText = "";
         networkKey = NetToAws(networkKey, networkText);
-        node.setText(networkKey);
-        switch (networkKey) {
-            case "EC2":
-                imagePath = "/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg";
-                typePath = "Arch_Compute";
-                node.setSource(imagePath);
-                node.setType(typePath);
-                break;
-            case "Shield":
-                imagePath = "/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg";
-                typePath = "Arch_Security-Identity-Compliance";
-                node.setSource(imagePath);
-                node.setType(typePath);
-                break;
+        node.setKey(networkKey);
 
-            case "CloudTrail":
-                imagePath = "/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg";
-                typePath = "Arch_Management-Governance";
-                node.setSource(imagePath);
-                node.setType(typePath);
-                break;
-
-            case "RDS":
-                imagePath = "/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg";
-                typePath = "Arch_Database";
-                node.setSource(imagePath);
-                node.setType(typePath);
-                break;
+        if (networkKey.contains("EC2")) {
+            imagePath = "/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg";
+            typePath = "Arch_Compute";
+            NodeText = "EC2";
+        } else if (networkKey.contains("Shield")) {
+            imagePath = "/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg";
+            typePath = "Arch_Security-Identity-Compliance";
+            NodeText = "Shield";
+        } else if (networkKey.contains("IDS") || networkKey.contains("IPS")) {
+            imagePath = "/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg";
+            typePath = "Arch_Management-Governance";
+            NodeText = "CloudTrail";
+        } else if (networkKey.contains("RDS")) {
+            imagePath = "/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg";
+            typePath = "Arch_Database";
+            NodeText = "RDS";
+        } else if (networkKey.contains("AWS_WAF")) {
+            imagePath = "/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-WAF_48.svg";
+            typePath = "Security-Identity-Compliance";
+            NodeText = "AWS_WAF";
         }
 
-
+        if (!imagePath.isEmpty() && !typePath.isEmpty()) {
+            node.setSource(imagePath);
+            node.setType(typePath);
+            node.setText(NodeText);
+        }
     }
 
 
-//    public List<LinkData> NetToAws(List<LinkData> linkdata){
-//        String network;
-//        // getTo 변환
-//
-//        // Network -> Aws로 변환
-//        for(LinkData node: linkdata) {
-//            String networkFrom = NetToAws(node.getFrom());
-//            node.setFrom(networkFrom);
-//
-//            // getSet 변환
-//            String networkTo = NetToAws(node.getTo());
-//            node.setTo(networkTo);
-//
-//        }
-//
-//        // 개수 세기
-//
-//
-//
-//        return linkdata;
-
-    //}
-
     @Override
     public String NetToAws(String nodeKey, String nodeText) {
+        String numberPart = "";
+        java.util.regex.Pattern pattern = java.util.regex.Pattern.compile("(\\d+)$");
+        java.util.regex.Matcher matcher = pattern.matcher(nodeKey);
+        if (matcher.find()) {
+            numberPart = matcher.group(1);
+        }
+
         if (nodeKey.contains("WS") || nodeKey.contains("SVR")) {
-            nodeKey = "EC2";
-            return nodeKey;
+            return "EC2" + numberPart;
         }
-        if (nodeKey.contains("database")) {
-            nodeKey = "RDS";
-            return nodeKey;
+        if (nodeKey.contains("DB")) {
+            return "RDS" + numberPart;
         }
-
         if (nodeKey.contains("AD")) {
-            nodeKey = "Shield";
-            return nodeKey;
+            return "Shield" + numberPart;
         }
-        if (nodeKey.contains("IDS") || nodeKey.contains("IPS")) {
-            nodeKey = "CloudTrail";
-            return nodeKey;
+        if (nodeKey.contains("Network_WAF")) {
+            return "AWS_WAF" + numberPart;
         } else {
-            return nodeText;
+            return nodeKey;
         }
-
-
     }
 
     @Override

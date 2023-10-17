@@ -17,6 +17,19 @@ public class NodeData {
     private String figure;
     @JsonIgnore
     private String isGroup;
+
+    public NodeData() {}
+
+    public NodeData(NodeData original) {  // 복제 생성자
+        this.group = original.group;
+        this.key = original.key;
+        this.type = original.type;
+        this.source = original.source;
+        this.loc = original.loc;
+        this.text = original.text;
+        this.figure = original.figure;
+        this.isGroup = original.isGroup;
+    }
 }
 
 
