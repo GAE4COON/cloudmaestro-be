@@ -32,7 +32,6 @@ public class StandardController {
         this.algorithmService = algorithmService;
     }
 
-
     @PostMapping("/network")
     public ResponseEntity<HashMap<String, Object> > postNetworkData(@RequestBody(required = false) String postData) {
         ObjectMapper mapper = new ObjectMapper();
@@ -43,9 +42,10 @@ public class StandardController {
             List<NodeData> nodes = graphData.getNodeDataArray();
             List<LinkData> linkData = graphData.getLinkDataArray();
 
-
             // 정말 단순한 일대일 대응
             Map<String, Object> nodesData =  standardService.processNodeData(nodes);
+            System.out.println("nodes"+nodesData);
+
             // 알고리즘 짜기
             Map<String, Object> finalData = algorithmService.algorithmDataList(nodesData, linkData);
 

@@ -35,8 +35,6 @@ public class StandardSerivceImpl implements StandardServiceInterface {
         int count = 1;
 
         for (String key : groupedData.keySet()) {
-
-
             GroupData groupNode = new GroupData();
             groupNode.setIsGroup(true);
             groupNode.setKey("Virtual private cloud (VPC)" + count);

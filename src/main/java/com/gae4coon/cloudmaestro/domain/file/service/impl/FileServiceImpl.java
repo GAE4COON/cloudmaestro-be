@@ -107,10 +107,22 @@ public class FileServiceImpl implements FileService {
                     System.out.println("null exception"+tempNode);
                 }
                 String textValue = tempNode.get("text").getAsString();
+                String keyValue = null;
+
+                switch (textValue){
+                    case "FW": keyValue="Firewall"; break;
+                    case "WAF": keyValue = "WAF"; break;
+                    case "AD": keyValue = "Anti DDoS"; break;
+                    case "DB": keyValue = "Database"; break;
+                    case "IPS": keyValue = "IPS"; break;
+                    case "IDS": keyValue = "IDS"; break;
+                    case "SVR": keyValue = "Server"; break;
+                    case "WS": keyValue = "Web Server"; break;
+                }
 
                 String imgFile=null;
-                tempNode.addProperty("key", textValue);
-
+                tempNode.addProperty("key", keyValue);
+                tempNode.addProperty("text", keyValue);
 
                 switch (textValue){
                     case "FW": imgFile="firewall"; break;
@@ -130,6 +142,7 @@ public class FileServiceImpl implements FileService {
 
         for(var g:group){
             JsonObject groupNode = new JsonObject();
+
             groupNode.addProperty("text", g);
             groupNode.addProperty("isGroup", true);
             groupNode.addProperty("type", "group");

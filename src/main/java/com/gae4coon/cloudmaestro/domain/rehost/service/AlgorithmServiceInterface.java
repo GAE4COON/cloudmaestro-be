@@ -9,11 +9,5 @@ public interface AlgorithmServiceInterface {
 
     Map<String, Object> algorithmDataList( Map<String, Object> nodesData , List<LinkData> linkData);
 
-    List<LinkData> addGroup(List<LinkData> linkData, int index);
-    List<LinkData> generateLinksFromToWS(List<LinkData> originalList);
-
-    List<LinkData> addLogic(List<Object> nodeDataList, List<LinkData> originalList);
-
-    List<Object> addNodeLogic(List<Object> nodeDataList);
 
 }
