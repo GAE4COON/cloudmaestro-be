@@ -125,11 +125,10 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
         System.out.println("addGroupList" + addGroupList);
 
         List<LinkData> link1 = generateLinksFromToWS2(addGroupList);
-
-        System.out.println("link1 " + link1);
+        System.out.println("link1 " + unique(link1));
 
         // group link 끊기
-        List<LinkData> nonGroupLink = closeGroupLink(link1, nodeDataList);
+        List<LinkData> nonGroupLink = closeGroupLink(unique(link1), nodeDataList);
         System.out.println("nonGroupLink " + nonGroupLink);
 
         // node -> exclude되야할 node 연결되어있으면 nextnode로 연결
@@ -330,8 +329,8 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                     }
                     if (nextTo != null) {
                         resultList.add(new LinkData(from, nextTo, index -= 1, "-1"));
-                        System.out.println("add parameter" + linkData.getFrom() + " " + linkData.getTo() + " " + new LinkData(from, nextTo, 2, "-1"));
-                    } else {
+                    }
+                    else {
                         if (linkData.getGroup() != null && nextLink.getGroup() != null && !(linkData.getGroup().equals(nextLink.getGroup()))) {
                         } else
                             resultList.add(new LinkData(from, to, index -= 1, "-1"));
@@ -341,7 +340,6 @@ public class AlgorithmServiceImpl implements AlgorithmServiceInterface {
                 }
             }
         }
-
 
         return resultList;
     }
