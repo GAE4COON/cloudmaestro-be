@@ -58,7 +58,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
                             sg.setText(SGName);
                             sg.setIsGroup(true);
                             sg.setType("group");
-                            sg.setStroke("rgb(12,12,12)");
+                            sg.setStroke("rgb(221,52,76)");
                         }
                         node2.setGroup("Security Group" + index);
                         System.out.println("set group " + index + " " + from + " -> " + to);
@@ -95,7 +95,6 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
             }
         }
 
-        linkDataList = unique(linkDataList);
         System.out.println("unique " + linkDataList);
 
         Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
@@ -104,70 +103,5 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         return resultMap;
     }
 
-    @Override
-    public Map<List<GroupData>, List<NodeData>> excludeNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
-
-        for(LinkData link: linkDataList){
-            String rootTo = link.getTo();
-            if(isExclude(rootTo)){
-                String normalTo = findNormalNode(rootTo, linkDataList);
-                System.out.println("origin "+link.getFrom()+" "+link.getTo()+" change "+link.getFrom()+" "+normalTo);
-
-                link.setTo(normalTo);
-            }
-        }
-
-        linkDataList = unique(linkDataList);
-        System.out.println("exclude link " + linkDataList);
-
-        Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
-        resultMap.put(groupDataList, nodeDataList);
-
-        return resultMap;
-
-    }
-
-    private String findNormalNode(String from, List<LinkData> linkDataList){
-        String destination = from;
-
-        for(LinkData link: linkDataList){
-            if(link.getFrom().equals(destination)) {
-                if (isExclude(link.getTo())){
-                    System.out.println("des "+destination+" to "+link.getTo());
-                    return findNormalNode(link.getTo(), linkDataList);
-                } else {
-                    return link.getTo();
-                }
-            }
-        }
-        return destination;
-    }
-
-
-    private Boolean isExclude(String node){
-        List<String> exclude = new ArrayList<>(Arrays.asList("IPS", "IDS", "Firewall"));
-
-        for (String excludeItem : exclude) {
-            if (node.contains(excludeItem)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-    private List<LinkData> unique(List<LinkData> originalList) {
-        Set<LinkData> linkDataSet = new HashSet<>();
-        for (LinkData link1 : originalList) {
-            linkDataSet.add(link1);
-        }
-
-        List<LinkData> setlist = new ArrayList<>();
-        for (LinkData l : linkDataSet) {
-            setlist.add(l);
-        }
-        System.out.println("linkDataSet " + linkDataSet);
-        return setlist;
-    }
 
 }

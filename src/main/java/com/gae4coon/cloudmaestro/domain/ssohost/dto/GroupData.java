@@ -18,7 +18,7 @@ public class GroupData{
     // 부가적
 //    @JsonIgnore
     private String group;
-    @JsonIgnore
+//    @JsonIgnore
     private String stroke;
 
 
