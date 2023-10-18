@@ -1,6 +1,6 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.controller;
 
-import com.gae4coon.cloudmaestro.domain.file.service.FileService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +20,13 @@ public class RehostController {
     private SecurityGroupService securityGroupService;
 
     @PostMapping("/ssohost")
-    public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) GraphLinksModel model) {
-        if (model == null) return (ResponseEntity<HashMap<String, Object>>) ResponseEntity.badRequest();
+    public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) String postData){
+
+        try{
+            ObjectMapper mapper = new ObjectMapper();
+            GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
+
+        if (model == null) return null;
 
         List<NodeData> dataArray = model.getNodeDataArray();
         List<NodeData> nodeDataList = new ArrayList<>();
@@ -53,29 +58,43 @@ public class RehostController {
         System.out.println("groupDataList "+groupDataList);
         System.out.println("linkDataList "+linkDataList);
         System.out.println("-------------------------------");
-        // delete all link from/to sg node + sg안에서 연결되어있던 가장 상단노드의 from을 sg와 연결
+
 
         securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, linkDataList);
         System.out.println("nodeDataList "+nodeDataList);
         System.out.println("groupDataList "+groupDataList);
         System.out.println("linkDataList "+linkDataList);
-        // link rehost
+        System.out.println("-------------------------------");
+        linkDataList = unique(linkDataList);
 
+        securityGroupService.excludeNode(nodeDataList, groupDataList, linkDataList);
         Map<String, Object> responseBody = new HashMap<>();
 
         List<Object> finalDataArray = new ArrayList<>();
         finalDataArray.addAll(nodeDataList);
         finalDataArray.addAll(groupDataList);
 
+        System.out.println("final "+finalDataArray);
+        finalDataArray.removeIf(Objects::isNull);
+        System.out.println("remove final "+finalDataArray);
 
-        // 이 부분에서 finalData를 적절하게 설정하세요.
+
         responseBody.put("class", "GraphLinksModel");
         responseBody.put("linkKeyProperty", "key");
         responseBody.put("nodeDataArray", finalDataArray);  // 예시
         responseBody.put("linkDataArray", unique(linkDataList));  // 예시
 
+        HashMap<String, Object> response = new HashMap<>();
 
-        return ResponseEntity.ok().body((HashMap<String, Object>) responseBody);
+        response.put("result",responseBody);
+
+        return ResponseEntity.ok().body(response);
+
+        }catch (Exception e){
+            System.out.println("error"+e);
+            return null;
+        }
+
     }
 
     public List<LinkData> unique(List<LinkData> originalList) {

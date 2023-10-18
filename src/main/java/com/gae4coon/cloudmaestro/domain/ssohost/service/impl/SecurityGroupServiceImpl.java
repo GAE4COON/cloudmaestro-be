@@ -6,6 +6,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
 import io.swagger.v3.oas.models.links.Link;
+import jakarta.persistence.Id;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -79,24 +80,23 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
 
     @Override
     public Map<List<GroupData>, List<NodeData>> modifySecurityGroupLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
-        for(NodeData nodeData:nodeDataList){
-            if(!nodeData.getGroup().contains("Security Group")) continue;
+        for (NodeData nodeData : nodeDataList) {
+            if (!nodeData.getGroup().contains("Security Group")) continue;
 
-            for(LinkData linkData: linkDataList){
-                if(linkData.getFrom().equals(nodeData.getKey())){
+            for (LinkData linkData : linkDataList) {
+                if (linkData.getFrom().equals(nodeData.getKey())) {
                     linkData.setFrom(nodeData.getGroup());
-                    System.out.println("from "+linkData.getFrom()+"->"+linkData.getTo());
-                }
-                else if(linkData.getTo().equals(nodeData.getKey())){
+                    System.out.println("from " + linkData.getFrom() + "->" + linkData.getTo());
+                } else if (linkData.getTo().equals(nodeData.getKey())) {
                     linkData.setTo((nodeData.getGroup()));
-                    System.out.println("to "+linkData.getFrom()+"->"+linkData.getTo());
+                    System.out.println("to " + linkData.getFrom() + "->" + linkData.getTo());
 
                 }
             }
         }
 
         linkDataList = unique(linkDataList);
-        System.out.println("unique " +linkDataList);
+        System.out.println("unique " + linkDataList);
 
         Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
         resultMap.put(groupDataList, nodeDataList);
@@ -104,7 +104,59 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         return resultMap;
     }
 
-    public List<LinkData> unique(List<LinkData> originalList) {
+    @Override
+    public Map<List<GroupData>, List<NodeData>> excludeNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+
+        for(LinkData link: linkDataList){
+            String rootTo = link.getTo();
+            if(isExclude(rootTo)){
+                String normalTo = findNormalNode(rootTo, linkDataList);
+                System.out.println("origin "+link.getFrom()+" "+link.getTo()+" change "+link.getFrom()+" "+normalTo);
+
+                link.setTo(normalTo);
+            }
+        }
+
+        linkDataList = unique(linkDataList);
+        System.out.println("exclude link " + linkDataList);
+
+        Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
+        resultMap.put(groupDataList, nodeDataList);
+
+        return resultMap;
+
+    }
+
+    private String findNormalNode(String from, List<LinkData> linkDataList){
+        String destination = from;
+
+        for(LinkData link: linkDataList){
+            if(link.getFrom().equals(destination)) {
+                if (isExclude(link.getTo())){
+                    System.out.println("des "+destination+" to "+link.getTo());
+                    return findNormalNode(link.getTo(), linkDataList);
+                } else {
+                    return link.getTo();
+                }
+            }
+        }
+        return destination;
+    }
+
+
+    private Boolean isExclude(String node){
+        List<String> exclude = new ArrayList<>(Arrays.asList("IPS", "IDS", "Firewall"));
+
+        for (String excludeItem : exclude) {
+            if (node.contains(excludeItem)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+
+    private List<LinkData> unique(List<LinkData> originalList) {
         Set<LinkData> linkDataSet = new HashSet<>();
         for (LinkData link1 : originalList) {
             linkDataSet.add(link1);
@@ -114,7 +166,7 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         for (LinkData l : linkDataSet) {
             setlist.add(l);
         }
-        System.out.println("linkDataSet "+linkDataSet);
+        System.out.println("linkDataSet " + linkDataSet);
         return setlist;
     }
 

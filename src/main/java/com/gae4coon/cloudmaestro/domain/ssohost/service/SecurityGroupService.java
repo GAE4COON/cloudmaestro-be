@@ -11,5 +11,7 @@ public interface SecurityGroupService {
     Map<List<GroupData>, List<NodeData>> addSecurityGroup(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
     Map<List<GroupData>,List<NodeData>> modifySecurityGroupLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 
+    Map<List<GroupData>,List<NodeData>> excludeNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
+
 
 }

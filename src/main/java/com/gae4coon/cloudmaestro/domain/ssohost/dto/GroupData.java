@@ -1,4 +1,5 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.dto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -15,7 +16,9 @@ public class GroupData{
     private String type;
     
     // 부가적
+//    @JsonIgnore
     private String group;
+    @JsonIgnore
     private String stroke;
 
 

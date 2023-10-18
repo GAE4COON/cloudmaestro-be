@@ -15,4 +15,5 @@ public class NodeData {
     private String group;
     private Boolean isGroup;
     private String stroke;
+    private String figure;
 }

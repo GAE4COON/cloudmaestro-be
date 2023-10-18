@@ -7,7 +7,8 @@ import java.util.List;
 
 @Data
 public class GraphLinksModel {
-    private String classType;
+    @JsonProperty("class")
+    private String className;
     private String linkKeyProperty;
     private List<NodeData> nodeDataArray;
     private List<LinkData> linkDataArray;
