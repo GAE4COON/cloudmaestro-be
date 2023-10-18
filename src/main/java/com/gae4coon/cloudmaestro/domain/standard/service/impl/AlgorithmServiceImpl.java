@@ -75,8 +75,8 @@ public class AlgorithmServiceImpl {
                 Iterator<LinkData> iterator = links.iterator();
                 while (iterator.hasNext()) {
                     LinkData link = iterator.next();
-                    if (link.getTo().equals(item.getKey())) {
-                        link.setTo(groupNode.getKey());
+                    if (link.getTo().equals(item.getKey())) {//현재 to가 FWn인 Node를 찾는다.
+                        link.setTo(groupNode.getKey()); //현재 보안 그룹으로 to를 링크
                         newLinks.add(link);
                         iterator.remove();  // Remove it from the original list to avoid processing it again
                     } else if (link.getFrom().equals(item.getKey())) {
@@ -84,8 +84,10 @@ public class AlgorithmServiceImpl {
                                 .filter(searchNode -> searchNode.getKey().equals(link.getTo()))
                                 .forEach(searchNode -> {
                                     NodeData tempNode = new NodeData(searchNode);  // 복제 생성자를 사용
-                                    tempNode.setGroup(groupNode.getKey());
-                                    newNodes.add(tempNode);  // 새로운 노드 목록에 추가
+                                    if (!newNodes.contains(tempNode)) {
+                                        tempNode.setGroup(groupNode.getKey());
+                                        newNodes.add(tempNode);  // 새로운 노드 목록에 추가
+                                    }
                                 });
                         iterator.remove();  // Remove it from the original list to avoid processing it again
                     }
@@ -93,10 +95,53 @@ public class AlgorithmServiceImpl {
             }
         }
 
-        // Remaining links that are not related to FW nodes
-        newLinks.addAll(links);
+        HashSet<NodeData> uniqueNodes = new HashSet<>();
+        uniqueNodes.addAll(newNodes);
 
-        for (NodeData node : nodes) {
+        for (NodeData item: nodes) { //node에서 PW와 관련이 있는데 보안 그룹이 없는 노드들 추출
+            boolean nodeExists = newNodes.stream().anyMatch(newNode -> newNode.getKey().equals(item.getKey()));
+            if(!nodeExists){
+                uniqueNodes.add(item);
+            }
+        }
+
+        System.out.println("======================================");
+
+        //newNode, newLink는 보안그룹과 연관있는 node와 link들
+        
+        //newLinks, newNodes를 가지고 위와 같은 방식으로 Security group이 to link일때
+        Set<LinkData> uniqueLinks = new HashSet<>();  // 중복 링크 제거를 위한 Set
+
+        for (NodeData item : uniqueNodes) { // PW 링크 됐었던 노드들 탐색
+            for (LinkData link : newLinks) {
+                if (link.getFrom().equals(item.getKey())) { // 현재 노드와 대응되는 link from
+                    if (item.getGroup() != null && item.getGroup().contains("Security Group") && ! item.getGroup().equals(link.getTo())) { // 보안 그룹이 있는 노드지만.. 똑같으면 안됨
+                        LinkData newLink = new LinkData();
+                        newLink.setFrom(item.getGroup()); // 보안 그룹으로 'from' 설정
+                        newLink.setTo(link.getTo()); // 'to'는 그대로 유지
+                        newLink.setKey(link.getKey());
+                        uniqueLinks.add(newLink); // 생성된 링크 추가
+                        System.out.println("1: "+ newLink);
+                        System.out.println("group:" + item.getGroup());
+                    } else { // 보안 그룹이 없는 노드
+                        System.out.println("2: "+ link);
+                        uniqueLinks.add(link); // 기존 링크 그대로 추가
+                    }
+                }
+            }
+        }
+
+
+        for (LinkData item:uniqueLinks
+             ) {
+            System.out.println(item);
+        }
+
+        // Remaining links that are not related to FW nodes
+        uniqueLinks.addAll(links);
+        //uniqueLinks.addAll(newLinks);
+
+        for (NodeData node : nodes) { // FW와 관련 없던 노드들 모두 추가
             if (!node.getKey().contains("FW")) {
                 newNodes.add(node);
             }
@@ -107,7 +152,7 @@ public class AlgorithmServiceImpl {
         HashMap<String, Object> result = new HashMap<String, Object>();
 
         result.put("nodeDataArray", combinedList);
-        result.put("linkDataArray", newLinks);
+        result.put("linkDataArray", uniqueLinks);
         return result;
     }
 
