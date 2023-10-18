@@ -96,9 +96,6 @@ public class ModifyLinkImpl implements ModifyLink {
                 iterator.remove();
                 System.out.println("remove node "+node);
             }
-            else{
-                node.setLoc();
-            }
         }
 
         System.out.println("exclude link " + linkDataList);
