@@ -5,6 +5,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,15 +17,11 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/file-api/rehost")
+@RequiredArgsConstructor
 public class RehostController {
 
-    @Autowired
     private SecurityGroupService securityGroupService;
-
-    @Autowired
     private ModifyLink modifyLink;
-
-    @Autowired
     private NetworkToAWS networkToAWS;
 
     @PostMapping("/ssohost")
