@@ -37,7 +37,6 @@ public class FileController {
         // json to input data
         return ResponseEntity.ok(fileService.dataToinput(data));
     }
-
     @GetMapping(value = "/example/{order}")
     public ResponseEntity<?> exampleFile(@PathVariable String order) {
         String fileName = "example" + order + ".json";
