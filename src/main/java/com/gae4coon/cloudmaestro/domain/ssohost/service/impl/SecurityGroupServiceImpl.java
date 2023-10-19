@@ -1,23 +1,18 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.service.impl;
 
-import com.gae4coon.cloudmaestro.domain.rehost.service.impl.AlgorithmServiceImpl;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
-import io.swagger.v3.oas.models.links.Link;
-import jakarta.persistence.Id;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 @Service
 
 public class SecurityGroupServiceImpl implements SecurityGroupService {
 
     @Override
-    public Map<List<GroupData>, List<NodeData>> addSecurityGroup(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+    public void addSecurityGroup(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
         List<NodeData> newNodeDataList = new ArrayList<>();
         List<GroupData> newGroupDataList = new ArrayList<>();
 
@@ -61,7 +56,6 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
                             sg.setStroke("rgb(221,52,76)");
                         }
                         node2.setGroup("Security Group" + index);
-                        System.out.println("set group " + index + " " + from + " -> " + to);
                     }
                 }
             }
@@ -75,33 +69,27 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
         resultMap.put(groupDataList, nodeDataList);
 
-        return resultMap;
+        return;
     }
 
     @Override
-    public Map<List<GroupData>, List<NodeData>> modifySecurityGroupLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+    public void modifySecurityGroupLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
         for (NodeData nodeData : nodeDataList) {
-            if (!nodeData.getGroup().contains("Security Group")) continue;
+            if (nodeData.getGroup()!=null&&!nodeData.getGroup().contains("Security Group")) continue;
 
             for (LinkData linkData : linkDataList) {
                 if (linkData.getFrom().equals(nodeData.getKey())) {
                     linkData.setFrom(nodeData.getGroup());
-                    System.out.println("from " + linkData.getFrom() + "->" + linkData.getTo());
                 } else if (linkData.getTo().equals(nodeData.getKey())) {
                     linkData.setTo((nodeData.getGroup()));
-                    System.out.println("to " + linkData.getFrom() + "->" + linkData.getTo());
 
                 }
             }
         }
 
-        System.out.println("unique " + linkDataList);
-
         Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
         resultMap.put(groupDataList, nodeDataList);
 
-        return resultMap;
+        return;
     }
-
-
 }

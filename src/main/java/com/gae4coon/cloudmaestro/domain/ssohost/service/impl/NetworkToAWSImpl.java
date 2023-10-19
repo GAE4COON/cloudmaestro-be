@@ -12,8 +12,7 @@ import java.util.*;
 
 public class NetworkToAWSImpl implements NetworkToAWS {
     @Override
-
-    public List<NodeData> changeNodeSource(List<NodeData> nodeDataList) {
+    public void changeNodeSource(List<NodeData> nodeDataList) {
         for (NodeData nodeData : nodeDataList) {
             String node = nodeData.getKey();
 
@@ -23,7 +22,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 nodeData.setText("EC2");
                 nodeData.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 nodeData.setType("Compute");
-            } else if (node.contains("Anti_DDoS")) {
+            } else if (node.contains("Anti DDoS")) {
                 nodeData.setKey("Shield");
                 nodeData.setText("Shield");
                 nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
@@ -41,11 +40,11 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             }
 
         }
-        return nodeDataList;
+        return;
     }
 
     @Override
-    public Map<List<NodeData>, List<GroupData>> changeGroupSource(List<NodeData> nodeDataList,List<GroupData> groupDataList) {
+    public void changeGroupSource(List<NodeData> nodeDataList,List<GroupData> groupDataList) {
         Set<String> groupKey = new HashSet<>();
 
         for(GroupData groupData:groupDataList){
@@ -67,6 +66,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                     node.setGroup(key + " Virtual private cloud (VPC) " + count);
                 }
                 for(GroupData group: groupDataList) {
+                    if(group.getGroup()==null) continue;
                     if (!group.getGroup().equals(key)) continue;
                     group.setGroup(key + " Virtual private cloud (VPC) " + count);
                 }
@@ -77,11 +77,11 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         Map<List<NodeData>, List<GroupData>> result = new HashMap<>();
         result.put(nodeDataList, groupDataList);
 
-        return result;
+        return;
     }
     @Override
 
-    public List<LinkData> changeLinkSource(List<LinkData> linkDataList) {
+    public void changeLinkSource(List<LinkData> linkDataList) {
         for (LinkData linkData : linkDataList) {
             String node = linkData.getFrom();
             String value;
@@ -90,8 +90,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             if (node.contains("Server")) {
                 value = node.replace("Server", "EC2");
                 linkData.setFrom(value);
-            } else if (node.contains("Anti_DDoS")) {
-                value = node.replace("Anti_DDoS", "Shield");
+            } else if (node.contains("Anti DDoS")) {
+                value = node.replace("Anti DDoS", "Shield");
                 linkData.setFrom(value);
             } else if (node.contains("IPS")) {
                 value = node.replace("IPS", "CloudTrail");
@@ -104,33 +104,13 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 linkData.setFrom(value);
             }
         }
-        return linkDataList;
+        return;
     }
     @Override
-
-    public HashMap<String, Object> changeAll(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
-        nodeDataList = changeNodeSource(nodeDataList);
-        linkDataList = changeLinkSource(linkDataList);
+    public void changeAll(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+        changeNodeSource(nodeDataList);
+        changeLinkSource(linkDataList);
         changeGroupSource(nodeDataList, groupDataList);
-
-        Map<String, Object> responseBody = new HashMap<>();
-
-        List<Object> finalDataArray = new ArrayList<>();
-        finalDataArray.addAll(nodeDataList);
-        finalDataArray.addAll(groupDataList);
-
-        finalDataArray.removeIf(Objects::isNull);
-
-        responseBody.put("class", "GraphLinksModel");
-        responseBody.put("linkKeyProperty", "key");
-        responseBody.put("nodeDataArray", finalDataArray);  // 예시
-        responseBody.put("linkDataArray", linkDataList);  // 예시
-
-        HashMap<String, Object> response = new HashMap<>();
-
-        response.put("result", responseBody);
-
-        return response;
     }
 
 }

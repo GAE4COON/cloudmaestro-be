@@ -10,11 +10,8 @@ import java.util.List;
 import java.util.Map;
 
 public interface NetworkToAWS {
-    List<NodeData> changeNodeSource (List<NodeData> nodeDataList);
-    Map<List<NodeData>, List<GroupData>> changeGroupSource (List<NodeData> nodeDataList, List<GroupData> groupDataList);
-    List<LinkData> changeLinkSource (List<LinkData> linkDataList);
-
-    HashMap<String, Object> changeAll (List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
-
-
+    void changeNodeSource (List<NodeData> nodeDataList);
+    void changeGroupSource (List<NodeData> nodeDataList, List<GroupData> groupDataList);
+    void changeLinkSource (List<LinkData> linkDataList);
+    void changeAll (List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 }

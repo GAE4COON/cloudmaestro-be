@@ -61,7 +61,6 @@ public class RehostController {
             linkDataList = unique(linkDataList);
 
             Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, linkDataList);
-
             nodeDataList.clear();
             linkDataList.clear();
             for (Map.Entry<List<NodeData>, List<LinkData>> entry : tmpData.entrySet()) {
@@ -70,21 +69,31 @@ public class RehostController {
             }
             linkDataList = unique(linkDataList);
 
-//            nodeDataList = networkToAWS.changeNodeSource(nodeDataList);
-//            groupDataList = networkToAWS.changeGroupSource(groupDataList);
-//            linkDataList = networkToAWS.changeLinkSource(link)
+            // node, group, link 정보 변경 (network node to aws)
+            networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
 
+            System.out.println("------------final--------------");
             System.out.println("nodeDataList " + nodeDataList);
             System.out.println("groupDataList " + groupDataList);
             System.out.println("linkDataList " + linkDataList);
+
+            Map<String, Object> responseBody = new HashMap<>();
+
+            List<Object> finalDataArray = new ArrayList<>();
+            finalDataArray.addAll(nodeDataList);
+            finalDataArray.addAll(groupDataList);
+
+            finalDataArray.removeIf(Objects::isNull);
+
+            responseBody.put("class", "GraphLinksModel");
+            responseBody.put("linkKeyProperty", "key");
+            responseBody.put("nodeDataArray", finalDataArray);  // 예시
+            responseBody.put("linkDataArray", linkDataList);  // 예시
 
             HashMap<String, Object> response = new HashMap<>();
 
-            response = networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
-
-            System.out.println("nodeDataList " + nodeDataList);
-            System.out.println("groupDataList " + groupDataList);
-            System.out.println("linkDataList " + linkDataList);
+            response.put("result", responseBody);
+            System.out.println("response: "+response);
 
             return ResponseEntity.ok().body(response);
 
@@ -105,7 +114,6 @@ public class RehostController {
         for (LinkData l : linkDataSet) {
             setlist.add(l);
         }
-        System.out.println("linkDataSet " + linkDataSet);
         return setlist;
     }
 

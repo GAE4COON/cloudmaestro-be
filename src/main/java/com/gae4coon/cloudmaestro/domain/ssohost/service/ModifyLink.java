@@ -8,9 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface ModifyLink {
-
     Map<List<GroupData>,List<NodeData>> excludeNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
-
     Map<List<NodeData>,List<LinkData>> deleteNode(List<NodeData> nodeDataList, List<LinkData> linkDataList);
 
 }

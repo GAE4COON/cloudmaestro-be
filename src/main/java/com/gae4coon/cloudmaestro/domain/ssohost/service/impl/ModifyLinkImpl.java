@@ -18,14 +18,12 @@ public class ModifyLinkImpl implements ModifyLink {
             String rootTo = link.getTo();
             if(isExclude(rootTo)){
                 String normalTo = findNormalNode(rootTo, linkDataList);
-                System.out.println("origin "+link.getFrom()+" "+link.getTo()+" change "+link.getFrom()+" "+normalTo);
 
                 link.setTo(normalTo);
             }
         }
 
-        linkDataList = unique(linkDataList);
-        System.out.println("exclude link " + linkDataList);
+        unique(linkDataList);
 
         Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
         resultMap.put(groupDataList, nodeDataList);
@@ -40,7 +38,6 @@ public class ModifyLinkImpl implements ModifyLink {
         for(LinkData link: linkDataList){
             if(link.getFrom().equals(destination)) {
                 if (isExclude(link.getTo())){
-                    System.out.println("des "+destination+" to "+link.getTo());
                     return findNormalNode(link.getTo(), linkDataList);
                 } else {
                     return link.getTo();
@@ -72,7 +69,6 @@ public class ModifyLinkImpl implements ModifyLink {
         for (LinkData l : linkDataSet) {
             setlist.add(l);
         }
-        System.out.println("linkDataSet " + linkDataSet);
         return setlist;
     }
 
@@ -94,11 +90,9 @@ public class ModifyLinkImpl implements ModifyLink {
             // replace node (ips, ids)가 아니면 nodeData에서도 삭제
             if(!isReplace(node.getKey())){
                 iterator.remove();
-                System.out.println("remove node "+node);
             }
         }
 
-        System.out.println("exclude link " + linkDataList);
 
         Map<List<NodeData>, List<LinkData>> resultMap = new HashMap<>();
         resultMap.put(tmpNodeDataList, tmpLinkDataList);
@@ -113,7 +107,6 @@ public class ModifyLinkImpl implements ModifyLink {
             LinkData link = iterator.next();
             if(link.getTo().equals(node) || link.getFrom().equals(node)){
                 iterator.remove();
-                System.out.println("remove link "+link);
             }
         }
 
