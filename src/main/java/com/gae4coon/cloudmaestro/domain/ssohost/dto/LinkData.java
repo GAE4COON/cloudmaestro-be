@@ -14,7 +14,6 @@ public class LinkData {
     private String to;
     private int key;
 
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

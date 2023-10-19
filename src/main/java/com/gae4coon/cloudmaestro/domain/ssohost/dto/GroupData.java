@@ -10,26 +10,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupData{
-    private Boolean isGroup = true;
-    private String text;
     private String key;
-    private String type;
-    
-    // 부가적
-//    @JsonIgnore
+    private String text;
+    private Boolean isGroup = true;
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String group;
-    @JsonIgnore
+
+    private String type;
     private String stroke;
-
-
-    public GroupData(String key, String text, Boolean isGroup, String group,  String type, String stroke) {
-        this.key = key;
-        this.text = text;
-        this.isGroup = isGroup;
-        this.type = type;
-        this.group = group;
-        this.stroke = stroke;
-    }
-
-    // getters and setters
 }
