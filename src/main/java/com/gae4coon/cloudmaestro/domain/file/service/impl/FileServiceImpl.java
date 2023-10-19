@@ -63,9 +63,7 @@ public class FileServiceImpl implements FileService {
 
         inputData.forEach(map -> {
             JsonObject node = new JsonObject();
-
             List<String> keys = new ArrayList<>(map.keySet());
-
             int count = 1; // Default count
 
             for (String key : keys) {
@@ -88,24 +86,47 @@ public class FileServiceImpl implements FileService {
                     }
                     map.remove(key); // Remove '개수' entry
                     continue; // Skip putting '개수' back into map
+                }else{
+                    break;
                 }
 
                 node.addProperty(newKey, newValue);
                 if (!newKey.equals(key)) {
                     map.remove(key);
                 }
+
+            }
+            if(node.size()==0) {
+                count = 0;
             }
             for (int i = 0; i < count; i++) {
                 JsonObject tempNode = node.deepCopy(); // 반복마다 새로운 JsonObject 인스턴스를 생성
-                tempNode.addProperty("type", "Network_icon");
 
+                tempNode.addProperty("type", "Network_icon");
+                if(tempNode.get("text")==null){
+                    System.out.println("null exception"+tempNode);
+                }
                 String textValue = tempNode.get("text").getAsString();
+                String keyValue = null;
+
+                switch (textValue){
+                    case "FW": keyValue="Firewall"; break;
+                    case "WAF": keyValue = "WAF"; break;
+                    case "AD": keyValue = "Anti DDoS"; break;
+                    case "DB": keyValue = "Database"; break;
+                    case "IPS": keyValue = "IPS"; break;
+                    case "IDS": keyValue = "IDS"; break;
+                    case "SVR": keyValue = "Server"; break;
+                    case "WS": keyValue = "Web Server"; break;
+                }
+
                 String imgFile=null;
-                tempNode.addProperty("key", textValue);
+                tempNode.addProperty("key", keyValue);
+                tempNode.addProperty("text", keyValue);
 
                 switch (textValue){
                     case "FW": imgFile="firewall"; break;
-                    case "WAF": imgFile = "firewall"; break;
+                    case "WAF": imgFile = "WAF"; break;
                     case "AD": imgFile = "Anti_DDoS"; break;
                     case "DB": imgFile = "database"; break;
                     case "IPS": imgFile = "ips"; break;
@@ -121,6 +142,7 @@ public class FileServiceImpl implements FileService {
 
         for(var g:group){
             JsonObject groupNode = new JsonObject();
+
             groupNode.addProperty("text", g);
             groupNode.addProperty("isGroup", true);
             groupNode.addProperty("type", "group");

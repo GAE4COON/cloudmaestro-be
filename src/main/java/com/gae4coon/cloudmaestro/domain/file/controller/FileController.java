@@ -23,6 +23,7 @@ public class FileController {
     @PostMapping(value = "/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
         String fileType = file.getContentType();
+        System.out.println("upload file type"+fileType);
 
         if (fileType.equals("application/json")) {
             String content = new String(file.getBytes(), StandardCharsets.UTF_8);
