@@ -12,6 +12,8 @@ public class MemberDTO {
     private String name;
     private String APIName;
     private String InstanceMemory;
+    private String Vcpu;
+    private String InstanceStorage;
     private String Network;
     private String LinuxOnDemand;
     private String LinuxReserved;
@@ -23,6 +25,8 @@ public class MemberDTO {
         this.id = entity.getId();
         this.name = entity.getName();
         this.APIName = entity.getAPIName();
+        this.Vcpu = entity.getVcpu();
+        this.InstanceStorage = entity.getInstanceStorage();
         this.InstanceMemory = entity.getInstanceMemory();
         this.Network = entity.getNetwork();
         this.LinuxOnDemand = entity.getLinuxOnDemand();
