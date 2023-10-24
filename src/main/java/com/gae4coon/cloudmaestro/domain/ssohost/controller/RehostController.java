@@ -17,11 +17,13 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/file-api/rehost")
-@RequiredArgsConstructor
 public class RehostController {
 
+    @Autowired
     private SecurityGroupService securityGroupService;
+    @Autowired
     private ModifyLink modifyLink;
+    @Autowired
     private NetworkToAWS networkToAWS;
 
     @PostMapping("/ssohost")
@@ -66,8 +68,18 @@ public class RehostController {
             }
             linkDataList = unique(linkDataList);
 
+
+
             // node, group, link 정보 변경 (network node to aws)
-            networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
+            //networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
+
+            //node, group, link 정보 변경 (network node to aws)
+
+            networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
+
+            // Region, vpc, available zone 넣기
+            networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
+
 
             System.out.println("------------final--------------");
             System.out.println("nodeDataList " + nodeDataList);
