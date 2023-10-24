@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GroupData{
     private String key;
     private String text;
@@ -19,4 +20,8 @@ public class GroupData{
 
     private String type;
     private String stroke;
+
+    public void addKey(String Key) {
+        this.key = Key;
+    }
 }

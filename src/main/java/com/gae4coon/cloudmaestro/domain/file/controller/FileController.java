@@ -16,10 +16,9 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/file-api")
-@RequiredArgsConstructor
 
 public class FileController {
-
+@Autowired
     private FileService fileService;
 
     @PostMapping(value = "/upload")

@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/pricing-api")
+@RequestMapping("/api/v1/pricing-api/new")
 public class EC2Controller {
     private final EC2Service ec2Service;
     private final Logger logger = LoggerFactory.getLogger(EC2Controller.class);
