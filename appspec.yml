@@ -3,9 +3,9 @@ os: linux
 
 files:
   - source: /
-    destination: /home/ubuntu/moduform
+    destination: /home/ubuntu/app
 permissions:
-  - object: /home/ubuntu/moduform/
+  - object: /home/ubuntu/app/
     owner: ubuntu
     group: ubuntu
 hooks:
