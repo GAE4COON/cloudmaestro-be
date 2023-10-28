@@ -1,0 +1,22 @@
+name: CloudMaestro Backend CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+env:
+  S3_BUCKET_NAME: cloud-maestro-s3
+jobs:
+  build-with-gradle:
+    runs-on: ubuntu-latest
+    steps:
+     - name: JDK 17 install
+       uses: actions/setup-java@v3
+       with:
+        java-version: '17'
+        distribution: 'corretto'
+     - name: Grant execute permission for gradlew
+       run: chmod +x gradlew
+     - name: Build with Gradle
+       run: ./gradlew clean build
