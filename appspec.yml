@@ -5,9 +5,10 @@ files:
   - source: /
     destination: /home/ubuntu/app
 permissions:
-  - object: /home/ubuntu/app/
+  - object: /home/ubuntu/app
     owner: ubuntu
     group: ubuntu
+    mode: 755
 hooks:
   AfterInstall:
     - location: scripts/stop.sh
