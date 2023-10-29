@@ -17,14 +17,11 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/file-api/rehost")
+@RequiredArgsConstructor
 public class RehostController {
-
-    @Autowired
-    private SecurityGroupService securityGroupService;
-    @Autowired
-    private ModifyLink modifyLink;
-    @Autowired
-    private NetworkToAWS networkToAWS;
+    private final SecurityGroupService securityGroupService;
+    private final ModifyLink modifyLink;
+    private final NetworkToAWS networkToAWS;
 
     @PostMapping("/ssohost")
     public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) String postData) {
