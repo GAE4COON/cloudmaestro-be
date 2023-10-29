@@ -1,24 +1,20 @@
-#!/bin/bash
-BUILD_JAR=$(ls /home/ubuntu/app/build/libs/*.jar)
-JAR_NAME=$(basename $BUILD_JAR)
-echo "> build 파일명: $JAR_NAME" >> /home/ubuntu/app/deploy.log
+REPOSITORY=/home/ubuntu/app
+cd $REPOSITORY
 
-echo "> build 파일 복사" >> /home/ubuntu/app/deploy.log
-DEPLOY_PATH=/home/ubuntu/app/
-cp $BUILD_JAR $DEPLOY_PATH
+APP_NAME=cloud #1
+JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
+JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
-echo "> 현재 실행중인 애플리케이션 pid 확인" >> /home/ubuntu/app/deploy.log
-CURRENT_PID=$(pgrep -f $JAR_NAME)
+CURRENT_PID=$(pgrep -f $APP_NAME)
 
-if [ -z $CURRENT_PID ]
+if [ -z $CURRENT_PID ] #2
 then
-  echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다." >> /home/ubuntu/app/deploy.log
+  echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다."
 else
   echo "> kill -15 $CURRENT_PID"
-  kill -15 $CURRENT_PID
+  sudo kill -15 $CURRENT_PID
   sleep 5
 fi
 
-DEPLOY_JAR=$DEPLOY_PATH$JAR_NAME
-echo "> DEPLOY_JAR 배포"    >> /home/ubuntu/app/deploy.log
-nohup java -jar $DEPLOY_JAR >> /home/ubuntu/deploy.log 2>/home/ubuntu/app/deploy_err.log &
+echo "> $JAR_PATH 배포" #3
+nohup java -jar /home/ubuntu/app/build/libs/cloud-1.0.jar --spring.config.location=/home/ubuntu/application.yml > /dev/null 2> /dev/null < /dev/null &
