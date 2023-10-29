@@ -41,13 +41,7 @@ public class MemberController {
     @Autowired
     private final PasswordEncoder passwordEncoder;
 
-
-    @GetMapping("/hello")
-    public String helloWorld() {
-        return "hello world!";
-    }
-
-    @GetMapping("/hmm")
+    @GetMapping("/userTest")
     public List<Member> member() {
         List<Member> memberEntityList = this.memberService.getList();
         return memberEntityList;
