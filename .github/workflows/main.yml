@@ -64,6 +64,6 @@ jobs:
         --deployment-config-name CodeDeployDefault.AllAtOnce \
         --deployment-group-name CloudMaestro-group \
         --file-exists-behavior OVERWRITE \
-        --s3-location bucket=project-bucket-v1,bundleType=zip,key=CloudMaestro_Backend.zip \
+        --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=CloudMaestro_Backend.zip \
         --region ap-northeast-2 \
    
