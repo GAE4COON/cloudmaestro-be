@@ -2,9 +2,9 @@ name: CloudMaestro Backend CI/CD
 
 on:
   push:
-    branches: [ main ]
+    branches: [ develop ]
   pull_request:
-    branches: [ main ]
+    branches: [ develop ]
 env:
   S3_BUCKET_NAME: cloud-maestro-s3
   CODE_DEPLOY_APP_NAME: CloudMaestro
@@ -51,6 +51,8 @@ jobs:
 
     - name: Upload to S3
       run: aws s3 cp --region ap-northeast-2 ./CloudMaestro_Backend.zip s3://$S3_BUCKET_NAME/
+    - name: EC2에 배포
+      run: aws deploy create-deployment --application-name ${{ env.CODE_DEPLOY_APP_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP_NAME }} --s3-location bucket=$S3_BUCKET_NAME,key=CloudMaestro_Backend.zip,bundleType=zip
 
      # Deploy
     - name: Deploy
