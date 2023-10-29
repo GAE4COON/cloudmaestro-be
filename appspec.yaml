@@ -14,4 +14,4 @@ hooks:
   AfterInstall:     # 설치 받아온 후 실행할 명령어
     - location: scripts/deploy.sh    # start.sh 라는 파일을 실행
       timeout: 60           # timeout 설정
-      runas: ubuntu       # run as
+      runas: root   # run as
