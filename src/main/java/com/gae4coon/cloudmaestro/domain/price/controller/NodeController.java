@@ -61,7 +61,7 @@ public class NodeController {
         String engine = payload.get("engine");
         //System.out.println("엔진" + engine);
         Map<String, List<String>> dbinfo = dbConnectService.getAvailableApiNamesForField(engine);
-        //System.out.println(result);
+        //System.out.println(result)11;
         return dbinfo;
     }
 
