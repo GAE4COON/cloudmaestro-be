@@ -46,4 +46,4 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
-        aws deploy create-deployment --application-name Cloudmaestro-front --deployment-group-name Cloudmaestro-front --deployment-config-name CodeDeployDefault.AllAtOnce --file-exists-behavior OVERWRITE --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=CloudMaestro_Backend.zip
+        aws deploy create-deployment --application-name Cloudmaestro-front --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name Cloudmaestro-front --s3-location bucket=$S3_BUCKET_NAME,key=build-fe.zip,bundleType=zip
