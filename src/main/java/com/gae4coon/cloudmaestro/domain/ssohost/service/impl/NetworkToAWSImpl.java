@@ -22,7 +22,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 nodeData.setText("EC2");
                 nodeData.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 nodeData.setType("Compute");
-            } else if (node.contains("Anti_DDoS")) {
+            } else if (node.contains("Anti DDoS")) {
                 nodeData.setKey("Shield");
                 nodeData.setText("Shield");
                 nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
@@ -138,8 +138,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             if (node.contains("Server")) {
                 value = node.replace("Server", "EC2");
                 linkData.setFrom(value);
-            } else if (node.contains("Anti_DDoS")) {
-                value = node.replace("Anti_DDoS", "Shield");
+            } else if (node.contains("Anti DDoS")) {
+                value = node.replace("Anti DDoS", "Shield");
                 linkData.setFrom(value);
             } else if (node.contains("IPS")) {
                 value = node.replace("IPS", "CloudTrail");
