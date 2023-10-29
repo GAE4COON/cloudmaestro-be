@@ -44,7 +44,7 @@ jobs:
 
     # script files 복사
     - name: Copy script
-      run: cp ./scripts/*.sh ./deploy
+      run: cp ./scripts/deploy.sh ./deploy
 
     - name: Make Zip File
       run: zip -qq -r ./$GITHUB_SHA.zip ./deploy
