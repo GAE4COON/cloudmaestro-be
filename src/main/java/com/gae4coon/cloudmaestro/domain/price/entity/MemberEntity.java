@@ -24,6 +24,12 @@ public class MemberEntity {
     @Column(name = "APIName")
     private String APIName;
 
+    @Column(name = "Vcpu")
+    private String Vcpu;
+
+    @Column(name = "InstanceStorage")
+    private String InstanceStorage;
+
 
     @Column(name = "InstanceMemory")
     private String InstanceMemory;

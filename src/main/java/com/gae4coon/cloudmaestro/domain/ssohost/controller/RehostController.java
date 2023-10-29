@@ -5,6 +5,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,10 +21,8 @@ public class RehostController {
 
     @Autowired
     private SecurityGroupService securityGroupService;
-
     @Autowired
     private ModifyLink modifyLink;
-
     @Autowired
     private NetworkToAWS networkToAWS;
 
@@ -69,8 +68,18 @@ public class RehostController {
             }
             linkDataList = unique(linkDataList);
 
+
+
             // node, group, link 정보 변경 (network node to aws)
-            networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
+            //networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
+
+            //node, group, link 정보 변경 (network node to aws)
+
+            networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
+
+            // Region, vpc, available zone 넣기
+            networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
+
 
             System.out.println("------------final--------------");
             System.out.println("nodeDataList " + nodeDataList);

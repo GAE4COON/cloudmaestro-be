@@ -1,6 +1,7 @@
 package com.gae4coon.cloudmaestro.domain.file.controller;
 
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -15,9 +16,9 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/file-api")
-public class FileController {
 
-    @Autowired
+public class FileController {
+@Autowired
     private FileService fileService;
 
     @PostMapping(value = "/upload")
@@ -35,7 +36,6 @@ public class FileController {
         // json to input data
         return ResponseEntity.ok(fileService.dataToinput(data));
     }
-
     @GetMapping(value = "/example/{order}")
     public ResponseEntity<?> exampleFile(@PathVariable String order) {
         String fileName = "example" + order + ".json";
