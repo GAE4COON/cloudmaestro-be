@@ -5,7 +5,7 @@ files:
     destination: /home/ubuntu/build/  
     overwrite: yes
 permissions:   
-  - object: /
+  - object: /home/ubuntu/build/
     pattern: "**"
     owner: ubuntu
     group: ubuntu
