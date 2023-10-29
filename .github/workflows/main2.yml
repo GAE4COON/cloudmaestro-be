@@ -47,7 +47,7 @@ jobs:
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run: |
         aws deploy create-deployment
-        --application-name CloudMaestro
-        --deployment-group-name CloudMaestro-group
+        --application-name CloudMaestro-back
+        --deployment-group-name CloudMaestro-back-group
         --file-exists-behavior OVERWRITE
         --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=CloudMaestro_Backend.zip
