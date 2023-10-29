@@ -21,7 +21,6 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SpringConfig {
-
     private final JwtTokenProvider tokenProvider;
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
@@ -30,7 +29,6 @@ public class SpringConfig {
             "/api/v1/users-api/**",
             "/api/v1/test-api/**",
             "/**"
-
     };
 
     @Bean
@@ -39,7 +37,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public WebSecurityCustomizer webSecurityCustomizer(){
+    public WebSecurityCustomizer webSecurityCustomizer() {
         return (web) -> web.ignoring().requestMatchers("/favicon.ico");
     }
 
@@ -54,7 +52,7 @@ public class SpringConfig {
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
-                .formLogin(form->form.disable())
+                .formLogin(form -> form.disable())
                 //.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/api/v1/test-api/**").access("hasRole('business')")

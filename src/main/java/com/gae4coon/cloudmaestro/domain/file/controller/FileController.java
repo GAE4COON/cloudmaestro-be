@@ -2,7 +2,6 @@ package com.gae4coon.cloudmaestro.domain.file.controller;
 
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.ResponseEntity;

@@ -127,7 +127,7 @@ public class FileServiceImpl implements FileService {
                 switch (textValue){
                     case "FW": imgFile="firewall"; break;
                     case "WAF": imgFile = "WAF"; break;
-                    case "AD": imgFile = "Anti_DDoS"; break;
+                    case "AD": imgFile = "Anti DDoS"; break;
                     case "DB": imgFile = "database"; break;
                     case "IPS": imgFile = "ips"; break;
                     case "IDS": imgFile = "ips"; break;
