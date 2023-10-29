@@ -46,8 +46,8 @@ jobs:
     - name: Copy script
       run: cp ./scripts/*.sh ./deploy
 
-    - name: Make zip file
-      run: zip -r ./coinTalk.zip ./deploy
+    - name: Make Zip File
+      run: zip -qq -r ./$GITHUB_SHA.zip ./deploy
       shell: bash
 
     - name: Configure AWS credentials
