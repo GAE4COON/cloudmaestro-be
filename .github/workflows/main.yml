@@ -2,9 +2,9 @@ name: CloudMaestro Backend CI/CD
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
   pull_request:
-    branches: [ develop ]
+    branches: [ main ]
 env:
   S3_BUCKET_NAME: cloud-maestro-s3
   CODE_DEPLOY_APP_NAME: CloudMaestro
@@ -39,7 +39,7 @@ jobs:
       run: cp ./build/libs/*.jar ./deploy
 
     - name: Make zip file
-      run: zip -r ./CloudMaestro_Backend.zip ./deploy
+      run: zip -r ./$GITHUB_SHA.zip ./deploy
       shell: bash
 
     - name: Configure AWS credentials
@@ -50,9 +50,9 @@ jobs:
         aws-region: ap-northeast-2
 
     - name: Upload to S3
-      run: aws s3 cp --region ap-northeast-2 ./CloudMaestro_Backend.zip s3://$S3_BUCKET_NAME/
+      run: aws s3 cp --region ap-northeast-2 ./CloudMaestro_Backend.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
     - name: EC2에 배포
-      run: aws deploy create-deployment --application-name ${{ env.CODE_DEPLOY_APP_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP_NAME }} --s3-location bucket=$S3_BUCKET_NAME,key=CloudMaestro_Backend.zip,bundleType=zip
+      run: aws deploy create-deployment --application-name ${{ env.CODE_DEPLOY_APP_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP_NAME }} --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
 
      # Deploy
     - name: Deploy
@@ -66,6 +66,6 @@ jobs:
         --deployment-config-name CodeDeployDefault.AllAtOnce \
         --deployment-group-name CloudMaestro-group \
         --file-exists-behavior OVERWRITE \
-        --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=CloudMaestro_Backend.zip \
+        --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=$GITHUB_SHA.zip \
         --region ap-northeast-2 \
    
