@@ -9,8 +9,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 public class CloudmaestroApplication {
     public static void main(String[] args) {
         SpringApplication.run(CloudmaestroApplication.class, args);
-        //hi
     }
-    // hello
 
 }
