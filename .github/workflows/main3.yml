@@ -35,13 +35,11 @@ jobs:
         
     # Jar 파일 복사
     - name: Copy Jar
-      run: cp ./build/libs/*.jar ./deploy
+      run: cp ./build/libs/*.jar .
 
-    - name: Copy appspec.yml
-      run: ./gradlew copyAppspec
 
     - name: Make zip file
-      run: zip -r ./coinTalk.zip ./deploy
+      run: zip -r ./CloudMaestro_Backend.zip .
       shell: bash
 
     - name: Configure AWS credentials
@@ -60,7 +58,7 @@ jobs:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       run:
-       aws deploy create-deployment --application-name CloudMaestro --deployment-group-name CloudMaestro-group --deployment-config-name CodeDeployDefault.AllAtOnce --file-exists-behavior OVERWRITE --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=coinTalk.zip
+       aws deploy create-deployment --application-name CloudMaestro --deployment-group-name CloudMaestro-group --deployment-config-name CodeDeployDefault.AllAtOnce --file-exists-behavior OVERWRITE --s3-location bucket=cloud-maestro-s3,bundleType=zip,key=CloudMaestro_Backend.zip
        
 
     
