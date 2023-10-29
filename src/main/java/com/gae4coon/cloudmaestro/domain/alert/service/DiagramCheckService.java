@@ -10,10 +10,10 @@ public class DiagramCheckService {
     public HashMap<String, String> linkCheck(LinkData linkData) {
         HashMap<String, String> check = new HashMap<>();
         if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && linkData.getFrom().contains("Firewall")) {
-            check.put("status", "success");
+            check.put("status", "fail");
             check.put("message", "Firewall 다음에는 IPS, IDS가 올 수 없습니다.");
         } else {
-            check.put("status", "fail");
+            check.put("status", "success");
         }
 
         return check;
