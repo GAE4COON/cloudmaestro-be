@@ -37,6 +37,9 @@ jobs:
     - name: Copy Jar
       run: cp ./build/libs/*.jar ./deploy
 
+    - name: Copy appspec.yml
+      run: ./gradlew copyAppspec
+
     - name: Make zip file
       run: zip -r ./coinTalk.zip ./deploy
       shell: bash
