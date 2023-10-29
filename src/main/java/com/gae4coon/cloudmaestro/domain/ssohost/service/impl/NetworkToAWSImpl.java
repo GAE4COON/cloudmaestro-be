@@ -44,7 +44,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     }
 
     @Override
-    public void changeGroupSource(List<NodeData> nodeDataList,List<GroupData> groupDataList) {
+    public void changeGroupSource(List<NodeData> nodeDataList, List<GroupData> groupDataList) {
         Set<String> groupKey = new HashSet<>();
 
         for(GroupData groupData:groupDataList){
@@ -79,6 +79,54 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
         return;
     }
+
+
+    public void changeGroupSource2(List<NodeData> nodeDataList,List<GroupData> groupDataList) {
+        Set<String> groupKey = new HashSet<>();
+
+        for(GroupData groupData:groupDataList){
+            String group = groupData.getKey();
+            groupKey.add(group);
+        }
+        int count = 1;
+        List<GroupData> newGroupDataList = new ArrayList<>();
+        for(String key:groupKey){
+            if(key.contains("Security Group")) continue;
+            for(GroupData groupData:groupDataList) {
+                if(!groupData.getKey().equals(key)) continue;
+                // public subnet 생성
+                GroupData publicSubnet = new GroupData();
+                publicSubnet.setKey(key+" Public subnet " + count);
+                publicSubnet.setGroup(key+" Public subnet " + count);
+                publicSubnet.setStroke("rgb(122,161,22)");
+                publicSubnet.setType("AWS_Groups");
+                publicSubnet.setText(key+" Public subnet " + count);
+                publicSubnet.setIsGroup(true);
+                newGroupDataList.add(publicSubnet);
+
+                //private subnet 생성
+                groupData.setKey(key+" Private subnet " + count);
+                groupData.setText(key+" Private subnet " + count);
+                groupData.setStroke("rgb(0,164,166)");
+
+                for(NodeData node: nodeDataList) {
+                    if (!node.getGroup().equals(key)) continue;
+                    node.setGroup(key + " Private subnet " + count);
+                }
+                for(GroupData group: groupDataList) {
+                    if(group.getGroup()==null) continue;
+                    if (!group.getGroup().equals(key)) continue;
+                    group.setGroup(key + " Private subnet " + count);
+                }
+            }
+            count++;
+        }
+        groupDataList.addAll(newGroupDataList);
+        Map<List<NodeData>, List<GroupData>> result = new HashMap<>();
+        result.put(nodeDataList, groupDataList);
+
+        return;
+    }
     @Override
 
     public void changeLinkSource(List<LinkData> linkDataList) {
@@ -106,11 +154,92 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         }
         return;
     }
+
+
+    public void changeRegionandVpc(List<GroupData> groupDataList) {
+
+
+        Set<String> groupKey = new HashSet<>();
+
+        for(GroupData groupData:groupDataList) {
+            String group = groupData.getKey();
+            groupKey.add(group);
+        }
+
+        // Temporary list to store new GroupData objects
+        for(GroupData groupData:groupDataList) {
+            if(groupData.getKey().contains("Private subnet") || groupData.getKey().contains("Public subnet") ){
+                groupData.setStroke("rgb(0,164,166)");
+                groupData.setIsGroup(true);
+                groupData.setGroup("Availability Zone");
+                groupData.setType("AWS_Groups");
+            }
+
+        }
+        // Add all new GroupData objects to the original list
+        GroupData availableSubnet = new GroupData();
+        availableSubnet.setIsGroup(true);
+        availableSubnet.setGroup("VPC");
+        availableSubnet.setType("AWS_Groups");
+        availableSubnet.setKey("Availability Zone");
+        availableSubnet.setText("Availability Zone");
+        availableSubnet.setStroke("rgb(0,164,166)");
+        groupDataList.add(availableSubnet);
+
+        GroupData vpcSubnet = new GroupData();
+        vpcSubnet.setIsGroup(true);
+        vpcSubnet.setGroup("Region");
+        vpcSubnet.setType("AWS_Groups");
+        vpcSubnet.setKey("VPC");
+        vpcSubnet.setText("VPC");
+        vpcSubnet.setStroke("rgb(140,79,255)");
+        groupDataList.add(vpcSubnet);
+
+        GroupData regionSubnet = new GroupData();
+        regionSubnet.setIsGroup(true);
+        regionSubnet.setType("AWS_Groups");
+        regionSubnet.setKey("Region");
+        regionSubnet.setText("Region");
+        regionSubnet.setStroke("rgb(0,164,166)");
+        groupDataList.add(regionSubnet);
+
+    }
+
+    public void moveNodeToRegion(List<NodeData> nodeDataList){
+       for(NodeData nodeData : nodeDataList){
+            if(nodeData.getKey().contains("Shield")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CloudTrail")){
+                nodeData.setGroup("Region");
+            }
+       }
+    }
+
+
+
+
     @Override
     public void changeAll(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
         changeNodeSource(nodeDataList);
         changeLinkSource(linkDataList);
         changeGroupSource(nodeDataList, groupDataList);
     }
+
+    public void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+        changeNodeSource(nodeDataList);
+        changeLinkSource(linkDataList);
+        changeGroupSource2(nodeDataList, groupDataList);
+    }
+
+
+    public void setRegionAndVpcData(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+        changeRegionandVpc(groupDataList);
+        // Region에 옮기기
+        moveNodeToRegion(nodeDataList);
+
+
+    }
+
 
 }

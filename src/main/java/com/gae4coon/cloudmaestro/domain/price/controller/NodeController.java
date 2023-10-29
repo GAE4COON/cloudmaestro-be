@@ -15,9 +15,9 @@ import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 
-@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/db-api")
+@RequiredArgsConstructor
 
 public class NodeController {
 

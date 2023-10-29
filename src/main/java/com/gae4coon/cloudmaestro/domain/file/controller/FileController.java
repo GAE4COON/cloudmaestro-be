@@ -16,9 +16,10 @@ import java.util.*;
 @RestController
 @RequestMapping("/api/v1/file-api")
 @RequiredArgsConstructor
+
 public class FileController {
 
-    private final FileService fileService;
+    private FileService fileService;
 
     @PostMapping(value = "/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
