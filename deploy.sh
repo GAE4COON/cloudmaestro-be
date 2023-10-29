@@ -1,4 +1,4 @@
-REPOSITORY=/home/ubuntu/app
+REPOSITORY=/home/ubuntu/build
 cd $REPOSITORY
 
 APP_NAME=cloud #1
