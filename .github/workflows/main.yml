@@ -51,9 +51,7 @@ jobs:
 
     - name: Upload to S3
       run: aws s3 cp --region ap-northeast-2 ./CloudMaestro_Backend.zip s3://$S3_BUCKET_NAME/$GITHUB_SHA.zip
-    - name: EC2에 배포
-      run: aws deploy create-deployment --application-name ${{ env.CODE_DEPLOY_APP_NAME }} --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name ${{ env.AWS_CODE_DEPLOY_GROUP_NAME }} --s3-location bucket=$S3_BUCKET_NAME,key=$GITHUB_SHA.zip,bundleType=zip
-
+    
      # Deploy
     - name: Deploy
       env:
