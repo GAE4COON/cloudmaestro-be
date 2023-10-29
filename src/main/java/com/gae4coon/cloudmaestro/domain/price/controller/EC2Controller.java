@@ -14,16 +14,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import lombok.RequiredArgsConstructor;
+
 
 @RestController
 @RequestMapping("/api/v1/pricing-api")
+@RequiredArgsConstructor
+
 public class EC2Controller {
     private final EC2Service ec2Service;
     private final Logger logger = LoggerFactory.getLogger(EC2Controller.class);
-    @Autowired
-    public EC2Controller(EC2Service ec2Service) {
-        this.ec2Service = ec2Service;
-    }
 
     @PostMapping("/ec2")
     public ResponseEntity<JsonNode> getVantagePricing(@RequestBody requestPrice request){

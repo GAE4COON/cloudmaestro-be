@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
 
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/db-api")
+
 public class NodeController {
 
     private static final Logger logger = LoggerFactory.getLogger(NodeController.class);
 
     private NodeService nodeService;
 
-    @Autowired
-    public NodeController(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
 
     @GetMapping("/all")
     public List<MemberDTO> getAllMembers() {
