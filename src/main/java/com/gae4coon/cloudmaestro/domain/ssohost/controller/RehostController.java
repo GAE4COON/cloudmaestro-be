@@ -77,6 +77,7 @@ public class RehostController {
             // Region, vpc, available zone 넣기
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
+            networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
 
             System.out.println("------------final--------------");
             System.out.println("nodeDataList " + nodeDataList);
