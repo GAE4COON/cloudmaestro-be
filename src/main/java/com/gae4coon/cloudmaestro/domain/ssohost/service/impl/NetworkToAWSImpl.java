@@ -216,7 +216,134 @@ public class NetworkToAWSImpl implements NetworkToAWS {
        }
     }
 
+    public void addNat(List<NodeData> nodeDataList, List<GroupData> groupDataList) {
+        // 모든 public subnet 그룹을 찾기
+        int natCount = 1;
 
+        List<String> publicSubnetGroupKeys = new ArrayList<>();
+        for (GroupData group : groupDataList) {
+            if (group.getKey().contains("Public subnet")) {
+                publicSubnetGroupKeys.add(group.getKey());
+            }
+        }
+
+        if(publicSubnetGroupKeys.isEmpty()){
+            return;
+        }
+        //TODO 여기에 NACL+natCount의 loc를 찾아 해당 y축의 위치에 +를 엄청해주면 된다
+        String newLoc = "";
+        for (String publicSubnetGroupKey : publicSubnetGroupKeys) {
+
+            for (NodeData nodeData : nodeDataList){
+                if(nodeData.getKey().equals("NACL"+natCount)){
+                    String location = nodeData.getLoc();
+                    String[] locParts = location.split(" ");
+
+                    double x = Double.parseDouble(locParts[0]);
+                    double y = Double.parseDouble(locParts[1]);
+                    newLoc = x + " " + (y-250);
+                }
+            }
+
+            NodeData natNode = new NodeData();
+            natNode.setKey("NAT"+natCount);
+            natNode.setText("NAT");
+            natNode.setLoc(newLoc);
+            natNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_NAT-Gateway_48.svg");
+            natNode.setType("Networking-Content-Delivery");
+            natNode.setGroup(publicSubnetGroupKey);
+
+            // NAT 노드를 리스트에 추가
+            nodeDataList.add(natNode);
+            natCount++;
+        }
+
+    }
+
+    public void addNacl(List<NodeData> nodeDataList, List<GroupData> groupDataList){
+        int naclCount = 1;
+
+
+        List<String> privateSubnetGroupKeys = new ArrayList<>();
+        for (GroupData group : groupDataList) {
+            if (group.getKey().contains("Private subnet")) {
+                privateSubnetGroupKeys.add(group.getKey());
+            }
+        }
+        if (privateSubnetGroupKeys.isEmpty()){
+            return;
+        }
+        for (String privateSubnetGroupKey : privateSubnetGroupKeys) {
+            double minY = Double.MAX_VALUE; //MAX보다 작은 Y를 찾으면
+            double minX = Double.MAX_VALUE;
+
+            for (NodeData node : nodeDataList) {
+                for (GroupData groupData : groupDataList) { //group를 순회한다
+                    if(groupData.getKey().equals(node.getGroup())){
+                        if(groupData.getGroup()!= null && groupData.getGroup().equals(privateSubnetGroupKey)){
+                            String location = node.getLoc();
+                            String[] locParts = location.split(" ");
+
+                            double x = Double.parseDouble(locParts[0]);
+                            double y = Double.parseDouble(locParts[1]);
+                            if (y < minY || (y == minY && x < minX)) { // y축이 -일때 위로 올라간다 x는 -일때 왼쪽이 맞음
+                                minY = y;
+                                minX = x;
+                            }
+                        }
+                    }
+                }
+            }
+
+            System.out.println("miny: "+minY);
+            System.out.println("minx: "+minX);
+            String newLoc = (minX) + " " + (minY-130);
+
+            NodeData naclNode = new NodeData();
+            naclNode.setKey("NACL"+naclCount); // NAT 키를 고유하게 만듦
+            naclNode.setText("NACL");
+            naclNode.setLoc(newLoc); // 계산된 위치 설정
+            naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
+            naclNode.setType("Networking-Content-Delivery");
+            naclNode.setGroup(privateSubnetGroupKey);
+
+            // NAT 노드를 리스트에 추가
+            nodeDataList.add(naclNode);
+            naclCount++;
+        }
+    }
+    public void addInternet(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+        if(groupDataList.isEmpty()){
+            return;
+        }
+        NodeData internetNode = new NodeData();
+        internetNode.setKey("Internet");
+        internetNode.setText("Internet");
+        internetNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Internet-Gateway_48.svg");
+        internetNode.setType("Networking-Content-Delivery");
+        internetNode.setGroup("VPC");
+        internetNode.setLoc("330 -450");
+        nodeDataList.add(internetNode);
+
+        for (GroupData group : groupDataList) {
+            if (group.getKey().contains("Public subnet")) {
+                LinkData link = new LinkData();
+                link.setFrom("Internet");
+                link.setTo(group.getKey()); //여기에 public subnet이 와야함
+                linkDataList.add(link);
+            }
+        }
+
+        for (GroupData group : groupDataList) {
+            if (group.getKey().contains("Public subnet")) {
+                String privateSubnetKey = group.getKey().replace("Public", "Private");
+                LinkData link = new LinkData();
+                link.setFrom(group.getKey());
+                link.setTo(privateSubnetKey);
+                linkDataList.add(link);
+            }
+        }
+    }
 
 
     @Override
@@ -237,9 +364,11 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         changeRegionandVpc(groupDataList);
         // Region에 옮기기
         moveNodeToRegion(nodeDataList);
-
-
     }
 
-
+    public void addNetwork(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+        addNacl(nodeDataList, groupDataList);
+        addNat(nodeDataList, groupDataList);
+        addInternet(nodeDataList, groupDataList, linkDataList);
+    }
 }
