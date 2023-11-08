@@ -26,6 +26,7 @@ public class RehostController {
     @PostMapping("/ssohost")
     public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) String postData) {
 
+        // 파일 저장
         try {
             ObjectMapper mapper = new ObjectMapper();
             GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
