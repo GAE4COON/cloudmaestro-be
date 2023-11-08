@@ -19,7 +19,7 @@ import java.util.*;
 
 public class FileController {
 
-    private FileService fileService;
+    private final FileService fileService;
 
     @PostMapping(value = "/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {

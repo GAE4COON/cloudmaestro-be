@@ -210,7 +210,19 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             if(nodeData.getKey().contains("Shield")){
                 nodeData.setGroup("Region");
             }
-            else if(nodeData.getKey().contains("CloudTrail")){
+            if(nodeData.getKey().contains("CloudTrail")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CloudFront")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CodeDeploy")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CloudWatch")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("Simple Storage Service")){
                 nodeData.setGroup("Region");
             }
        }
@@ -237,6 +249,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         changeRegionandVpc(groupDataList);
         // Region에 옮기기
         moveNodeToRegion(nodeDataList);
+        // 기본 옵션들 추가하기
 
 
     }
