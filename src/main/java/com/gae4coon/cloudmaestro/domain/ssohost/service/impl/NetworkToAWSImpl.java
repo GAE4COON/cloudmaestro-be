@@ -88,6 +88,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             String group = groupData.getKey();
             groupKey.add(group);
         }
+
         int count = 1;
         List<GroupData> newGroupDataList = new ArrayList<>();
         for(String key:groupKey){
@@ -343,6 +344,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 linkDataList.add(link);
             }
         }
+
     }
 
 
@@ -371,4 +373,5 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         addNat(nodeDataList, groupDataList);
         addInternet(nodeDataList, groupDataList, linkDataList);
     }
+
 }
