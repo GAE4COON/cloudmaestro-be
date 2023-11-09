@@ -12,10 +12,18 @@ public class SidebarService {
         List<String> result = new ArrayList<>();
         for (NodeData node: nodeDataList){
             String type = node.getType();
+            boolean isGroup;
+            try {
+                isGroup = node.getIsGroup();
+            } catch (NullPointerException e) {
+                isGroup = false; // 예외가 발생한 경우 기본값으로 false 설정
+            }
             if (!type.equals("Compute") &&
                 !type.equals("Database") &&
                 !type.equals("Storage") &&
                 !type.equals("Networking-Content-Delivery") &&
+                !type.equals("Group") &&
+                !isGroup &&
                 !result.contains(node.getText())){
                 result.add(node.getText());
             }
