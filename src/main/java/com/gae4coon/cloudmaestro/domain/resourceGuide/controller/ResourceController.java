@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -22,10 +23,10 @@ public class ResourceController
     private final ResourceService resourceService;
 
     @PostMapping("/resource")
-    public HashMap<String, Object> member(@RequestBody ResourceDto title) {
+    public HashMap<String, Object> member(@RequestBody ResourceDto titleArray) {
         HashMap<String, Object> resourceEntity  = null;
         try {
-            resourceEntity = resourceService.resourceSearch(title.getTitle());
+                resourceEntity = resourceService.resourceSearch(titleArray);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
