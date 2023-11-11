@@ -23,6 +23,7 @@ public class SidebarService {
                 !type.equals("Storage") &&
                 !type.equals("Networking-Content-Delivery") &&
                 !type.equals("Group") &&
+                !type.equals("Network_icon") &&
                 !isGroup &&
                 !result.contains(node.getText())){
                 result.add(node.getText());
