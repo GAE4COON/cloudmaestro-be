@@ -1,12 +1,16 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
+import com.gae4coon.cloudmaestro.domain.file.service.S3Service;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
+import com.gae4coon.cloudmaestro.domain.user.entity.Member;
+import com.gae4coon.cloudmaestro.domain.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,10 +26,39 @@ public class RehostController {
     private final SecurityGroupService securityGroupService;
     private final ModifyLink modifyLink;
     private final NetworkToAWS networkToAWS;
+    private final S3Service s3Service;
+    private final NetworkService networkService;
+    private final MemberRepository memberRepository;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @PostMapping("/ssohost")
     public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) String postData) {
 
+        // put s3
+        String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
+        s3Service.uploadS3File(fileName, postData);
+
+//       임시 할당
+        Member member = Member.builder()
+                .userId(String.valueOf("1"))
+                .userPw("null")
+                .userName("null")
+                .belong("null")
+                .phoneNumber("null")
+                .email("null")
+                .role(Member.UserRole.valueOf("member"))
+                .build();
+
+        memberRepository.save(member);
+//       임시 할당
+
+
+        // put network
+        networkService.addNetwork(member, fileName, null);
+
+        // 파일 저장
         try {
             ObjectMapper mapper = new ObjectMapper();
             GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
@@ -100,8 +133,6 @@ public class RehostController {
             HashMap<String, Object> response = new HashMap<>();
 
             response.put("result", responseBody);
-            System.out.println("response: "+response);
-
             return ResponseEntity.ok().body(response);
 
         } catch (Exception e) {
