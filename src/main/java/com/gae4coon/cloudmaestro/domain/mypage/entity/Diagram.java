@@ -1,4 +1,4 @@
-package com.gae4coon.cloudmaestro.domain.diagram.entity;
+package com.gae4coon.cloudmaestro.domain.mypage.entity;
 
 import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import jakarta.persistence.Entity;
@@ -7,8 +7,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Data
-@Table(name = "diagram")
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)@Table(name = "diagram")
 public class Diagram {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -1,6 +1,5 @@
-package com.gae4coon.cloudmaestro.domain.diagram.entity;
+package com.gae4coon.cloudmaestro.domain.mypage.entity;
 
-import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import jakarta.persistence.Entity;
 
 import jakarta.persistence.*;
@@ -9,7 +8,8 @@ import lombok.*;
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "requirement")
 public class Require {
     @Id
@@ -26,4 +26,10 @@ public class Require {
 
     // 대충 망 별 기능... 어케처리할까
 
+    @Builder
+    public Require(Long requireId, String industrialId, Set<Cloud> clouds){
+        this.requireId = requireId;
+        this.industrialId = industrialId;
+        this.clouds = clouds;
+    }
 }

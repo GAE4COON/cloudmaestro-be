@@ -1,14 +1,15 @@
-package com.gae4coon.cloudmaestro.domain.diagram.entity;
+package com.gae4coon.cloudmaestro.domain.mypage.entity;
 
 
 import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.util.Set;
 
 @Entity
-@Data
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "cloud")
 public class Cloud {
     @Id
@@ -34,5 +35,14 @@ public class Cloud {
     // AWS와 Diagram은 OneToMany 관계임을 명시
     @OneToMany(mappedBy = "cloudId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<Diagram> diagrams;
+
+    @Builder
+    public Cloud(Long cloudId, Member userId, String cloudFile, Require requireId, Set<Diagram> diagrams){
+        this.cloudId = cloudId;
+        this.userId = userId;
+        this.cloudFile = cloudFile;
+        this.requireId = requireId;
+        this.diagrams = diagrams;
+    }
 
 }
