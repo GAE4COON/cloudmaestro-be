@@ -3,6 +3,10 @@ package com.gae4coon.cloudmaestro.domain.resourceguide.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+<<<<<<< HEAD
+=======
+import com.gae4coon.cloudmaestro.domain.resourceguide.dto.DrawResourceDto;
+>>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
 import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceDto;
 import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceResponseDto;
 import com.gae4coon.cloudmaestro.domain.resourceguide.entity.ResourceEntity;
@@ -38,4 +42,17 @@ public class ResourceService {
         return map;
     }
 
+<<<<<<< HEAD
+=======
+    public HashMap<String, Object> drawResource(DrawResourceDto title) throws JsonProcessingException {
+        HashMap<String, Object> map = new HashMap<>();
+
+        ResourceEntity resourceEntity =resourceRepository.findByTitle(title.getTitle());
+        System.out.println(resourceEntity.getTitle() + resourceEntity.getGuide1());
+
+        map.put("result", resourceEntity.getGuide1());
+        return map;
+    }
+
+>>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
 }

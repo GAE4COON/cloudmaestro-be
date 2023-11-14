@@ -382,10 +382,13 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         changeRegionandVpc(groupDataList);
         // Region에 옮기기
         moveNodeToRegion(nodeDataList);
+<<<<<<< HEAD
         // 기본 옵션들 추가하기
 
 
 
+=======
+>>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
     }
 
     public void addNetwork(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
@@ -393,6 +396,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         addNat(nodeDataList, groupDataList);
         addInternet(nodeDataList, groupDataList, linkDataList);
     }
+<<<<<<< HEAD
 
     public void addAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
         checkavailable.addALB(nodeDataList, groupDataList,linkDataList);
@@ -400,5 +404,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 //      addNat(nodeDataList, groupDataList);
 //        addInternet(nodeDataList, groupDataList, linkDataList);
     }
+=======
+>>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
 
 }

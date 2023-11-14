@@ -1,6 +1,10 @@
 package com.gae4coon.cloudmaestro.domain.resourceguide.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+<<<<<<< HEAD
+=======
+import com.gae4coon.cloudmaestro.domain.resourceguide.dto.DrawResourceDto;
+>>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
 import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceDto;
 import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceResponseDto;
 import com.gae4coon.cloudmaestro.domain.resourceguide.service.ResourceService;
@@ -33,4 +37,20 @@ public class ResourceController
         return resourceEntity;
     }
 
+<<<<<<< HEAD
+=======
+    @PostMapping("/draw-resource")
+    public HashMap<String, Object> member(@RequestBody DrawResourceDto title) {
+        HashMap<String, Object> resourceEntity  = null;
+        try {
+            resourceEntity = resourceService.drawResource(title);
+            System.out.println(resourceEntity);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+        return resourceEntity;
+    }
+
+
+>>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
 }
