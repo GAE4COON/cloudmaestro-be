@@ -5,7 +5,6 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import org.springframework.stereotype.Service;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.impl.checkAvailable;
 
 import java.util.*;
 
@@ -13,7 +12,6 @@ import java.util.*;
 
 public class NetworkToAWSImpl implements NetworkToAWS {
 
-    checkAvailable checkavailable = new checkAvailable();
 
     @Override
     public void changeNodeSource(List<NodeData> nodeDataList) {
@@ -393,14 +391,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         addNacl(nodeDataList, groupDataList);
         addNat(nodeDataList, groupDataList);
         addInternet(nodeDataList, groupDataList, linkDataList);
-    }
-
-
-    public void addAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
-        checkavailable.addALB(nodeDataList, groupDataList,linkDataList);
-
-//      addNat(nodeDataList, groupDataList);
-//        addInternet(nodeDataList, groupDataList, linkDataList);
     }
 
 
