@@ -111,12 +111,10 @@ public class RehostController {
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
             networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
-<<<<<<< HEAD
 
             // ALB 추가
             //networkToAWS.addAvailable(nodeDataList, groupDataList, linkDataList);
-=======
->>>>>>> 5a2bb9df2979355e6fbda10ae00d61913594f1ca
+
 
             System.out.println("------------final--------------");
             System.out.println("nodeDataList " + nodeDataList);
