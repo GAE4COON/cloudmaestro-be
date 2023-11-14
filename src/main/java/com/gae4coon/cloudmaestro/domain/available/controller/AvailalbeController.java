@@ -2,6 +2,7 @@ package com.gae4coon.cloudmaestro.domain.available.controller;
 
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
 import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
+import com.gae4coon.cloudmaestro.domain.file.service.FileService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
@@ -20,18 +21,28 @@ import java.util.*;
 public class AvailalbeController {
 
     private final AvailableService availableService;
-
     @PostMapping("/available")
     public ResponseEntity <Map<String, Object>> addALB(@RequestBody Map<String, Object> requestData){
-        Map<String, Object> result = new HashMap<>();
-
+        Map<String, Object> result = new HashMap<String, Object> ();
+        int albCount = 0;
         try{
+
             Map<String, Object> resultData = (Map<String, Object>) requestData.get("result");
             List<Map<String, Object>> nodeDataArray = (List<Map<String, Object>>) resultData.get("nodeDataArray");
-            List<Map<String, Object>> linkDataList = (List<Map<String, Object>>) resultData.get("linkDataArray");
+            List<Map<String, Object>> linkDataArray = (List<Map<String, Object>>) resultData.get("linkDataArray");
 
             List<GroupData> groupDataList = new ArrayList<>();
             List<NodeData> nodeDataList = new ArrayList<>();
+            List<LinkData> linkDataList = new ArrayList<>();
+
+
+
+            for(Map<String,Object> data : linkDataArray){
+                LinkData linkdata = availableService.converMapToLinkData(data);
+                System.out.println("LinkData : " + linkdata);
+                linkDataList.add(linkdata);
+            }
+
 
             // Group Data와 Node Data 의 변환
             for( Map<String, Object> data : nodeDataArray){
@@ -44,15 +55,9 @@ public class AvailalbeController {
                 }
             }
 
-
-            System.out.println("============================");
-            System.out.println("groupData"+groupDataList);
-            System.out.println("nodeData"+nodeDataList);
-            System.out.println("link"+linkDataList);
-
-
-            result.put("message","ALB Data processed successfully");
-
+            // ALB 에 넣기
+            availableService.addALB(albCount,nodeDataList,groupDataList,linkDataList);
+            linkDataList = availableService.unique(linkDataList);
 
             Map<String, Object> responseBody = new HashMap<>();
 
