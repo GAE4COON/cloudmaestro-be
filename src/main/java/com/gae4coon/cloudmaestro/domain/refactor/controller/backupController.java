@@ -38,6 +38,16 @@ public class backupController {
 
             List<LinkData> linkDataList = model.getLinkDataArray();
 
+            for (NodeData data : dataArray) {
+                if (data.getIsGroup() != null) {
+                    GroupData groupData = new GroupData(data.getKey(), data.getText(), data.getIsGroup(), data.getGroup(), data.getType(), data.getStroke());
+                    groupDataList.add(groupData);
+                } else {
+                    nodeDataList.add(data);
+                }
+            }
+
+
 
 
 
