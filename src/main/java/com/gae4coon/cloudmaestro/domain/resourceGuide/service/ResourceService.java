@@ -3,6 +3,9 @@ package com.gae4coon.cloudmaestro.domain.resourceguide.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import com.gae4coon.cloudmaestro.domain.resourceguide.dto.DrawResourceDto;
+
 import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceDto;
 import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceResponseDto;
 import com.gae4coon.cloudmaestro.domain.resourceguide.entity.ResourceEntity;
@@ -13,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -35,6 +39,21 @@ public class ResourceService {
         }
 
         map.put("result", resourcelist);
+        return map;
+    }
+
+    public HashMap<String, Object> drawResource(DrawResourceDto title) throws JsonProcessingException {
+        HashMap<String, Object> map = new HashMap<>();
+
+        Optional<ResourceEntity> resourceEntityOpt = Optional.ofNullable(resourceRepository.findByTitle(title.getTitle()));
+
+        if (resourceEntityOpt.isPresent()) {
+            ResourceEntity resourceEntity = resourceEntityOpt.get();
+            System.out.println(resourceEntity.getTitle() + resourceEntity.getGuide1());
+            map.put("result", resourceEntity.getGuide1());
+        } else {
+            map.put("result", "fail");
+        }
         return map;
     }
 

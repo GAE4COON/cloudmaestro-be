@@ -21,4 +21,8 @@ public interface NetworkToAWS {
 
     void addNetwork(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 
+
+    void addAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
+
+
 }

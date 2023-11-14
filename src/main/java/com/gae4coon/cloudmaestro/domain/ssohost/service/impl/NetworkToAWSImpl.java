@@ -5,12 +5,16 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import org.springframework.stereotype.Service;
+import com.gae4coon.cloudmaestro.domain.ssohost.service.impl.checkAvailable;
 
 import java.util.*;
 
 @Service
 
 public class NetworkToAWSImpl implements NetworkToAWS {
+
+    checkAvailable checkavailable = new checkAvailable();
+
     @Override
     public void changeNodeSource(List<NodeData> nodeDataList) {
         for (NodeData nodeData : nodeDataList) {
@@ -211,7 +215,19 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             if(nodeData.getKey().contains("Shield")){
                 nodeData.setGroup("Region");
             }
-            else if(nodeData.getKey().contains("CloudTrail")){
+            if(nodeData.getKey().contains("CloudTrail")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CloudFront")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CodeDeploy")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("CloudWatch")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("Simple Storage Service")){
                 nodeData.setGroup("Region");
             }
        }
@@ -366,6 +382,11 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         changeRegionandVpc(groupDataList);
         // Region에 옮기기
         moveNodeToRegion(nodeDataList);
+        // 기본 옵션들 추가하기
+
+
+
+
     }
 
     public void addNetwork(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
@@ -373,5 +394,14 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         addNat(nodeDataList, groupDataList);
         addInternet(nodeDataList, groupDataList, linkDataList);
     }
+
+
+    public void addAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+        checkavailable.addALB(nodeDataList, groupDataList,linkDataList);
+
+//      addNat(nodeDataList, groupDataList);
+//        addInternet(nodeDataList, groupDataList, linkDataList);
+    }
+
 
 }
