@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -42,10 +43,15 @@ public class ResourceService {
     public HashMap<String, Object> drawResource(DrawResourceDto title) throws JsonProcessingException {
         HashMap<String, Object> map = new HashMap<>();
 
-        ResourceEntity resourceEntity =resourceRepository.findByTitle(title.getTitle());
-        System.out.println(resourceEntity.getTitle() + resourceEntity.getGuide1());
+        Optional<ResourceEntity> resourceEntityOpt = Optional.ofNullable(resourceRepository.findByTitle(title.getTitle()));
 
-        map.put("result", resourceEntity.getGuide1());
+        if (resourceEntityOpt.isPresent()) {
+            ResourceEntity resourceEntity = resourceEntityOpt.get();
+            System.out.println(resourceEntity.getTitle() + resourceEntity.getGuide1());
+            map.put("result", resourceEntity.getGuide1());
+        } else {
+            map.put("result", "fail");
+        }
         return map;
     }
 
