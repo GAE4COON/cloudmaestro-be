@@ -112,6 +112,10 @@ public class RehostController {
 
             networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
 
+            // ALB 추가
+            //networkToAWS.addAvailable(nodeDataList, groupDataList, linkDataList);
+
+
             System.out.println("------------final--------------");
             System.out.println("nodeDataList " + nodeDataList);
             System.out.println("groupDataList " + groupDataList);
