@@ -8,6 +8,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +19,23 @@ import java.util.*;
 
 @Service
 public class FileServiceImpl implements FileService {
+
     @Override
+    public String convertFileFormat(MultipartFile file) throws Exception {
+        String fileType = file.getContentType();
+
+        // json 형태는 그대로 리턴
+        if (fileType.equals("application/json")) {
+            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
+            return content;
+        }
+        // excel to json
+        List<Map<String, String>> data = excelToJson(file.getInputStream());
+
+        // json to input data
+        return dataToinput(data);
+    }
+
     public List<Map<String, String>> excelToJson(InputStream excelStream) throws Exception {
         List<Map<String, String>> jsonList = new ArrayList<>();
 
@@ -54,7 +71,6 @@ public class FileServiceImpl implements FileService {
         return jsonList;
     }
 
-    @Override
     public String dataToinput(List<Map<String, String>> inputData) {
         JsonObject root = new JsonObject();
         JsonArray nodeDataArray = new JsonArray();

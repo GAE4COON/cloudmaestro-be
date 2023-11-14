@@ -18,4 +18,9 @@ public interface NetworkToAWS {
     void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 
     void setRegionAndVpcData(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
+
+    void addNetwork(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
+
+    void addAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
+
 }
