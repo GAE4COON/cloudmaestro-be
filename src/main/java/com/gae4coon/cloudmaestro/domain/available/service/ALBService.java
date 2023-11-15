@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class AvailableService {
+public class ALBService {
 
     public void addALB(int albCount, List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
 
@@ -30,7 +30,7 @@ public class AvailableService {
         List<String> includeEc2Security = processSecurityGroups(nodeDataList, groupDataList, name);
         System.out.println("includeEc2" + includeEc2Security);
 
-        // Ec2 - albNode 연결
+        // ALB - Security Group 간의 연결
         createLinksForEc2(albNode, new HashSet<>(includeEc2Security), tempLinkDataList);
 
         linkDataList.addAll(tempLinkDataList);
@@ -105,42 +105,7 @@ public class AvailableService {
         albNode.setGroup("Availability Zone");
         return albNode;
     }
-    public NodeData convertMapToNodeData(Map<String, Object> data) {
-        NodeData nodeData = new NodeData();
-        nodeData.setText((String) data.get("text"));
-        nodeData.setType((String) data.get("type"));
-        nodeData.setKey((String) data.get("key"));
-        nodeData.setSource((String) data.get("source"));
-        nodeData.setLoc((String) data.get("loc"));
-        nodeData.setGroup((String) data.get("group"));
-        nodeData.setIsGroup((Boolean) data.get("isGroup"));
-        nodeData.setStroke((String) data.get("stroke"));
-        nodeData.setFigure((String) data.get("figure"));
-        return nodeData;
 
-    }
-
-    public GroupData convertMapToGroupData(Map<String, Object> data) {
-
-        GroupData groupData = new GroupData();
-        groupData.setKey((String) data.get("key"));
-        groupData.setText((String) data.get("text"));
-        groupData.setIsGroup((Boolean) data.get("isGroup"));
-        groupData.setGroup((String) data.get("group"));
-        groupData.setType((String) data.get("type"));
-        groupData.setStroke((String) data.get("stroke"));
-
-        return groupData;
-    }
-
-    public LinkData converMapToLinkData(Map<String,Object> data) {
-        LinkData linkdata = new LinkData();
-        linkdata.setFrom((String) data.get("from"));
-        linkdata.setKey((int)data.get("key"));
-        linkdata.setTo((String) data.get("to"));
-        return linkdata;
-
-    }
     public List<LinkData> unique(List<LinkData> originalList) {
         Set<LinkData> linkDataSet = new HashSet<>();
         for (LinkData link1 : originalList) {
