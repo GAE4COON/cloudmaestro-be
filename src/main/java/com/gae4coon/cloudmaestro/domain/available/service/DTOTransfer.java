@@ -3,11 +3,13 @@ package com.gae4coon.cloudmaestro.domain.available.service;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+@Service
 public class DTOTransfer {
     public void converMapToData(List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList,List<Map<String, Object>> linkDataArray, List<Map<String, Object>> nodeDataArray) {
 

@@ -29,6 +29,7 @@ public class AvailalbeController {
     public ResponseEntity <Map<String, Object>> addALB(@RequestBody Map<String, Object> requestData){
         Map<String, Object> result = new HashMap<String, Object> ();
         int albCount = 0;
+        int autogroupcount = 0;
         try{
 
                 Map<String, Object> resultData = (Map<String, Object>) requestData.get("result");
@@ -43,7 +44,7 @@ public class AvailalbeController {
                 dtotransfer.converMapToData(groupDataList, nodeDataList, linkDataList, linkDataArray, nodeDataArray);
 
                 // Auto Scaling Group에 넣기
-                autoScalingService.addAutoScaling(nodeDataList,groupDataList,linkDataList);
+                autoScalingService.addAutoScaling(autogroupcount,nodeDataList,groupDataList,linkDataList);
 
 
 //                // ALB 에 넣기

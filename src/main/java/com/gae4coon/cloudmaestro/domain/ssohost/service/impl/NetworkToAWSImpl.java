@@ -20,7 +20,9 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
             // server, web server
             if (node.contains("Server")) {
-                nodeData.setKey("EC2");
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("Server", "EC2");
+                nodeData.setKey(nodeKey);
                 nodeData.setText("EC2");
                 nodeData.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 nodeData.setType("Compute");
@@ -135,6 +137,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     public void changeLinkSource(List<LinkData> linkDataList) {
         for (LinkData linkData : linkDataList) {
             String node = linkData.getFrom();
+            System.out.println("linkData" + linkData);
             String value;
 
             // server, web server
@@ -372,7 +375,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     public void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
         changeNodeSource(nodeDataList);
         changeLinkSource(linkDataList);
-        changeGroupSource2(nodeDataList, groupDataList);
+        //changeGroupSource2(nodeDataList, groupDataList);
     }
 
 

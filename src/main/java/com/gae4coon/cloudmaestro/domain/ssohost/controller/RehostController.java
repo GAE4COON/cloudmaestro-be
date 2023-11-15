@@ -80,14 +80,20 @@ public class RehostController {
                 }
             }
 
+
+
+            // Security Group 추가하기
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
             linkDataList = unique(linkDataList);
+
 
             securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, linkDataList);
             linkDataList = unique(linkDataList);
 
             modifyLink.excludeNode(nodeDataList, groupDataList, linkDataList);
             linkDataList = unique(linkDataList);
+
+
 
             Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, linkDataList);
             nodeDataList.clear();
@@ -98,19 +104,21 @@ public class RehostController {
             }
             linkDataList = unique(linkDataList);
 
-
-
-            // node, group, link 정보 변경 (network node to aws)
-            //networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
+            System.out.println("------------final2--------------");
+            System.out.println("nodeDataList " + nodeDataList);
+            System.out.println("groupDataList " + groupDataList);
+            System.out.println("linkDataList " + linkDataList);
 
             //node, group, link 정보 변경 (network node to aws)
-
             networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
 
             // Region, vpc, available zone 넣기
-            networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
+            //networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
-            networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
+            //networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
+
+
+
 
 
 
@@ -126,7 +134,7 @@ public class RehostController {
             finalDataArray.addAll(nodeDataList);
             finalDataArray.addAll(groupDataList);
 
-            finalDataArray.removeIf(Objects::isNull);
+            //finalDataArray.removeIf(Objects::isNull);
 
             responseBody.put("class", "GraphLinksModel");
             responseBody.put("linkKeyProperty", "key");

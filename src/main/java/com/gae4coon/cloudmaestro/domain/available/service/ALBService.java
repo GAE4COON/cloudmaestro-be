@@ -40,7 +40,7 @@ public class ALBService {
 
     }
 
-    private List<String> processSecurityGroups(List<NodeData> nodeDataList, List<GroupData> groupDataList, String name) {
+    public List<String> processSecurityGroups(List<NodeData> nodeDataList, List<GroupData> groupDataList, String name) {
         List<String> includeEc2Security = new ArrayList<>();
 
         for (NodeData nodeData : nodeDataList) {
