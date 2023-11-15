@@ -14,79 +14,97 @@ public class AvailableService {
 
         String name = "PROD ";
 
-        // PROD 개발망에 들어온다고 가정을 한다.
-
-        NodeData albNode = new NodeData();
-        albNode.setKey("Elastic Load Balancing Application Load Balancer" + albCount);
-        albNode.setText("Elastic Load Balancing Application Load Balancer");
-        albNode.setType("Networking-Content-Delivery");
-        albNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
-        albNode.setType("Networking-Content-Delivery");
-        albNode.setFigure("Rectangle");
-        albNode.setGroup("Availability Zone");
-
-
+        // ALB Node 추가
+        NodeData albNode = createAlbNode(albCount);
         nodeDataList.add(albNode);
-        // Public subnet - ALB 연결
+
+
+        // public 망 - available zone 연결 고리 삭제
         List<LinkData> tempLinkDataList = new ArrayList<>();
-        List<LinkData> itemsToRemove = new ArrayList<>();
-        for(LinkData linkdata : linkDataList){
-            if(linkdata.getFrom().contains(name.concat("Public subnet"))){
-                LinkData data = new LinkData();
-                data.setFrom(linkdata.getFrom());
-                data.setTo(albNode.getKey());
-                data.setKey(linkdata.getKey() - 1);
-                tempLinkDataList.add(data);
-            }
-            if(linkdata.getFrom().contains(name.concat("Public subnet"))){
-                itemsToRemove.add(linkdata);
-            }
-        }
+        List<LinkData> itemsToRemove = processLinkData(name, albNode, linkDataList, tempLinkDataList);
+
         linkDataList.removeAll(itemsToRemove);
         linkDataList.addAll(tempLinkDataList);
 
-        // Secruity Group 에 ec2가 포함되어 있는 지 && 해당 망의 group 인지
-        List<String> includeEc2Security = new ArrayList<>();
-        for(NodeData nodedata : nodeDataList){
-            // Security Group에 ec2가 포함되어 있는지
-            if(nodedata.getText().contains("EC2") && nodedata.getGroup().contains("Security Group")){
-                String groupName = nodedata.getGroup();
-                // 해당 망의 group data 인지
-                for (GroupData group : groupDataList){
-                    if(     group.getGroup() != null &&
-                            group.getGroup().contains(name) &&
-                            group.getKey().contains(groupName)){
-                        includeEc2Security.add(nodedata.getGroup());
-                    }
-                }
-            }
-            //  해당 망에 security group이 없는 ec2가 있는 지
-            if(nodedata.getText().contains("EC2") && !nodedata.getGroup().contains("Security Group")){
-                includeEc2Security.add(nodedata.getKey());
-            }
-
-        }
-
+        // Security Group 안에 Ec2 포함 or Security Group없는 ec2 추가
+        List<String> includeEc2Security = processSecurityGroups(nodeDataList, groupDataList, name);
         System.out.println("includeEc2" + includeEc2Security);
 
-        // link data와 Ec2 or security group 간의 연결
-        Set<String> setIncludeEc2 = new HashSet<>(includeEc2Security);
+        // Ec2 - albNode 연결
+        createLinksForEc2(albNode, new HashSet<>(includeEc2Security), tempLinkDataList);
 
-        for(String ec2 : setIncludeEc2) {
+        linkDataList.addAll(tempLinkDataList);
 
-            System.out.println("ALBNode :  "+ albNode.getKey());
+        linkDataList.removeAll(itemsToRemove);
+        linkDataList.addAll(tempLinkDataList);
+
+    }
+
+    private List<String> processSecurityGroups(List<NodeData> nodeDataList, List<GroupData> groupDataList, String name) {
+        List<String> includeEc2Security = new ArrayList<>();
+
+        for (NodeData nodeData : nodeDataList) {
+            // Check if the NodeData is an EC2 instance
+            if (nodeData.getText().contains("EC2")) {
+                // Check if it belongs to a Security Group
+                if (nodeData.getGroup().contains("Security Group")) {
+                    String groupName = nodeData.getGroup();
+
+                    // Check if it's part of the current network group
+                    for (GroupData group : groupDataList) {
+                        if (group.getGroup() != null &&
+                                group.getGroup().contains(name) &&
+                                group.getKey().contains(groupName)) {
+
+                            includeEc2Security.add(nodeData.getGroup());
+                        }
+                    }
+                } else {
+                    // If the EC2 instance doesn't belong to a Security Group
+                    includeEc2Security.add(nodeData.getKey());
+                }
+            }
+        }
+
+        return includeEc2Security;
+    }
+
+    private void createLinksForEc2(NodeData albNode, Set<String> ec2Set, List<LinkData> tempLinkDataList) {
+        for (String ec2 : ec2Set) {
             LinkData data = new LinkData();
             data.setFrom(albNode.getKey());
             data.setTo(ec2);
             data.setKey(-1);
             tempLinkDataList.add(data);
         }
-        linkDataList.addAll(tempLinkDataList);
-
-        albCount += 1;
-
     }
 
+    private List<LinkData> processLinkData(String name, NodeData albNode, List<LinkData> linkDataList, List<LinkData> tempLinkDataList) {
+        List<LinkData> itemsToRemove = new ArrayList<>();
+        for (LinkData linkdata : linkDataList) {
+            if (linkdata.getFrom().contains(name.concat("Public subnet"))) {
+                LinkData data = new LinkData();
+                data.setFrom(linkdata.getFrom());
+                data.setTo(albNode.getKey());
+                data.setKey(linkdata.getKey() - 1);
+                tempLinkDataList.add(data);
+                itemsToRemove.add(linkdata);
+            }
+        }
+        return itemsToRemove;
+    }
+
+
+    private NodeData createAlbNode(int albCount) {
+        NodeData albNode = new NodeData();
+        albNode.setKey("Elastic Load Balancing Application Load Balancer" + albCount);
+        albNode.setText("Elastic Load Balancing Application Load Balancer");
+        albNode.setType("Networking-Content-Delivery");
+        albNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
+        albNode.setFigure("Rectangle");
+        albNode.setGroup("Availability Zone");
+        return albNode;
+    }
     public NodeData convertMapToNodeData(Map<String, Object> data) {
         NodeData nodeData = new NodeData();
         nodeData.setText((String) data.get("text"));
