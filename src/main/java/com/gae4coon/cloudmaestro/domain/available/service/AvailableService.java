@@ -29,20 +29,24 @@ public class AvailableService {
         nodeDataList.add(albNode);
         // Public subnet - ALB 연결
         List<LinkData> tempLinkDataList = new ArrayList<>();
+        List<LinkData> itemsToRemove = new ArrayList<>();
         for(LinkData linkdata : linkDataList){
             if(linkdata.getFrom().contains(name.concat("Public subnet"))){
-                //System.out.println("linkdata : " + linkdata);
                 LinkData data = new LinkData();
                 data.setFrom(linkdata.getFrom());
                 data.setTo(albNode.getKey());
                 data.setKey(linkdata.getKey() - 1);
                 tempLinkDataList.add(data);
             }
+            if(linkdata.getFrom().contains(name.concat("Public subnet"))){
+                itemsToRemove.add(linkdata);
+            }
         }
+        linkDataList.removeAll(itemsToRemove);
         linkDataList.addAll(tempLinkDataList);
 
         // Secruity Group 에 ec2가 포함되어 있는 지 && 해당 망의 group 인지
-        List<String> includeEc2 = new ArrayList<>();
+        List<String> includeEc2Security = new ArrayList<>();
         for(NodeData nodedata : nodeDataList){
             // Security Group에 ec2가 포함되어 있는지
             if(nodedata.getText().contains("EC2") && nodedata.getGroup().contains("Security Group")){
@@ -52,41 +56,32 @@ public class AvailableService {
                     if(     group.getGroup() != null &&
                             group.getGroup().contains(name) &&
                             group.getKey().contains(groupName)){
-                        includeEc2.add(nodedata.getGroup());
+                        includeEc2Security.add(nodedata.getGroup());
                     }
                 }
             }
-        }
-
-        System.out.println("includeEc2" + includeEc2);
-
-        // EC2 or Security Group
-        Set<String> setIncludeEc2 = new HashSet<>(includeEc2);
-        List<LinkData> itemsToRemove = new ArrayList<>();
-        for(LinkData linkdata : linkDataList) {
-
-            if (linkdata.getTo() != null &&
-                    ((linkdata.getTo().contains("Security Group") &&
-                            setIncludeEc2.contains(linkdata.getTo())) ||
-                            linkdata.getTo().contains("EC2")
-                    )) {
-
-                LinkData data = new LinkData();
-                data.setFrom(albNode.getKey());
-                data.setTo(linkdata.getTo());
-                data.setKey(linkdata.getKey() - 1);
-                tempLinkDataList.add(data);
-            }
-            if(linkdata.getFrom().contains(name.concat("Public subnet"))){
-                itemsToRemove.add(linkdata);
+            //  해당 망에 security group이 없는 ec2가 있는 지
+            if(nodedata.getText().contains("EC2") && !nodedata.getGroup().contains("Security Group")){
+                includeEc2Security.add(nodedata.getKey());
             }
 
         }
-        linkDataList.removeAll(itemsToRemove);
+
+        System.out.println("includeEc2" + includeEc2Security);
+
+        // link data와 Ec2 or security group 간의 연결
+        Set<String> setIncludeEc2 = new HashSet<>(includeEc2Security);
+
+        for(String ec2 : setIncludeEc2) {
+
+            System.out.println("ALBNode :  "+ albNode.getKey());
+            LinkData data = new LinkData();
+            data.setFrom(albNode.getKey());
+            data.setTo(ec2);
+            data.setKey(-1);
+            tempLinkDataList.add(data);
+        }
         linkDataList.addAll(tempLinkDataList);
-
-
-
 
         albCount += 1;
 

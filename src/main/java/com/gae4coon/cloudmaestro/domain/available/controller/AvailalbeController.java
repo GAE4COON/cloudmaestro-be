@@ -59,13 +59,15 @@ public class AvailalbeController {
             availableService.addALB(albCount,nodeDataList,groupDataList,linkDataList);
             linkDataList = availableService.unique(linkDataList);
 
+
+
+
+            /// 전체 데이터 넣기
             Map<String, Object> responseBody = new HashMap<>();
 
             List<Object> finalDataArray = new ArrayList<>();
             finalDataArray.addAll(nodeDataList);
             finalDataArray.addAll(groupDataList);
-
-            //finalDataArray.removeIf(Objects::isNull);
 
             responseBody.put("class", "GraphLinksModel");
             responseBody.put("linkKeyProperty", "key");
