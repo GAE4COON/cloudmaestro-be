@@ -36,18 +36,18 @@ public class DiagramDTOServiceImpl implements DiagramDTOService {
 
     @Override
     public HashMap<String, Object> dtoComplete(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
-        Map<String, Object> responseBody = new HashMap<>();
 
         List<Object> finalDataArray = new ArrayList<>();
-        finalDataArray.add(nodeDataList);
-        finalDataArray.add(groupDataList);
+        finalDataArray.addAll(nodeDataList);
+        finalDataArray.addAll(groupDataList);
 
         finalDataArray.removeIf(Objects::isNull);
 
+        Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("class", "GraphLinksModel");
         responseBody.put("linkKeyProperty", "key");
-        responseBody.put("nodeDataArray", finalDataArray);  // 예시
-        responseBody.put("linkDataArray", linkDataList);  // 예시
+        responseBody.put("nodeDataArray", finalDataArray);
+        responseBody.put("linkDataArray", linkDataList);
 
         HashMap<String, Object> response = new HashMap<>();
 

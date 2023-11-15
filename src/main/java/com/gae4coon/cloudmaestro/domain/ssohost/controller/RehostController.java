@@ -73,15 +73,10 @@ public class RehostController {
 
 
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
-            linkDataList = unique(linkDataList);
+            securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, unique(linkDataList));
+            modifyLink.excludeNode(nodeDataList, groupDataList, unique(linkDataList));
 
-            securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, linkDataList);
-            linkDataList = unique(linkDataList);
-
-            modifyLink.excludeNode(nodeDataList, groupDataList, linkDataList);
-            linkDataList = unique(linkDataList);
-
-            Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, linkDataList);
+            Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, unique(linkDataList));
             nodeDataList.clear();
             linkDataList.clear();
 
@@ -89,7 +84,6 @@ public class RehostController {
                 nodeDataList.addAll(entry.getKey());
                 linkDataList.addAll(entry.getValue());
             }
-            linkDataList = unique(linkDataList);
 
             // node, group, link 정보 변경 (network node to aws)
             //networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
@@ -105,7 +99,8 @@ public class RehostController {
 
             // ALB 추가
             //networkToAWS.addAvailable(nodeDataList, groupDataList, linkDataList);
-            HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, linkDataList);
+
+            HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList));
             System.out.println("response"+ response);
             return ResponseEntity.ok().body(response);
 

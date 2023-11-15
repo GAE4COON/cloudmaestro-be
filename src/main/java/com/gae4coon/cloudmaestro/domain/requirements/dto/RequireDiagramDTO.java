@@ -9,6 +9,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RequireDiagramDTO {
-    private RequireDTO requireDTO;
-    private GraphLinksModel graphLinksModel;
+    private RequireDTO requirementData;
+    private String diagramData;
 }
