@@ -113,9 +113,9 @@ public class RehostController {
             networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
 
             // Region, vpc, available zone 넣기
-            //networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
+            networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
-            //networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
+            networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
 
 
 
@@ -134,7 +134,7 @@ public class RehostController {
             finalDataArray.addAll(nodeDataList);
             finalDataArray.addAll(groupDataList);
 
-            //finalDataArray.removeIf(Objects::isNull);
+            finalDataArray.removeIf(Objects::isNull);
 
             responseBody.put("class", "GraphLinksModel");
             responseBody.put("linkKeyProperty", "key");
@@ -144,6 +144,7 @@ public class RehostController {
             HashMap<String, Object> response = new HashMap<>();
 
             response.put("result", responseBody);
+            System.out.println("response"+response);
             return ResponseEntity.ok().body(response);
 
         } catch (Exception e) {

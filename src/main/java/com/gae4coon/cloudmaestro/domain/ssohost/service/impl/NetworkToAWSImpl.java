@@ -27,16 +27,29 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 nodeData.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 nodeData.setType("Compute");
             } else if (node.contains("Anti DDoS")) {
-                nodeData.setKey("Shield");
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("Anti DDoS", "Shield");
+                nodeData.setKey(nodeKey);
                 nodeData.setText("Shield");
                 nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
                 nodeData.setType("Security-Identity-Compliance");
-            } else if (node.contains("IPS") || node.contains("IDS")) {
-                nodeData.setKey("CloudTrail");
+            } else if (node.contains("IPS")) {
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("IPS", "CloudTrail");
+                nodeData.setKey(nodeKey);
                 nodeData.setText("CloudTrail");
                 nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
                 nodeData.setType("Management-Governance");
-            } else if (node.contains("Database")) {
+            } else if (node.contains("IDS")){
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("IDS", "CloudTrail");
+                nodeData.setKey(nodeKey);
+                nodeData.setText("CloudTrail");
+                nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
+                nodeData.setType("Management-Governance");
+
+            }
+            else if (node.contains("Database")) {
                 nodeData.setKey("RDS");
                 nodeData.setText("RDS");
                 nodeData.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
@@ -375,7 +388,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     public void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
         changeNodeSource(nodeDataList);
         changeLinkSource(linkDataList);
-        //changeGroupSource2(nodeDataList, groupDataList);
+        changeGroupSource2(nodeDataList, groupDataList);
     }
 
 
