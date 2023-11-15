@@ -106,7 +106,7 @@ public class RequirementService {
                                 privateSubnetGroupKeys.add(group.getKey());
                         }
                 }
-                double maxY = Double.MIN_VALUE; //MAX보다 작은 Y를 찾으면
+                double maxY = Double.MIN_VALUE;
                 double minX = Double.MAX_VALUE;
                 for (String privateSubnetGroupKey : privateSubnetGroupKeys) {
                         for (NodeData node : nodeDataList) {
