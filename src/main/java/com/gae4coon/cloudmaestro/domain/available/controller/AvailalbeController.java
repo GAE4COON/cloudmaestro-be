@@ -21,7 +21,7 @@ import java.util.*;
 public class AvailalbeController {
 
     private final AvailableService availableService;
-    @PostMapping("/available")
+    @PostMapping("/available2")
     public ResponseEntity <Map<String, Object>> addALB(@RequestBody Map<String, Object> requestData){
         Map<String, Object> result = new HashMap<String, Object> ();
         int albCount = 0;
