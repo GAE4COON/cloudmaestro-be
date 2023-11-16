@@ -1,7 +1,9 @@
 package com.gae4coon.cloudmaestro.domain.refactor.service;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
@@ -12,7 +14,14 @@ import java.util.List;
 @Service
 public class BackupService {
 
-    public void addRegionGroup(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+    public void requirementParsing(RequireDiagramDTO requireDiagramDTO, Map<String, Object>  responseArray){
+        List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
+        List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
+        List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+
+    }
+
+    public void addRegionGroup (List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
 
         int number=0;
 
