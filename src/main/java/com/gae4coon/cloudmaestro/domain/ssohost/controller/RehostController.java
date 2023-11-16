@@ -136,6 +136,7 @@ public class RehostController {
             HashMap<String, Object> response = new HashMap<>();
 
             response.put("result", responseBody);
+            System.out.println(response);
             return ResponseEntity.ok().body(response);
 
         } catch (Exception e) {

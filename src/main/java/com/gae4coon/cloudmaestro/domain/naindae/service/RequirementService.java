@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class RequirementService {
     public Map<String, Object> getRequirementAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
             int i = 0;
-            Map<String, Object> result = new HashMap<>();
+                    Map<String, Object> result = new HashMap<>();
 
             NodeData availabilityZoneNode = new NodeData();
             availabilityZoneNode.setKey("Availability Zone2");
