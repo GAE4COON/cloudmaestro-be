@@ -29,6 +29,10 @@ public class RequirementController {
         System.out.println("reqwqrojasepfo:"+diagramData);
 //
         Map<String, Object> responseArray = diagramDtoService.dtoGenerator(diagramData);
+        // rehost에서 받은 DTO와 동일하게 작동
+
+
+
         HashMap<String, Object> responseDiagram = securityService.globalService(requireDiagramDTO.getRequirementData().getGlobalRequirements(), responseArray);
 //        return ResponseEntity.ok("success");
         return ResponseEntity.ok(responseDiagram);
