@@ -239,7 +239,7 @@ public class SecurityServiceImpl implements SecurityService {
         for(ZoneDTO zone:Zones){
             for(String zoneRequirement: zone.getZoneRequirements()){
                 switch (zoneRequirement){
-                    case "웹 애플리케이션 보호":
+                    case "망별_웹 애플리케이션 보호":
                         setZoneWAF();
                         break;
                 }
@@ -252,11 +252,28 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     private void setZoneWAF() {
+        NodeData resourceNode = new NodeData();
+        for(NodeData node: nodeDataList){
+            if(node.getKey().contains("Application Load Balancer(ALB)")) {
+                resourceNode = node;
+            }
+        }
+        // 다이어그램에 WAF 없으면 예외처리
+        if(!nodeKeys.contains("AWS_WAF")) {
+            NodeData WAF = new NodeData();
+            WAF.setKey("AWS_WAF");
+            WAF.setText("AWS_WAF");
+            WAF.setType("Security-Identity-Compliance");
+            WAF.setGroup("Region");
+            WAF.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-WAF_48.svg");
+            nodeDataList.add(WAF);
+        }
+
+
+        LinkData WAFtoResource = new LinkData();
+        WAFtoResource.setFrom("AWS_WAF");
+        WAFtoResource.setTo("Application Load Balancer(ALB)");
+        linkDataList.add(WAFtoResource);
+
     }
-
-
-    // 망별로
-
-
-
 }
