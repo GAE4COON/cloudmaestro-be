@@ -32,43 +32,43 @@ public class AvailalbeController {
         int autogroupcount = 0;
         try{
 
-                Map<String, Object> resultData = (Map<String, Object>) requestData.get("result");
-                List<Map<String, Object>> nodeDataArray = (List<Map<String, Object>>) resultData.get("nodeDataArray");
-                List<Map<String, Object>> linkDataArray = (List<Map<String, Object>>) resultData.get("linkDataArray");
+            Map<String, Object> resultData = (Map<String, Object>) requestData.get("result");
+            List<Map<String, Object>> nodeDataArray = (List<Map<String, Object>>) resultData.get("nodeDataArray");
+            List<Map<String, Object>> linkDataArray = (List<Map<String, Object>>) resultData.get("linkDataArray");
 
-                List<GroupData> groupDataList = new ArrayList<>();
-                List<NodeData> nodeDataList = new ArrayList<>();
-                List<LinkData> linkDataList = new ArrayList<>();
+            List<GroupData> groupDataList = new ArrayList<>();
+            List<NodeData> nodeDataList = new ArrayList<>();
+            List<LinkData> linkDataList = new ArrayList<>();
 
-                // DTO의 형식에 맞게 변환
-                dtotransfer.converMapToData(groupDataList, nodeDataList, linkDataList, linkDataArray, nodeDataArray);
+            // DTO의 형식에 맞게 변환
+            dtotransfer.converMapToData(groupDataList, nodeDataList, linkDataList, linkDataArray, nodeDataArray);
 
-                // ALB 에 넣기
-                albservice.addALB(albCount,nodeDataList,groupDataList,linkDataList);
-                linkDataList = albservice.unique(linkDataList);
+            // ALB 에 넣기
+            albservice.addALB(albCount,nodeDataList,groupDataList,linkDataList);
+            linkDataList = albservice.unique(linkDataList);
 
-                // Auto Scaling Group에 넣기
-                autoScalingService.addAutoScaling(autogroupcount,nodeDataList,groupDataList,linkDataList);
-                linkDataList = albservice.unique(linkDataList);
+            // Auto Scaling Group에 넣기
+            autoScalingService.addAutoScaling(autogroupcount,nodeDataList,groupDataList,linkDataList);
+            linkDataList = albservice.unique(linkDataList);
 
 
 
-                /// 전체 데이터 넣기
-                Map<String, Object> responseBody = new HashMap<>();
+            /// 전체 데이터 넣기
+            Map<String, Object> responseBody = new HashMap<>();
 
-                List<Object> finalDataArray = new ArrayList<>();
-                finalDataArray.addAll(nodeDataList);
-                finalDataArray.addAll(groupDataList);
+            List<Object> finalDataArray = new ArrayList<>();
+            finalDataArray.addAll(nodeDataList);
+            finalDataArray.addAll(groupDataList);
 
-                responseBody.put("class", "GraphLinksModel");
-                responseBody.put("linkKeyProperty", "key");
-                responseBody.put("nodeDataArray", finalDataArray);  // 예시
-                responseBody.put("linkDataArray", linkDataList);  // 예시
+            responseBody.put("class", "GraphLinksModel");
+            responseBody.put("linkKeyProperty", "key");
+            responseBody.put("nodeDataArray", finalDataArray);  // 예시
+            responseBody.put("linkDataArray", linkDataList);  // 예시
 
-                HashMap<String, Object> response = new HashMap<>();
+            HashMap<String, Object> response = new HashMap<>();
 
-                response.put("result", responseBody);
-                return ResponseEntity.ok(response);
+            response.put("result", responseBody);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             // 예외 처리 로직
             result.put("error", "An error occurred: " + e.getMessage());

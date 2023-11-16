@@ -127,6 +127,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 groupData.setText(key+" Private subnet " + count);
                 groupData.setStroke("rgb(0,164,166)");
 
+
                 for(NodeData node: nodeDataList) {
                     if (!node.getGroup().equals(key)) continue;
                     node.setGroup(key + " Private subnet " + count);
@@ -188,7 +189,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         // Temporary list to store new GroupData objects
         for(GroupData groupData:groupDataList) {
             if(groupData.getKey().contains("Private subnet") || groupData.getKey().contains("Public subnet") ){
-                groupData.setStroke("rgb(0,164,166)");
+//                groupData.setStroke("rgb(0,164,166)");
                 groupData.setIsGroup(true);
                 groupData.setGroup("Availability Zone");
                 groupData.setType("AWS_Groups");
