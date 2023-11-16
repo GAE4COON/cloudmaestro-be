@@ -5,7 +5,6 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import org.springframework.stereotype.Service;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.impl.checkAvailable;
 
 import java.util.*;
 
@@ -13,7 +12,6 @@ import java.util.*;
 
 public class NetworkToAWSImpl implements NetworkToAWS {
 
-    checkAvailable checkavailable = new checkAvailable();
 
     @Override
     public void changeNodeSource(List<NodeData> nodeDataList) {
@@ -114,6 +112,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 groupData.setText(key+" Private subnet " + count);
                 groupData.setStroke("rgb(0,164,166)");
 
+
                 for(NodeData node: nodeDataList) {
                     if (!node.getGroup().equals(key)) continue;
                     node.setGroup(key + " Private subnet " + count);
@@ -174,7 +173,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         // Temporary list to store new GroupData objects
         for(GroupData groupData:groupDataList) {
             if(groupData.getKey().contains("Private subnet") || groupData.getKey().contains("Public subnet") ){
-                groupData.setStroke("rgb(0,164,166)");
+//                groupData.setStroke("rgb(0,164,166)");
                 groupData.setIsGroup(true);
                 groupData.setGroup("Availability Zone");
                 groupData.setType("AWS_Groups");
@@ -393,14 +392,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         addNacl(nodeDataList, groupDataList);
         addNat(nodeDataList, groupDataList);
         addInternet(nodeDataList, groupDataList, linkDataList);
-    }
-
-
-    public void addAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
-        checkavailable.addALB(nodeDataList, groupDataList,linkDataList);
-
-//      addNat(nodeDataList, groupDataList);
-//        addInternet(nodeDataList, groupDataList, linkDataList);
     }
 
 
