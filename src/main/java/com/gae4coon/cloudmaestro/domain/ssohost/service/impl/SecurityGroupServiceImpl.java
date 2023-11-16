@@ -8,7 +8,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 @Service
-
 public class SecurityGroupServiceImpl implements SecurityGroupService {
 
     @Override
@@ -91,5 +90,27 @@ public class SecurityGroupServiceImpl implements SecurityGroupService {
         resultMap.put(groupDataList, nodeDataList);
 
         return;
+    }
+
+
+    // from 이 server이고, to가 같은 목적지라면 ?
+    @Override
+    public void addEc2Group(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+
+        List<NodeData> newNodeDataList = new ArrayList<>();
+        List<GroupData> newGroupDataList = new ArrayList<>();
+
+        // Server에서 같은 to를 향한다면 같은 그룹으로 묶기
+        for (NodeData nodedata : nodeDataList) {
+            System.out.println("NodeData" + nodedata);
+            for(LinkData linkdata : linkDataList){
+                if(nodedata.getText().contains("Server")){
+
+
+                }
+            }
+        }
+
+
     }
 }

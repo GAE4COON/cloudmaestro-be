@@ -10,4 +10,7 @@ import java.util.Map;
 public interface SecurityGroupService {
     void addSecurityGroup(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
     void modifySecurityGroupLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
+
+
+    void addEc2Group(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 }

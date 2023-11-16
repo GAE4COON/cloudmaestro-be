@@ -1,7 +1,9 @@
 package com.gae4coon.cloudmaestro.domain.available.controller;
 
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
-import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
+import com.gae4coon.cloudmaestro.domain.available.service.ALBService;
+import com.gae4coon.cloudmaestro.domain.available.service.AutoScalingService;
+import com.gae4coon.cloudmaestro.domain.available.service.DTOTransfer;
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -16,15 +18,18 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 
 @RestController
-@RequestMapping("/api/v1/requirement-api")
+@RequestMapping("/api/v1/available-require")
 @RequiredArgsConstructor
 public class AvailalbeController {
+    private final DTOTransfer dtotransfer;
+    private final ALBService albservice;
+    private final AutoScalingService autoScalingService;
 
-    private final AvailableService availableService;
-    @PostMapping("/available2")
+    @PostMapping("/available")
     public ResponseEntity <Map<String, Object>> addALB(@RequestBody Map<String, Object> requestData){
         Map<String, Object> result = new HashMap<String, Object> ();
         int albCount = 0;
+        int autogroupcount = 0;
         try{
 
             Map<String, Object> resultData = (Map<String, Object>) requestData.get("result");
@@ -35,37 +40,25 @@ public class AvailalbeController {
             List<NodeData> nodeDataList = new ArrayList<>();
             List<LinkData> linkDataList = new ArrayList<>();
 
-
-
-            for(Map<String,Object> data : linkDataArray){
-                LinkData linkdata = availableService.converMapToLinkData(data);
-                System.out.println("LinkData : " + linkdata);
-                linkDataList.add(linkdata);
-            }
-
-
-            // Group Data와 Node Data 의 변환
-            for( Map<String, Object> data : nodeDataArray){
-                if(data.containsKey("loc")){
-                    NodeData nodeData = availableService.convertMapToNodeData(data);
-                    nodeDataList.add(nodeData);
-                }else{
-                    GroupData groupData = availableService.convertMapToGroupData(data);
-                    groupDataList.add(groupData);
-                }
-            }
+            // DTO의 형식에 맞게 변환
+            dtotransfer.converMapToData(groupDataList, nodeDataList, linkDataList, linkDataArray, nodeDataArray);
 
             // ALB 에 넣기
-            availableService.addALB(albCount,nodeDataList,groupDataList,linkDataList);
-            linkDataList = availableService.unique(linkDataList);
+            albservice.addALB(albCount,nodeDataList,groupDataList,linkDataList);
+            linkDataList = albservice.unique(linkDataList);
 
+            // Auto Scaling Group에 넣기
+            autoScalingService.addAutoScaling(autogroupcount,nodeDataList,groupDataList,linkDataList);
+            linkDataList = albservice.unique(linkDataList);
+
+
+
+            /// 전체 데이터 넣기
             Map<String, Object> responseBody = new HashMap<>();
 
             List<Object> finalDataArray = new ArrayList<>();
             finalDataArray.addAll(nodeDataList);
             finalDataArray.addAll(groupDataList);
-
-            //finalDataArray.removeIf(Objects::isNull);
 
             responseBody.put("class", "GraphLinksModel");
             responseBody.put("linkKeyProperty", "key");
