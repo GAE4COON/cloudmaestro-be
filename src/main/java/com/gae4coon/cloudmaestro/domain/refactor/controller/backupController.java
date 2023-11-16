@@ -1,6 +1,7 @@
 package com.gae4coon.cloudmaestro.domain.refactor.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gae4coon.cloudmaestro.domain.refactor.service.BackupService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -22,6 +23,8 @@ import java.util.List;
 @Log4j2
 @RequestMapping("/api/v1/refactor-api")
 public class backupController {
+
+    private final BackupService backupService;
 
     @PostMapping("/backup")
     public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) String postData) {
@@ -47,7 +50,7 @@ public class backupController {
                 }
             }
 
-
+            backupService.addRegionGroup(nodeDataList, groupDataList, linkDataList);
 
 
 
