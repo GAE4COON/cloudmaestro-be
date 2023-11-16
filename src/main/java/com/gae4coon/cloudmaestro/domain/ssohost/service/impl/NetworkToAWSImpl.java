@@ -17,7 +17,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     public void changeNodeSource(List<NodeData> nodeDataList) {
         for (NodeData nodeData : nodeDataList) {
             String node = nodeData.getKey();
-
             // server, web server
             if (node.contains("Server")) {
                 String nodeKey = nodeData.getKey();
@@ -153,7 +152,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             String node = linkData.getFrom();
             System.out.println("linkData" + linkData);
             String value;
-
             // server, web server
             if (node.contains("Server")) {
                 value = node.replace("Server", "EC2");
