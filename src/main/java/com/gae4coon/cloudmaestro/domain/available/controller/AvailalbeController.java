@@ -43,10 +43,6 @@ public class AvailalbeController {
                 // DTO의 형식에 맞게 변환
                 dtotransfer.converMapToData(groupDataList, nodeDataList, linkDataList, linkDataArray, nodeDataArray);
 
-
-
-
-
                 // ALB 에 넣기
                 albservice.addALB(albCount,nodeDataList,groupDataList,linkDataList);
                 linkDataList = albservice.unique(linkDataList);
@@ -54,7 +50,6 @@ public class AvailalbeController {
                 // Auto Scaling Group에 넣기
                 autoScalingService.addAutoScaling(autogroupcount,nodeDataList,groupDataList,linkDataList);
                 linkDataList = albservice.unique(linkDataList);
-
 
 
 

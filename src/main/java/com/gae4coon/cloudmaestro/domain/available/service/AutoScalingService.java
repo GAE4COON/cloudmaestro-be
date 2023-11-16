@@ -32,8 +32,6 @@ public class AutoScalingService {
         // Security Group 안에 Ec2 포함 or Security Group없는 ec2 추가
         List<String> includeEc2Security = albservice.processSecurityGroups(nodeDataList, groupDataList, name);
 
-        System.out.println("includeEc2Security"+includeEc2Security);
-
         // ec2 일경우 같은 목적지를 바라보고 있는 지 확인
         Map<String, List<LinkData>>  ec2link = addAutoScale(includeEc2Security,nodeDataList,groupDataList,linkDataList);
 
@@ -67,9 +65,25 @@ public class AutoScalingService {
         int i = 1;
         for(String key : ec2link.keySet()) {
             //node data가 그룹 조건일 때 추가
-            List<LinkData> linklist2 = ec2link.get(key);
-
             String AutoScaling = "Auto Scaling group" + i;
+
+            List<LinkData> linklist2 = ec2link.get(key);
+            System.out.println("LINKDATA3"  + linklist2);
+             //Security Group일 때 AutoScaling Group 내에 Security Group을 추가
+            for(LinkData securitylink: linklist2){
+                System.out.println("Securitygroup333" + securitylink);
+                if(securitylink.getFrom().contains("Security Group")){
+                    for(GroupData securitygroup : groupDataList){
+                        System.out.println("Securitygroup" + securitylink);
+                        System.out.println("i am nodedata2" + securitygroup);
+                        if(securitygroup.getKey().equals(securitylink.getFrom())){
+                            System.out.println("i am nodedata" + securitygroup);
+                            securitygroup.setGroup(AutoScaling); // 여기서 "AutoScaling"이 문자열이라고 가정합니다.
+                        }
+                    }
+                }
+            }
+
             NodeData nodedata = new NodeData(); // Assuming GroupData is the correct type
             nodedata.setIsGroup(true);
             nodedata.setStroke("rgb(237,113,0)");
@@ -81,6 +95,8 @@ public class AutoScalingService {
 
             nodeDataList.add(nodedata);
 
+
+            // security group에 있는 node가 아닌 ec2에 있는 group을 auto scaling group으로 바꾸기
             //node 에 있는 group을 Auto Scaling group으로 바꾸기
             for (NodeData node : nodeDataList) {
                 for (String key2 : ec2link.keySet()) {
@@ -102,7 +118,6 @@ public class AutoScalingService {
                 for (String key2 : ec2link.keySet()) {
                     List<LinkData> netListLink = ec2link.get(key2);
                         for (LinkData netlinkdata : netListLink) {
-                            System.out.println("LINKDATA2"  + linkdata);
                             if (linkdata.getTo().contains(netlinkdata.getFrom())) {
                                 linkdata.setTo(AutoScaling);
                             }
