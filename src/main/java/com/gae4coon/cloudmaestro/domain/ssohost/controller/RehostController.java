@@ -98,9 +98,9 @@ public class RehostController {
             networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
 
 
-
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList));
             System.out.println("response"+ response);
+
             return ResponseEntity.ok().body(response);
 
         } catch (Exception e) {
