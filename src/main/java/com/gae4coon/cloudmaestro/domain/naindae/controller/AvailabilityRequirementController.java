@@ -143,7 +143,7 @@ public class AvailabilityRequirementController {
 
             responseBody.put("class", "GraphLinksModel");
             responseBody.put("linkKeyProperty", "key");
-            responseBody.put("nodeDataArray", finalDataArray);  // 예시
+            responseBody.put("nodeDataArray", finalDataArray);
             responseBody.put("linkDataArray", Stream.concat(linkDataList.stream(), newLinkDataList.stream()).collect(Collectors.toList()));
 
             HashMap<String, Object> response = new HashMap<>();
