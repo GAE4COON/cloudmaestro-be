@@ -107,19 +107,25 @@ public class AvailabilityRequirementController {
             }
 
             Map<String, Object> result1 = regionService.getRegion(nodeDataList,groupDataList,linkDataList);
+            Map<String, Object> result2 = regionService.getOriginalRegion(nodeDataList,groupDataList,linkDataList);
 
             List<NodeData> newNodeDataList = new ArrayList<>();
             List<GroupData> newGroupDataList = new ArrayList<>();
             List<LinkData> newLinkDataList = new ArrayList<>();
+            List<NodeData> newNodeDataList2 = new ArrayList<>();
 
             newNodeDataList = (List<NodeData>) result1.get("nodes");
             newGroupDataList = (List<GroupData>) result1.get("groups");
             newLinkDataList = (List<LinkData>) result1.get("links");
 
+            nodeDataList = (List<NodeData>) result2.get("nodes");
+            linkDataList = (List<LinkData>) result2.get("links");
+
             System.out.println("------------require--------------");
             System.out.println("nodeDataList " + nodeDataList);
             System.out.println("groupDataList " + groupDataList);
             System.out.println("linkDataList " + linkDataList);
+            System.out.println("linkDataList2 " + newLinkDataList);
 
             Map<String, Object> responseBody = new HashMap<>();
 
@@ -127,6 +133,9 @@ public class AvailabilityRequirementController {
 
             finalDataArray.addAll(nodeDataList);
             finalDataArray.addAll(newNodeDataList);
+
+            linkDataList=regionService.regionLink(nodeDataList,newNodeDataList,linkDataList);
+
             finalDataArray.addAll(groupDataList);
             finalDataArray.addAll(newGroupDataList);
 
