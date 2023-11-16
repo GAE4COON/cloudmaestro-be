@@ -101,8 +101,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 if(!groupData.getKey().equals(key)) continue;
                 // public subnet 생성
                 GroupData publicSubnet = new GroupData();
-                publicSubnet.setKey(key+" Public subnet!! " + count);
-//                publicSubnet.setGroup(key+" Public subnet " + count);
+                publicSubnet.setKey(key+" Public subnet " + count);
+                publicSubnet.setGroup(key+" Public subnet " + count);
                 publicSubnet.setStroke("rgb(122,161,22)");
                 publicSubnet.setType("AWS_Groups");
                 publicSubnet.setText(key+" Public subnet " + count);
