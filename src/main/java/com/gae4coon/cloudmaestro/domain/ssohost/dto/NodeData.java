@@ -14,12 +14,11 @@ public class NodeData {
     private String key;
     private String source;
     private String loc;
-    @JsonIgnore
-    private String group;
-    @JsonIgnore
     private Boolean isGroup;
-    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String group;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String stroke;
-    @JsonIgnore
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private String figure;
 }

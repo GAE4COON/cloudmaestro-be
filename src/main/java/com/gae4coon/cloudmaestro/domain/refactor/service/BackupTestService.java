@@ -25,8 +25,7 @@ public class BackupTestService {
         List<String> centralManage = new ArrayList<>();
         List<String> generalManage = new ArrayList<>();
 
-        GroupData newGroup;
-        backupService.generalBackup(nodeDataList);
+        backupService.generalBackup(nodeDataList, groupDataList);
         backupService.centralBackup(nodeDataList, linkDataList, groupDataList);
 
         List<Object> finalDataArray = new ArrayList<>();
