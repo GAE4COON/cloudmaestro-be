@@ -98,6 +98,7 @@ public class RehostController {
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
             // 위치 정보 수정 ,,, ,하하
+            networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
 
             System.out.println("SetRegion and VPC Data : " + nodeDataList);
 

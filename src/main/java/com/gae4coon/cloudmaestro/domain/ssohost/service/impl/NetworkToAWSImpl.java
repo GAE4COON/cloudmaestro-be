@@ -4,6 +4,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -358,7 +359,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         internetNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Internet-Gateway_48.svg");
         internetNode.setType("Networking-Content-Delivery");
         internetNode.setGroup("VPC");
-        internetNode.setLoc("330 -450");
+        internetNode.setLoc("-1222.7918474306668 238.49008848431987");
         nodeDataList.add(internetNode);
 
         for (GroupData group : groupDataList) {
@@ -415,4 +416,58 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     }
 
 
+
+    @Override
+    public void setNodeLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+
+        // Group 정보에서 public subnet이 몇 개인지 확인
+        List<String> count_public_subnets = new ArrayList<>();
+        for (GroupData groupdata : groupDataList) {
+            if (groupdata.getKey().contains("Public subnet")) {
+                count_public_subnets.add(groupdata.getKey());
+            }
+        }
+
+        // public subnet을 일단 internet gateway를 기반으로 위치 정하기
+        addPublicLocation(nodeDataList, linkDataList, count_public_subnets);
+
+    }
+
+    public void addPublicLocation(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<String> count_public_subnet){
+        // internet gateway +
+
+        // public subnet에 속한 nat gateway 위치 부터 정하기
+        // internet gateway ;
+        double minX = -762.9202380643841; //MAX보다 작은 Y를 찾으면
+        double minY = -183.94175866569003;
+
+        //NACL 정보 옮기기
+        for(String public_subnet : count_public_subnet){
+            for (NodeData nodedata : nodeDataList){
+                // NACL의 위치 정보 옮기기
+                if(nodedata.getGroup().contains(public_subnet)){
+                    String location = nodedata.getLoc();
+                    String[] locParts = location.split(" ");
+                    double x = Double.parseDouble(locParts[0]);
+                    double y = Double.parseDouble(locParts[1]);
+
+                    x = minX -1;
+                    y = minY + 260;
+                    String newLoc = (x) + " " + (y);
+                    nodedata.setLoc(newLoc);
+                    minX -= 1;
+                    minY += 260;
+                }
+            }
+
+        }
+
+
+
+
+    }
+
+
+
 }
+
