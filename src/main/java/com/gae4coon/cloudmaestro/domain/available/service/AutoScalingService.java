@@ -112,7 +112,7 @@ public class AutoScalingService {
 
             // LinkData 바꾸기
             for(LinkData linkdata : linkDataList){
-                if(linkdata.getFrom().contains("Elastic Load Balancing")){
+                if(linkdata.getFrom().contains("Application Load Balancer(ALB)")){
                     linkdata.setTo(AutoScaling);
                 }
                 for (String key2 : ec2link.keySet()) {

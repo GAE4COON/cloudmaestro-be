@@ -92,11 +92,15 @@ public class RehostController {
 
             networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
 
+            networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
+
             // Region, vpc, available zone 넣기
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
-            networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
+            // 위치 정보 수정 ,,, ,하하
+            networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
 
+            System.out.println("SetRegion and VPC Data : " + nodeDataList);
 
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList));
             System.out.println("response"+ response);
