@@ -12,5 +12,8 @@ import java.util.List;
 public class RequireDTO {
     private String industrial;
     private List<String> globalRequirements;
+    private List<String> backup;
     private List<ZoneDTO> zones;
+
+
 }

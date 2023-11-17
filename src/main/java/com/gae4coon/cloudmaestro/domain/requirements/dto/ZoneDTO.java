@@ -12,7 +12,6 @@ import java.util.List;
 public class ZoneDTO {
     private String name;
     private String function;
-    private String staticBackup;
-    private String dynamicBackup;
+    private List<String> availableNode;
     private List<String> zoneRequirements;
 }
