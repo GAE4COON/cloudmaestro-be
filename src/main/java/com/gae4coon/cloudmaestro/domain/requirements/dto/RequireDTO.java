@@ -13,6 +13,7 @@ public class RequireDTO {
 
     private String industrial;
     private List<String> globalRequirements;
+    private List<String> backup;
     private List<Zone> zones;
 
     @Data
@@ -21,8 +22,7 @@ public class RequireDTO {
     public static class Zone {
         private String name;
         private String function;
-        private String staticBackup;
-        private String dynamicBackup;
+        private List<String> available;
         private List<String> zoneRequirements;
     }
 }
