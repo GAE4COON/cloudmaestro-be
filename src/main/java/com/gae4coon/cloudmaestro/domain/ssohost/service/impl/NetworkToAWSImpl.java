@@ -429,36 +429,133 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         }
 
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
-        addPublicLocation(nodeDataList, linkDataList, count_public_subnets);
+        addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
+
 
     }
 
-    public void addPublicLocation(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<String> count_public_subnet){
+    public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet){
         // internet gateway +
 
         // public subnet에 속한 nat gateway 위치 부터 정하기
-        // internet gateway ;
-        double minX = -762.9202380643841; //MAX보다 작은 Y를 찾으면
-        double minY = -183.94175866569003;
+        // internet gateway 좌표
+
+        double internet_gatewayX = -762.9202380643841; //MAX보다 작은 Y를 찾으면
+        double internet_gatewayY = -183.94175866569003;
+        double x = 0.0;
+        double y = 0.0;
+
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){
+            System.out.println("public subnet_" + public_subnet);
+
             for (NodeData nodedata : nodeDataList){
                 // NACL의 위치 정보 옮기기
                 if(nodedata.getGroup().contains(public_subnet)){
                     String location = nodedata.getLoc();
                     String[] locParts = location.split(" ");
-                    double x = Double.parseDouble(locParts[0]);
-                    double y = Double.parseDouble(locParts[1]);
+                    x = Double.parseDouble(locParts[0]);
+                    y = Double.parseDouble(locParts[1]);
 
-                    x = minX -1;
-                    y = minY + 260;
+                    x = internet_gatewayX -1;
+                    y = internet_gatewayY + 260;
                     String newLoc = (x) + " " + (y);
                     nodedata.setLoc(newLoc);
-                    minX -= 1;
-                    minY += 260;
+                    internet_gatewayX -= 1;
+                    internet_gatewayY += 260;
+                    break;
+                }
+
+            }
+
+            // 해당 prod private subnet에 포함된 링크 연결된 정보를 탐색해서 그에 맞게 위치 정보넣기
+            String[] parts = public_subnet.split(" ");
+            String netName = parts[0];
+            System.out.println("netName: " + netName);
+
+            // location
+            // public subnet -763.9202380643841 76.05824133430997
+            // -410.1525939111291 -64.83742800819766
+            //-315.5969298486291 -69.28197756874454
+            //-213.9304259423791 -75.50417605507266
+
+            double node_x;
+            double node_y;
+
+            node_x = x + 430;
+            node_y = y - 85;
+            // Node Data를 한번 생성을 해놓으면,, 없애야 하는 건가 ?
+            List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public Subnet", "Private Subnet"));
+
+
+            for(LinkData linkdata : linkDataList){
+                for(NodeData nodedata : nodeDataList){
+                    // Group Data
+                    List<String> visitGroup = new ArrayList<>();
+                    if(linkdata.getFrom().contains("Group")){
+
+                        // 해당 group이 prod private subnet에 포함됐는 지 확인
+                        String security_group = linkdata.getFrom();
+                        for(GroupData group : groupDataList){
+                            if(group.getKey().contains(security_group) &&
+                                    group.getGroup().contains(netName) &&
+                                    !visitGroup.contains(security_group) // 새로운 security 요소여야 함
+
+                            ){
+                                visitGroup.add(security_group);
+                                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
+                                if(nodedata.getGroup().contains(security_group)){
+                                    node_x -= 100;
+                                    String newLoc = (node_x) + " " + (node_y);
+                                    nodedata.setLoc(newLoc);
+
+                                }
+
+                            }
+                        }
+
+                    }
+                    if(linkdata.getTo().contains("Group")){
+
+                        // 해당 group이 prod private subnet에 포함됐는 지 확인
+                        String security_group = linkdata.getTo();
+                        for(GroupData group : groupDataList){
+                            if(group.getKey().contains(security_group) &&
+                                    group.getGroup().contains(netName) &&
+                                    !visitGroup.contains(security_group) &&
+                                    !Except.contains(security_group)// 새로운 security 요소여야 함
+
+                            ){
+                                visitGroup.add(security_group);
+                                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
+                                if(nodedata.getGroup().contains(security_group)){
+                                    node_x += 100;
+                                    String newLoc = (node_x) + " " + (node_y);
+                                    nodedata.setLoc(newLoc);
+
+                                }
+
+                            }
+                        }
+
+                    }
+
+                    // group에 없는 ec2일 경우
+
+                    if (linkdata.getFrom().contains(nodedata.getKey()) &&
+                        !Except.contains(nodedata.getKey()) &&
+                            nodedata.getGroup().contains(netName)
+                    ){
+                        System.out.println("Ec2 Comeon" + nodedata.getKey());
+                        node_x += 20;
+                        String newLoc = (node_x) + " " + (node_y);
+                        nodedata.setLoc(newLoc);
+
+                    }
                 }
             }
+
 
         }
 
