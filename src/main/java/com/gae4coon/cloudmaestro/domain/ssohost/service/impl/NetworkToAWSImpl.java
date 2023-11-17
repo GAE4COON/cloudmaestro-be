@@ -245,6 +245,12 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             else if(nodeData.getKey().contains("Simple Storage Service")){
                 nodeData.setGroup("Region");
             }
+            else if(nodeData.getKey().contains("Internet")){
+                nodeData.setGroup("Region");
+            }
+            else if(nodeData.getKey().contains("NACL")){
+                nodeData.setGroup("VPC");
+            }
        }
     }
 

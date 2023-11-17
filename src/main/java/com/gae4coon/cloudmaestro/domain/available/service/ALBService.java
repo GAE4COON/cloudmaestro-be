@@ -97,8 +97,8 @@ public class ALBService {
 
     private NodeData createAlbNode(int albCount) {
         NodeData albNode = new NodeData();
-        albNode.setKey("Elastic Load Balancing Application Load Balancer" + albCount);
-        albNode.setText("Elastic Load Balancing Application Load Balancer");
+        albNode.setKey("Application Load Balancer(ALB)" + albCount);
+        albNode.setText("Application Load Balancer(ALB)");
         albNode.setType("Networking-Content-Delivery");
         albNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
         albNode.setFigure("Rectangle");

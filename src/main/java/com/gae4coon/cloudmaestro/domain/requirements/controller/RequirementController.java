@@ -34,7 +34,9 @@ public class RequirementController {
 
 
         HashMap<String, Object> responseDiagram = securityService.globalService(requireDiagramDTO.getRequirementData().getGlobalRequirements(), responseArray);
-//        return ResponseEntity.ok("success");
+
+
+        //        return ResponseEntity.ok("success");
         return ResponseEntity.ok(responseDiagram);
     }
 }
