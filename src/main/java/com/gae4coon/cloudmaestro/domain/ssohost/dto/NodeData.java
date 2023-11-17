@@ -14,8 +14,12 @@ public class NodeData {
     private String key;
     private String source;
     private String loc;
+    @JsonIgnore
     private String group;
+    @JsonIgnore
     private Boolean isGroup;
+    @JsonIgnore
     private String stroke;
+    @JsonIgnore
     private String figure;
 }

@@ -22,7 +22,7 @@ public class RequireDTO {
     public static class Zone {
         private String name;
         private String function;
-        private List<String> available;
+        private List<String> availableNode;
         private List<String> zoneRequirements;
     }
 }

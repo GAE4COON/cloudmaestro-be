@@ -1,5 +1,6 @@
 package com.gae4coon.cloudmaestro.domain.refactor.service;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,12 +31,11 @@ public class BackupService {
         GroupData newGroup;
 
         if(requireDiagramDTO.getRequirementData().getBackup().size()!= 0){
-            if(requireDiagramDTO.getRequirementData().getBackup().contains("중앙관리")){
-                centralBackup(nodeDataList,linkDataList, groupDataList);
-            };
-
             if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
                 generalBackup(nodeDataList);
+            };
+            if(requireDiagramDTO.getRequirementData().getBackup().contains("중앙관리")){
+                centralBackup(nodeDataList,linkDataList, groupDataList);
             };
         }
 
@@ -110,6 +110,23 @@ public class BackupService {
 
     }
 
+    public void sortRegionList(List<GroupData> regionList) {
+        final Pattern pattern = Pattern.compile("Region(\\d*)");
+
+        Collections.sort(regionList, (o1, o2) -> {
+            Matcher matcher1 = pattern.matcher(o1.getKey());
+            Matcher matcher2 = pattern.matcher(o2.getKey());
+
+            int number1 = matcher1.find() && !matcher1.group(1).isEmpty()
+                    ? Integer.parseInt(matcher1.group(1)) : 0;
+            int number2 = matcher2.find() && !matcher2.group(1).isEmpty()
+                    ? Integer.parseInt(matcher2.group(1)) : 0;
+
+            return Integer.compare(number1, number2);
+        });
+    }
+
+
     public void centralBackup (List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList){
 
         List<GroupData> regionList = new ArrayList<>();
@@ -124,6 +141,9 @@ public class BackupService {
             regionList.add(newGroup);
             groupDataList.add(newGroup);
         };
+
+        sortRegionList(regionList);
+
 
         int number=0;
 
@@ -154,10 +174,7 @@ public class BackupService {
         newNode.setText("Backup"+number);
         newNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
         newNode.setLoc("0 0");
-        newNode.setStroke(null);
-        newNode.setGroup(null);
-        newNode.setFigure(null);
-        newNode.setGroup(null);
+        newNode.setGroup(""+regionList.get(0));
 
         NodeData backupNode=new NodeData();
         backupNode.setKey("Backup" + number+1);
@@ -165,35 +182,28 @@ public class BackupService {
         backupNode.setText("Backup"+number+1);
         backupNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
         backupNode.setLoc("0 0");
-        backupNode.setStroke(null);
-        backupNode.setGroup(null);
-        backupNode.setFigure(null);
-        backupNode.setGroup(null);
+        backupNode.setGroup(""+regionList.get(1));
 
+        nodeDataList.add(backupNode);
+        nodeDataList.add(newNode);
 
     }
-
-
     public void generalBackup (List<NodeData> nodeDataList){
         int number=0;
 
         //기존에 s3 버킷이 있다면 카운트
         for (NodeData groupitem : nodeDataList) {
             if(groupitem.getKey().startsWith("S3")){
-
                 Pattern pattern = Pattern.compile("^S3(\\d*)");
                 Matcher matcher = pattern.matcher(groupitem.getKey());
                 if (matcher.find()) {
                     String numberStr = matcher.group(1); // Region 다음의 숫자 부분
                     int tempnum = 1; // 기본값을 1로 설정
-
                     // 숫자가 있으면 그 숫자를 사용, 없으면 기본값 사용
                     if (!numberStr.isEmpty()) {
                         tempnum = Integer.parseInt(numberStr)+1;
                     }
-
                     if(number<tempnum) number=tempnum;
-
                 }
 
             }
@@ -205,10 +215,6 @@ public class BackupService {
         newNode.setText("Backup"+number);
         newNode.setSource("/img/AWS_icon/Arch_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg");
         newNode.setLoc("0 0");
-        newNode.setStroke(null);
-        newNode.setGroup(null);
-        newNode.setFigure(null);
-        newNode.setGroup(null);
 
         nodeDataList.add(newNode);
     }
