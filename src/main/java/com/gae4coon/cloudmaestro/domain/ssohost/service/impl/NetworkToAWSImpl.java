@@ -443,7 +443,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         double node_y;
 
         // Except 해야 하는 리스트
-        List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public Subnet", "Private Subnet"));
+        List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public subnet", "Private subnet"));
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){
@@ -468,56 +468,18 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 for(NodeData nodedata : nodeDataList){
                     // Group Data
                     List<String> visitGroup = new ArrayList<>();
-                    if(linkdata.getFrom().contains("Group")){
 
-                        // 해당 group이 prod private subnet에 포함됐는 지 확인
-                        String security_group = linkdata.getFrom();
-                        for(GroupData group : groupDataList){
-                            if(group.getKey().contains(security_group) &&
-                                    group.getGroup().contains(netName) &&
-                                    !visitGroup.contains(security_group) // 새로운 security 요소여야 함
-
-                            ){
-                                visitGroup.add(security_group);
-                                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                                if(nodedata.getGroup().contains(security_group)){
-                                    node_x -= 100;
-                                    String newLoc = (node_x) + " " + (node_y);
-                                    nodedata.setLoc(newLoc);
-
-                                }
-
-                            }
-                        }
-
+                    if (linkdata.getFrom().contains("Group")) {
+                        double[] newCoordinates = processFromGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
+                        node_x = newCoordinates[0];
+                        node_y = newCoordinates[1];
                     }
                     if(linkdata.getTo().contains("Group")){
-
-                        // 해당 group이 prod private subnet에 포함됐는 지 확인
-                        String security_group = linkdata.getTo();
-                        for(GroupData group : groupDataList){
-                            if(group.getKey().contains(security_group) &&
-                                    group.getGroup().contains(netName) &&
-                                    !visitGroup.contains(security_group) &&
-                                    !Except.contains(security_group)// 새로운 security 요소여야 함
-
-                            ){
-                                visitGroup.add(security_group);
-                                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                                if(nodedata.getGroup().contains(security_group)){
-                                    node_x += 100;
-                                    String newLoc = (node_x) + " " + (node_y);
-                                    nodedata.setLoc(newLoc);
-
-                                }
-
-                            }
-                        }
-
+                        double[] newCoordinates = processToGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
+                        node_x = newCoordinates[0];
+                        node_y = newCoordinates[1];
                     }
-
                     // group에 없는 ec2일 경우
-
                     if (linkdata.getFrom().contains(nodedata.getKey()) &&
                             !Except.contains(nodedata.getKey()) &&
                             nodedata.getGroup().contains(netName)
@@ -528,6 +490,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                         nodedata.setLoc(newLoc);
 
                     }
+
                 }
             }
 
@@ -538,20 +501,79 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
 
     }
-    public double[]  processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double gatewayX, double gatewayY) {
-
-        double x, y;
+    public double[]  processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double nacl_x, double nacl_y) {
+        double x = 0.0;
+        double y = 0.0;
         for (NodeData nodeData : nodeDataList) {
             if (nodeData.getGroup().contains(publicSubnet)) {
-                gatewayX -= 1;
-                gatewayY += 260;
-                nodeData.setLoc(gatewayX + " " + gatewayY);
+                String location = nodeData.getLoc();
+                String[] locParts = location.split(" ");
+                System.out.println("public Subnet" + publicSubnet);
+                x = nacl_x -1;
+                y = nacl_y + 260;
+                String newLoc = (x) + " " + (y);
+                System.out.println("newLoc" + newLoc);
+                nacl_x -= 1;
+                nacl_y += 260;
+                nodeData.setLoc(newLoc);
                 break;
             }
         }
-        return new double[]{gatewayX, gatewayY};
+        return new double[]{nacl_x, nacl_y};
     }
 
+    private double[] processFromGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
+        // 해당 group이 prod private subnet에 포함됐는 지 확인
+        String security_group = linkdata.getFrom();
+        for(GroupData group : groupDataList){
+            if(group.getKey().contains(security_group) &&
+                    group.getGroup().contains(netName) &&
+                    !visitGroup.contains(security_group) &&
+                    !Except.contains(security_group)
+                // 새로운 security 요소여야 함 &&
+
+            ){
+                visitGroup.add(security_group);
+                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
+                if(nodedata.getGroup().contains(security_group)){
+                    System.out.println("group include nodedata1 : "+nodedata);
+                    node_x += 70;
+                    String newLoc = (node_x) + " " + (node_y);
+                    nodedata.setLoc(newLoc);
+
+                }
+
+            }
+        }
+        return new double[]{node_x, node_y};
+    }
+
+    private  double[] processToGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
+        // 해당 group이 prod private subnet에 포함됐는 지 확인
+
+        // 해당 group이 prod private subnet에 포함됐는 지 확인
+        String security_group = linkdata.getTo();
+        for(GroupData group : groupDataList){
+            if(group.getKey().contains(security_group) &&
+                    group.getGroup().contains(netName) &&
+                    !visitGroup.contains(security_group) &&
+                    !Except.contains(security_group)// 새로운 security 요소여야 함
+
+            ){
+                visitGroup.add(security_group);
+                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
+                if(nodedata.getGroup().contains(security_group)){
+                    System.out.println("group include nodedata2 : "+nodedata);
+                    node_x += 70;
+                    String newLoc = (node_x) + " " + (node_y);
+                    nodedata.setLoc(newLoc);
+
+                }
+
+            }
+        }
+        return new double[]{node_x, node_y};
+    }
 
 
 
