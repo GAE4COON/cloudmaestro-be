@@ -2,6 +2,7 @@ package com.gae4coon.cloudmaestro.domain.ssohost.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import java.util.List;
