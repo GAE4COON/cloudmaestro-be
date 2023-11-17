@@ -434,59 +434,34 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
     }
 
-    public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet){
-        // internet gateway +
+    public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
 
-        // public subnet에 속한 nat gateway 위치 부터 정하기
-        // internet gateway 좌표
+        double nacl_x = -762.9202380643841; //MAX보다 작은 Y를 찾으면
+        double nacl_y = -183.94175866569003;
 
-        double internet_gatewayX = -762.9202380643841; //MAX보다 작은 Y를 찾으면
-        double internet_gatewayY = -183.94175866569003;
-        double x = 0.0;
-        double y = 0.0;
+        double node_x;
+        double node_y;
 
+        // Except 해야 하는 리스트
+        List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public Subnet", "Private Subnet"));
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){
             System.out.println("public subnet_" + public_subnet);
 
-            for (NodeData nodedata : nodeDataList){
-                // NACL의 위치 정보 옮기기
-                if(nodedata.getGroup().contains(public_subnet)){
-                    String location = nodedata.getLoc();
-                    String[] locParts = location.split(" ");
-                    x = Double.parseDouble(locParts[0]);
-                    y = Double.parseDouble(locParts[1]);
+            // Public Subnet에 있는 NACL 정하기
+            double[] updatedCoordinates  = processPublicSubnet(nodeDataList, public_subnet, nacl_x, nacl_y);
 
-                    x = internet_gatewayX -1;
-                    y = internet_gatewayY + 260;
-                    String newLoc = (x) + " " + (y);
-                    nodedata.setLoc(newLoc);
-                    internet_gatewayX -= 1;
-                    internet_gatewayY += 260;
-                    break;
-                }
-
-            }
+            nacl_x = updatedCoordinates[0];
+            nacl_y = updatedCoordinates[1];
 
             // 해당 prod private subnet에 포함된 링크 연결된 정보를 탐색해서 그에 맞게 위치 정보넣기
             String[] parts = public_subnet.split(" ");
             String netName = parts[0];
             System.out.println("netName: " + netName);
 
-            // location
-            // public subnet -763.9202380643841 76.05824133430997
-            // -410.1525939111291 -64.83742800819766
-            //-315.5969298486291 -69.28197756874454
-            //-213.9304259423791 -75.50417605507266
-
-            double node_x;
-            double node_y;
-
-            node_x = x + 430;
-            node_y = y - 85;
-            // Node Data를 한번 생성을 해놓으면,, 없애야 하는 건가 ?
-            List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public Subnet", "Private Subnet"));
+            node_x = nacl_x + 430;
+            node_y = nacl_y - 85;
 
 
             for(LinkData linkdata : linkDataList){
@@ -544,7 +519,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                     // group에 없는 ec2일 경우
 
                     if (linkdata.getFrom().contains(nodedata.getKey()) &&
-                        !Except.contains(nodedata.getKey()) &&
+                            !Except.contains(nodedata.getKey()) &&
                             nodedata.getGroup().contains(netName)
                     ){
                         System.out.println("Ec2 Comeon" + nodedata.getKey());
@@ -563,6 +538,20 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
 
     }
+    public double[]  processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double gatewayX, double gatewayY) {
+
+        double x, y;
+        for (NodeData nodeData : nodeDataList) {
+            if (nodeData.getGroup().contains(publicSubnet)) {
+                gatewayX -= 1;
+                gatewayY += 260;
+                nodeData.setLoc(gatewayX + " " + gatewayY);
+                break;
+            }
+        }
+        return new double[]{gatewayX, gatewayY};
+    }
+
 
 
 
