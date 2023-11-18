@@ -9,10 +9,9 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RequireDTO {
-    private String industrial;
-    private List<String> globalRequirements;
-    private List<String> backup;
-    private List<ZoneDTO> zones;
-
+public class ZoneDTO {
+    private String name;
+    private String function;
+    private List<String> availableNode;
+    private List<String> zoneRequirements;
 }
