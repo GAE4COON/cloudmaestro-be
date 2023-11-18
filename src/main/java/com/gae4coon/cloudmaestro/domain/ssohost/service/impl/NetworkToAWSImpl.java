@@ -433,14 +433,14 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         // LinkData 정렬
         linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
 
-//        Iterator<LinkData> iterator = linkDataList.iterator();
-//        while(iterator.hasNext()){
-//            LinkData linkData = iterator.next();
-//            System.out.println("sortedlinkData" + linkData);
-//            if(linkData.getFrom().contains("Shield")){
-//                iterator.remove();
-//            }
-//        }
+        Iterator<LinkData> iterator = linkDataList.iterator();
+        while(iterator.hasNext()){
+            LinkData linkData = iterator.next();
+            System.out.println("sortedlinkData" + linkData);
+            if(linkData.getFrom().contains("Shield")){
+                iterator.remove();
+            }
+        }
 
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
         addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
@@ -463,7 +463,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){
-            System.out.println("public subnet_" + public_subnet);
+            System.out.println("public subnet_name " + public_subnet);
 
             // Public Subnet에 있는 NACL 정하기
             double[] updatedCoordinates  = processPublicSubnet(nodeDataList, public_subnet, nacl_x, nacl_y);
@@ -555,7 +555,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 if(nodedata.getGroup().contains(security_group)){
                     visitGroup.add(nodedata.getKey());
                     System.out.println("group include nodedata1 : "+nodedata);
-                    node_x += 120;
+                    node_x += 150;
                     String newLoc = (node_x) + " " + (node_y);
                     nodedata.setLoc(newLoc);
 
@@ -583,7 +583,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 if(nodedata.getGroup().contains(security_group)){
                     visitGroup.add(nodedata.getKey());
                     System.out.println("group include nodedata2 : "+nodedata);
-                    node_x += 120;
+                    node_x += 150;
                     String newLoc = (node_x) + " " + (node_y);
                     nodedata.setLoc(newLoc);
 
