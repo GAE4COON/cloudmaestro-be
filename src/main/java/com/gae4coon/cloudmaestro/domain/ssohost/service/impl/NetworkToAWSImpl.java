@@ -428,11 +428,27 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             }
         }
 
+        // LinkData Public Subnet 별로 순서 정하기
+
+        // LinkData 정렬
+        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
+
+        Iterator<LinkData> iterator = linkDataList.iterator();
+        while(iterator.hasNext()){
+            LinkData linkData = iterator.next();
+            System.out.println("sortedlinkData" + linkData);
+            if(linkData.getFrom().contains("Shield")){
+                iterator.remove();
+            }
+        }
+
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
         addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
 
 
     }
+
+
 
     public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
 
@@ -492,6 +508,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                     }
 
                 }
+
+
             }
 
 
@@ -528,16 +546,16 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         for(GroupData group : groupDataList){
             if(group.getKey().contains(security_group) &&
                     group.getGroup().contains(netName) &&
-                    !visitGroup.contains(security_group) &&
+                    !visitGroup.contains(nodedata.getKey()) &&
                     !Except.contains(security_group)
                 // 새로운 security 요소여야 함 &&
 
             ){
-                visitGroup.add(security_group);
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
                 if(nodedata.getGroup().contains(security_group)){
+                    visitGroup.add(nodedata.getKey());
                     System.out.println("group include nodedata1 : "+nodedata);
-                    node_x += 70;
+                    node_x += 120;
                     String newLoc = (node_x) + " " + (node_y);
                     nodedata.setLoc(newLoc);
 
@@ -556,15 +574,16 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         for(GroupData group : groupDataList){
             if(group.getKey().contains(security_group) &&
                     group.getGroup().contains(netName) &&
-                    !visitGroup.contains(security_group) &&
+                    !visitGroup.contains(nodedata.getKey()) &&
                     !Except.contains(security_group)// 새로운 security 요소여야 함
 
             ){
-                visitGroup.add(security_group);
+                //visitGroup.add(security_group);
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
                 if(nodedata.getGroup().contains(security_group)){
+                    visitGroup.add(nodedata.getKey());
                     System.out.println("group include nodedata2 : "+nodedata);
-                    node_x += 70;
+                    node_x += 120;
                     String newLoc = (node_x) + " " + (node_y);
                     nodedata.setLoc(newLoc);
 
