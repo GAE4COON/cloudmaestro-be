@@ -1,18 +1,14 @@
 package com.gae4coon.cloudmaestro.domain.refactor.service;
-import java.util.ArrayList;
-import java.util.Map;
+import java.awt.geom.Point2D;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
-import jakarta.mail.Flags;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class BackupService {
@@ -30,12 +26,11 @@ public class BackupService {
         GroupData newGroup;
 
         if(requireDiagramDTO.getRequirementData().getBackup().size()!= 0){
+            if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
+                generalBackup(nodeDataList, groupDataList);
+            };
             if(requireDiagramDTO.getRequirementData().getBackup().contains("중앙관리")){
                 centralBackup(nodeDataList,linkDataList, groupDataList);
-            };
-
-            if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
-                generalBackup(nodeDataList);
             };
         }
 
@@ -73,6 +68,65 @@ public class BackupService {
 
     }
 
+    public Point2D selectLocation (List<NodeData> nodeDataList, List<GroupData> groupDataList, List<GroupData> regionList){
+        GroupData mainRegion = regionList.get(0);
+        Set<String> regionTemp = new HashSet<>();
+
+        regionTemp.add(mainRegion.getKey());
+
+        for (GroupData grd: groupDataList) {
+            if(mainRegion.getKey() == grd.getGroup()){
+                regionTemp.add(grd.getKey());
+            }
+        }
+
+        for (GroupData grd: groupDataList) {
+            if(regionTemp.contains(grd.getGroup())){
+                regionTemp.add(grd.getKey());
+            }
+        }
+
+        for (GroupData grd: groupDataList) {
+            if(regionTemp.contains(grd.getGroup())){
+                regionTemp.add(grd.getKey());
+            }
+        }
+
+        for (GroupData grd: groupDataList) {
+            if(regionTemp.contains(grd.getGroup())){
+                regionTemp.add(grd.getKey());
+            }
+        }
+
+        System.out.println("regionTemp: "+regionTemp);
+
+        double maxY = Double.MIN_VALUE;
+        double minY = Double.MAX_VALUE;
+        double maxX = Double.MIN_VALUE;
+
+        for (NodeData item: nodeDataList) {
+            if(regionTemp.contains(item.getGroup())){
+                String location = item.getLoc();
+                String[] locParts = location.split(" ");
+
+                double x = Double.parseDouble(locParts[0]);
+                double y = Double.parseDouble(locParts[1]);
+
+                if (y > maxY) {
+                    maxY = y;
+                }
+                if (y < minY) {
+                    minY = y;
+                }
+                if (x > maxX) {
+                    maxX = x;
+                }
+            }
+        }
+
+        return new Point2D.Double(maxX, (maxY+minY)/2);
+    }
+
     public GroupData addRegionGroup (List<GroupData> groupDataList){
 
         int number=0;
@@ -100,15 +154,30 @@ public class BackupService {
         }
 
         GroupData newGroup=new GroupData("Region" + number,"Region"+number,true,null,"AWS_Groups","rgb(0,164,166)");
-        System.out.println("newGroup: " +newGroup);
-        System.out.println();
-
         groupDataList.add(newGroup);
-        System.out.println("test: "+groupDataList);
 
         return newGroup;
 
     }
+
+
+
+    public void sortRegionList(List<GroupData> regionList) {
+        final Pattern pattern = Pattern.compile("Region(\\d*)");
+
+        Collections.sort(regionList, (o1, o2) -> {
+            Matcher matcher1 = pattern.matcher(o1.getKey());
+            Matcher matcher2 = pattern.matcher(o2.getKey());
+
+            int number1 = matcher1.find() && !matcher1.group(1).isEmpty()
+                    ? Integer.parseInt(matcher1.group(1)) : 0;
+            int number2 = matcher2.find() && !matcher2.group(1).isEmpty()
+                    ? Integer.parseInt(matcher2.group(1)) : 0;
+
+            return Integer.compare(number1, number2);
+        });
+    }
+
 
     public void centralBackup (List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList){
 
@@ -119,11 +188,18 @@ public class BackupService {
             }
         }
 
-        if(regionList.size()<2){
+        if(regionList.size()<2 && regionList.size()>0){
             GroupData newGroup = addRegionGroup(groupDataList);
             regionList.add(newGroup);
-            groupDataList.add(newGroup);
         };
+
+
+        if(regionList.size()==0){
+            return;
+        }
+
+        sortRegionList(regionList);
+
 
         int number=0;
 
@@ -148,52 +224,76 @@ public class BackupService {
 
             }
         }
+
+        Point2D location = selectLocation(nodeDataList,groupDataList,regionList);
+
+        System.out.println("Location: "+location.getX()+", "+location.getY());
+
         NodeData newNode=new NodeData();
-        newNode.setKey("Backup" + number);
+        newNode.setKey("Backup " + number);
         newNode.setType("Storage");
-        newNode.setText("Backup"+number);
+        newNode.setText("Backup "+number);
         newNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
-        newNode.setLoc("0 0");
-        newNode.setStroke(null);
-        newNode.setGroup(null);
-        newNode.setFigure(null);
-        newNode.setGroup(null);
+        newNode.setLoc(""+(location.getX()+200)+" "+location.getY());
+        newNode.setGroup(""+regionList.get(0).getKey());
 
         NodeData backupNode=new NodeData();
-        backupNode.setKey("Backup" + number+1);
+        backupNode.setKey("Backup " + (number+1));
         backupNode.setType("Storage");
-        backupNode.setText("Backup"+number+1);
+        backupNode.setText("Backup "+(number+1));
         backupNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
-        backupNode.setLoc("0 0");
-        backupNode.setStroke(null);
-        backupNode.setGroup(null);
-        backupNode.setFigure(null);
-        backupNode.setGroup(null);
+        backupNode.setLoc(""+(location.getX()+400)+" "+location.getY());
+        backupNode.setGroup(""+regionList.get(1).getKey());
 
+        LinkData newlink = new LinkData();
+        newlink.setFrom("Backup " + (number+1));
+        newlink.setTo("Backup " + number);
+        newlink.setKey(1);
+
+
+        nodeDataList.add(backupNode);
+        nodeDataList.add(newNode);
+        linkDataList.add(newlink);
 
     }
+    public void generalBackup (List<NodeData> nodeDataList, List<GroupData> groupDataList){
+
+        List<GroupData> regionList = new ArrayList<>();
+        for (GroupData grd:groupDataList) {
+            if(grd.getKey().contains("Region")){
+                regionList.add(grd);
+            }
+        }
+
+        if(regionList.size()<2 && regionList.size()>0){
+            GroupData newGroup = addRegionGroup(groupDataList);
+            regionList.add(newGroup);
+        };
 
 
-    public void generalBackup (List<NodeData> nodeDataList){
+        if(regionList.size()==0){
+            return;
+        }
+
+        sortRegionList(regionList);
+
+        Point2D location = selectLocation(nodeDataList,groupDataList,regionList);
+
         int number=0;
 
         //기존에 s3 버킷이 있다면 카운트
         for (NodeData groupitem : nodeDataList) {
             if(groupitem.getKey().startsWith("S3")){
-
                 Pattern pattern = Pattern.compile("^S3(\\d*)");
                 Matcher matcher = pattern.matcher(groupitem.getKey());
                 if (matcher.find()) {
                     String numberStr = matcher.group(1); // Region 다음의 숫자 부분
                     int tempnum = 1; // 기본값을 1로 설정
-
                     // 숫자가 있으면 그 숫자를 사용, 없으면 기본값 사용
                     if (!numberStr.isEmpty()) {
                         tempnum = Integer.parseInt(numberStr)+1;
                     }
-
                     if(number<tempnum) number=tempnum;
-
                 }
 
             }
@@ -202,13 +302,9 @@ public class BackupService {
         NodeData newNode=new NodeData();
         newNode.setKey("S3" + number);
         newNode.setType("Storage");
-        newNode.setText("Backup"+number);
+        newNode.setText("S3"+number);
         newNode.setSource("/img/AWS_icon/Arch_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg");
-        newNode.setLoc("0 0");
-        newNode.setStroke(null);
-        newNode.setGroup(null);
-        newNode.setFigure(null);
-        newNode.setGroup(null);
+        newNode.setLoc(""+(location.getX()+400)+" "+(location.getY()+200));
 
         nodeDataList.add(newNode);
     }
