@@ -14,5 +14,4 @@ public class RequireDTO {
     private List<String> globalRequirements;
     private List<String> backup;
     private List<ZoneDTO> zones;
-
 }
