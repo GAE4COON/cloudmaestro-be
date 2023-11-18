@@ -433,14 +433,14 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         // LinkData 정렬
         linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
 
-        Iterator<LinkData> iterator = linkDataList.iterator();
-        while(iterator.hasNext()){
-            LinkData linkData = iterator.next();
-            System.out.println("sortedlinkData" + linkData);
-            if(linkData.getFrom().contains("Shield")){
-                iterator.remove();
-            }
-        }
+//        Iterator<LinkData> iterator = linkDataList.iterator();
+//        while(iterator.hasNext()){
+//            LinkData linkData = iterator.next();
+//            System.out.println("sortedlinkData" + linkData);
+//            if(linkData.getFrom().contains("Shield")){
+//                iterator.remove();
+//            }
+//        }
 
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
         addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
