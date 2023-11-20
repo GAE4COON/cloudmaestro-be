@@ -50,7 +50,9 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
             }
             else if (node.contains("Database")) {
-                nodeData.setKey("RDS");
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("Database", "RDS");
+                nodeData.setKey(nodeKey);
                 nodeData.setText("RDS");
                 nodeData.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
                 nodeData.setType("Database");
@@ -310,44 +312,17 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         if (privateSubnetGroupKeys.isEmpty()){
             return;
         }
-        for (String privateSubnetGroupKey : privateSubnetGroupKeys) {
-            double minY = Double.MAX_VALUE; //MAX보다 작은 Y를 찾으면
-            double minX = Double.MAX_VALUE;
 
-            for (NodeData node : nodeDataList) {
-                for (GroupData groupData : groupDataList) { //group를 순회한다
-                    if(groupData.getKey().equals(node.getGroup())){
-                        if(groupData.getGroup()!= null && groupData.getGroup().equals(privateSubnetGroupKey)){
-                            String location = node.getLoc();
-                            String[] locParts = location.split(" ");
+        NodeData naclNode = new NodeData();
+        naclNode.setKey("NACL"); // NAT 키를 고유하게 만듦
+        naclNode.setText("NACL");
+        naclNode.setLoc("-967.052314047733 -182.10191175195388"); // 계산된 위치 설정
+        naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
+        naclNode.setType("Networking-Content-Delivery");
+        naclNode.setGroup("VPC");
 
-                            double x = Double.parseDouble(locParts[0]);
-                            double y = Double.parseDouble(locParts[1]);
-                            if (y < minY || (y == minY && x < minX)) { // y축이 -일때 위로 올라간다 x는 -일때 왼쪽이 맞음
-                                minY = y;
-                                minX = x;
-                            }
-                        }
-                    }
-                }
-            }
-
-            System.out.println("miny: "+minY);
-            System.out.println("minx: "+minX);
-            String newLoc = (minX) + " " + (minY-130);
-
-            NodeData naclNode = new NodeData();
-            naclNode.setKey("NACL"+naclCount); // NAT 키를 고유하게 만듦
-            naclNode.setText("NACL");
-            naclNode.setLoc(newLoc); // 계산된 위치 설정
-            naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
-            naclNode.setType("Networking-Content-Delivery");
-            naclNode.setGroup(privateSubnetGroupKey);
-
-            // NAT 노드를 리스트에 추가
-            nodeDataList.add(naclNode);
-            naclCount++;
-        }
+        // NAT 노드를 리스트에 추가
+        nodeDataList.add(naclNode);
     }
     public void addInternet(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
         if(groupDataList.isEmpty()){
@@ -491,6 +466,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                         node_y = newCoordinates[1];
                     }
                     if(linkdata.getTo().contains("Group")){
+                        System.out.println("GetTo"+linkdata.getTo());
                         double[] newCoordinates = processToGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
                         node_x = newCoordinates[0];
                         node_y = newCoordinates[1];
@@ -567,7 +543,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     }
 
     private  double[] processToGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
-        // 해당 group이 prod private subnet에 포함됐는 지 확인
 
         // 해당 group이 prod private subnet에 포함됐는 지 확인
         String security_group = linkdata.getTo();
@@ -579,6 +554,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
             ){
                 //visitGroup.add(security_group);
+                System.out.println("visitGroup_nodedata2" + visitGroup);
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
                 if(nodedata.getGroup().contains(security_group)){
                     visitGroup.add(nodedata.getKey());
