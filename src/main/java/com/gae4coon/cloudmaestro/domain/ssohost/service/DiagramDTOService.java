@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 
 import javax.swing.*;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -91,7 +93,7 @@ public class DiagramDTOService {
 
     public NodeData getNodeDataByKey(List<NodeData> nodeDataList, String key){
         for (NodeData node : nodeDataList) {
-            if(node.getKey().equals(key)) return node;
+            if(node.getKey().contains(key)) return node;
         }
         return null;
     }
@@ -118,4 +120,48 @@ public class DiagramDTOService {
         }
         return groupList;
     }
+
+    public int getNodeNumber(List<NodeData> nodeDataList, String text){
+        int number=0;
+
+        for (NodeData groupitem : nodeDataList) {
+            if(groupitem.getKey().startsWith(text)){
+                Pattern pattern = Pattern.compile("^" + Pattern.quote(text) + "(\\d*)"); // 'S3' 대신 'text' 사용
+                Matcher matcher = pattern.matcher(groupitem.getKey());
+                if (matcher.find()) {
+                    String numberStr = matcher.group(1); // text 다음의 숫자 부분
+                    int tempnum = 1; // 기본값을 1로 설정
+                    // 숫자가 있으면 그 숫자를 사용, 없으면 기본값 사용
+                    if (!numberStr.isEmpty()) {
+                        tempnum = Integer.parseInt(numberStr)+1;
+                    }
+                    if(number<tempnum) number=tempnum;
+                }
+
+            }
+        }
+        return number; // number 반환
+    }
+    public int getGroupNumber(List<GroupData> groupDataList, String text){
+        int number=0;
+
+        for (GroupData groupitem : groupDataList) {
+            if(groupitem.getKey().startsWith(text)){
+                Pattern pattern = Pattern.compile("^" + Pattern.quote(text) + "(\\d*)"); // 'S3' 대신 'text' 사용
+                Matcher matcher = pattern.matcher(groupitem.getKey());
+                if (matcher.find()) {
+                    String numberStr = matcher.group(1); // text 다음의 숫자 부분
+                    int tempnum = 1; // 기본값을 1로 설정
+                    // 숫자가 있으면 그 숫자를 사용, 없으면 기본값 사용
+                    if (!numberStr.isEmpty()) {
+                        tempnum = Integer.parseInt(numberStr)+1;
+                    }
+                    if(number<tempnum) number=tempnum;
+                }
+
+            }
+        }
+        return number; // number 반환
+    }
+
 }

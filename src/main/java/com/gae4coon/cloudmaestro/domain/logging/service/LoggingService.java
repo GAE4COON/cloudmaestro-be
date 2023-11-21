@@ -2,6 +2,7 @@ package com.gae4coon.cloudmaestro.domain.logging.service;
 
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
+import com.gae4coon.cloudmaestro.domain.resource.service.AddResourceService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
@@ -19,6 +20,7 @@ import java.util.Map;
 public class LoggingService {
 
     private final DiagramDTOService diagramDTOService;
+    private final AddResourceService addResourceService;
 
     List<NodeData> nodeDataList;
     List<GroupData> groupDataList;
@@ -44,6 +46,15 @@ public class LoggingService {
     private void globalService(List<String> globalRequirements) {
         for (var global : globalRequirements) {
             switch (global) {
+                case "로깅":
+                    setLogging();
+                    break;
+                case "로그 수집 및 저장":
+                    setLogCollectStore();
+                    break;
+                case "분석 및 시각화":
+                    setLogAnalyze();
+                    break;
                 case "API 로그 수집":
                     setCloudTrail();
                     break;
@@ -63,42 +74,125 @@ public class LoggingService {
         }
     }
 
+    private void setLogging(){
+        setLogCollectStore();
+        setLogAnalyze();
+    }
+
+    private void setLogAnalyze() {
+        setOpenSearch();
+        setAthena();
+        setQuickSight();
+    }
+
+    private void setLogCollectStore() {
+        setCloudTrail();
+        setCloudWatch();
+    }
+
     private void setCloudTrail() {
-        NodeData cloudTrail = NodeData.builder()
-                .key("CloudTrail_logging")
-                .text("CloudTrail")
-                .group("Region")
-                .type("Management-Governance")
-                .source("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg")
-                .build();
+        NodeData cloudTrail = addResourceService.addCloudTrail();
+        cloudTrail.setKey(cloudTrail.getKey()+diagramDTOService.getNodeNumber(nodeDataList, cloudTrail.getText()));
+        cloudTrail.setGroup("Region");
         nodeDataList.add(cloudTrail);
 
-        NodeData s3 = NodeData.builder()
-                .key("Simple Storage Service_logging")
-                .text("Simple Storage Service")
-                .group("Region")
-                .type("Storage")
-                .source("/img/AWS_icon/Arch_Storage/Arch_Amazon-Simple-Storage-Service_48.svg")
-                .build();
+        NodeData s3 = addResourceService.addSimpleStorageService();
+        s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
+        s3.setGroup("Region");
         nodeDataList.add(s3);
 
         LinkData link = LinkData.builder()
-                .from("CloudTrail_logging")
-                .to("Simple Storage Service_logging")
+                .from(cloudTrail.getKey())
+                .to(s3.getKey())
                 .build();
         linkDataList.add(link);
-
     }
 
     private void setCloudWatch() {
+        NodeData cloudWatch = addResourceService.addCloudWatch();
+        cloudWatch.setKey(cloudWatch.getKey()+diagramDTOService.getNodeNumber(nodeDataList, cloudWatch.getText()));
+        cloudWatch.setGroup("Region");
+        nodeDataList.add(cloudWatch);
+
+        NodeData s3 = addResourceService.addSimpleStorageService();
+        s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
+        s3.setGroup("Region");
+        nodeDataList.add(s3);
+
+        LinkData link = LinkData.builder()
+                .from(s3.getKey())
+                .to(cloudWatch.getKey())
+                .build();
+        linkDataList.add(link);
     }
 
     private void setOpenSearch() {
+        NodeData cloudWatchNode = diagramDTOService.getNodeDataByKey(nodeDataList, "CloudWatch");
+        if(cloudWatchNode==null){
+            cloudWatchNode = addResourceService.addCloudWatch();
+            cloudWatchNode.setGroup("Region");
+            nodeDataList.add(cloudWatchNode);
+        }
+
+        NodeData OpenSearch = addResourceService.addOpenSearchService();
+        OpenSearch.setKey(OpenSearch.getKey()+diagramDTOService.getNodeNumber(nodeDataList, OpenSearch.getText()));
+        OpenSearch.setGroup("Region");
+        nodeDataList.add(OpenSearch);
+
+        NodeData lambda = addResourceService.addLambdaLambdaFunction();
+        lambda.setKey(lambda.getKey()+diagramDTOService.getNodeNumber(nodeDataList, lambda.getText()));
+        lambda.setGroup("Region");
+        nodeDataList.add(lambda);
+
+        LinkData link = LinkData.builder()
+                .from(cloudWatchNode.getKey())
+                .to(lambda.getKey())
+                .build();
+        linkDataList.add(link);
+
+        LinkData link2 = LinkData.builder()
+                .from(lambda.getKey())
+                .to(OpenSearch.getKey())
+                .build();
+        linkDataList.add(link2);
     }
 
     private void setAthena() {
+        NodeData athena = addResourceService.addAthena();
+        athena.setKey(athena.getKey()+diagramDTOService.getNodeNumber(nodeDataList, athena.getText()));
+        athena.setGroup("Region");
+        nodeDataList.add(athena);
+
+        NodeData s3 = addResourceService.addSimpleStorageService();
+        s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
+        s3.setGroup("Region");
+        nodeDataList.add(s3);
+
+        LinkData link = LinkData.builder()
+                .from(s3.getKey())
+                .to(athena.getKey())
+                .build();
+        linkDataList.add(link);
     }
 
     private void setQuickSight() {
+        NodeData athenaNode = diagramDTOService.getNodeDataByKey(nodeDataList, "Athena");
+        if(athenaNode==null){
+            athenaNode = addResourceService.addAthena();
+            athenaNode.setGroup("Region");
+            nodeDataList.add(athenaNode);
+        }
+
+        NodeData quickSight = addResourceService.addQuickSight();
+        quickSight.setKey(quickSight.getKey()+diagramDTOService.getNodeNumber(nodeDataList, quickSight.getText()));
+        quickSight.setGroup("Region");
+        nodeDataList.add(quickSight);
+
+        LinkData link = LinkData.builder()
+                .from(athenaNode.getKey())
+                .to(quickSight.getKey())
+                .build();
+        linkDataList.add(link);
+
     }
 }
