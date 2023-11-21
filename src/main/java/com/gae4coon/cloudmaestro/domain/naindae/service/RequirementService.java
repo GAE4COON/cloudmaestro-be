@@ -11,8 +11,10 @@ import java.util.stream.Collectors;
 public class RequirementService {
     public Map<String, Object> getRequirementAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
             int i = 0;
-                    Map<String, Object> result = new HashMap<>();
-
+            
+            //TODO 망별로 처리하기 위해 zones에 name을 확인하여 해당 망에서만 작업할 수 있도록
+            
+            Map<String, Object> result = new HashMap<>();
             NodeData availabilityZoneNode = new NodeData();
             availabilityZoneNode.setKey("Availability Zone2");
             availabilityZoneNode.setText("Availability Zone");

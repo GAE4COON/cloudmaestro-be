@@ -74,8 +74,8 @@ public class RegionService {
             NodeData newNode = new NodeData();
             newNode.setText(node.getText());
             String[] locParts = node.getLoc().split(" ");
-            double x = Double.parseDouble(locParts[0]) + 1300;
-            double y = Double.parseDouble(locParts[1]);
+            double x = Double.parseDouble(locParts[0]);
+            double y = Double.parseDouble(locParts[1]) + 1000;
             newNode.setLoc(x + " " + y); // 수정된 좌표 설정
             newNode.setType(node.getType());
             newNode.setSource(node.getSource());
