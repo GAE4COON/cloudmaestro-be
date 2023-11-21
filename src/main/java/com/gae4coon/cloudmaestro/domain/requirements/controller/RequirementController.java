@@ -3,6 +3,7 @@ package com.gae4coon.cloudmaestro.domain.requirements.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
@@ -19,6 +20,7 @@ import java.util.*;
 public class RequirementController {
     private final SecurityService securityService;
     private final DiagramDTOService diagramDtoService;
+    private final AvailableService availableService;
 
     @PostMapping(value = "/userRequirement")
     public ResponseEntity<?> userRequirement(@RequestBody RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
@@ -34,9 +36,11 @@ public class RequirementController {
 
 
         HashMap<String, Object> responseDiagram = securityService.globalService(requireDiagramDTO.getRequirementData().getGlobalRequirements(), responseArray);
+        System.out.println("GlobalService : " + responseDiagram);
 
-
+        HashMap<String,Object> availableDiagram = availableService.availalbeService(requireDiagramDTO.getRequirementData().getZones(), responseArray);
+        System.out.println("availableDiagram : " + availableDiagram);
         //        return ResponseEntity.ok("success");
-        return ResponseEntity.ok(responseDiagram);
+        return ResponseEntity.ok(availableDiagram);
     }
 }

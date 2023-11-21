@@ -438,7 +438,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){
-            System.out.println("public subnet_name " + public_subnet);
+
 
             // Public Subnet에 있는 NACL 정하기
             double[] updatedCoordinates  = processPublicSubnet(nodeDataList, public_subnet, nacl_x, nacl_y);
@@ -449,7 +449,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             // 해당 prod private subnet에 포함된 링크 연결된 정보를 탐색해서 그에 맞게 위치 정보넣기
             String[] parts = public_subnet.split(" ");
             String netName = parts[0];
-            System.out.println("netName: " + netName);
 
             node_x = nacl_x + 430;
             node_y = nacl_y - 85;
@@ -470,13 +469,13 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                         double[] newCoordinates = processToGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
                         node_x = newCoordinates[0];
                         node_y = newCoordinates[1];
+
                     }
                     // group에 없는 ec2일 경우
                     if (linkdata.getFrom().contains(nodedata.getKey()) &&
                             !Except.contains(nodedata.getKey()) &&
                             nodedata.getGroup().contains(netName)
                     ){
-                        System.out.println("Ec2 Comeon" + nodedata.getKey());
                         node_x += 20;
                         String newLoc = (node_x) + " " + (node_y);
                         nodedata.setLoc(newLoc);
@@ -530,7 +529,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
                 if(nodedata.getGroup().contains(security_group)){
                     visitGroup.add(nodedata.getKey());
-                    System.out.println("group include nodedata1 : "+nodedata);
                     node_x += 150;
                     String newLoc = (node_x) + " " + (node_y);
                     nodedata.setLoc(newLoc);
@@ -554,7 +552,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
             ){
                 //visitGroup.add(security_group);
-                System.out.println("visitGroup_nodedata2" + visitGroup);
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
                 if(nodedata.getGroup().contains(security_group)){
                     visitGroup.add(nodedata.getKey());
