@@ -27,12 +27,11 @@ public class AvailableService {
         NodeData highestNode = null;
         highestNode = findNodeWithHighestYCoordinate(nodeDataList);
 
-        System.out.println("highestNode: "+highestNode);
-
         // nacl2 = -764.9202380643841 336.05824133430997
         // alb = -300 ,540
         // alb2 = -80 ,540
         // alb + 220 = alb2
+
 
         String location = highestNode.getLoc();
         String[] locParts = location.split(" ");
@@ -42,18 +41,23 @@ public class AvailableService {
         node_y += 220;
         int index = 0;
         for(int i = 0; i < zoneRequirements.size(); i++){
-            NodeData AlbNode = new NodeData();
-            AlbNode.setText("Application Load Balancer(ALB)");
-            AlbNode.setKey("Application Load Balancer(ALB)" + index);
-            AlbNode.setFigure("Rectangle");
-            AlbNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
-            AlbNode.setType("Networking-Content-Delivery");
-            String newLoc = (node_x) + " " + (node_y);
-            AlbNode.setLoc(newLoc);
-            AlbNode.setGroup("VPC");
-            node_x += 220;
-            System.out.println("ALBNode: "+AlbNode);
-            nodeDataList.add(AlbNode);
+            String zone_name = zoneRequirements.get(i).getName();
+            for(int j = 0 ; j < zoneRequirements.get(i).getAvailableNode().size(); j++)
+            {
+                // ALB Node 생성
+                NodeData AlbNode;
+                AlbNode = makeALb(index,node_x,node_y);
+
+                String node = zoneRequirements.get(i).getAvailableNode().get(j);
+                System.out.println("Available in node : "+ node);
+
+
+                
+                node_x += 220;
+                nodeDataList.add(AlbNode);
+
+            }
+
         }
 
 
@@ -96,6 +100,23 @@ public class AvailableService {
         }
 
         return highestYNode;
+    }
+
+
+    public NodeData makeALb(int index, double node_x, double node_y){
+        NodeData AlbNode = new NodeData();
+        AlbNode.setText("Application Load Balancer(ALB)");
+        AlbNode.setKey("Application Load Balancer(ALB)" + index);
+        AlbNode.setFigure("Rectangle");
+        AlbNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
+        AlbNode.setType("Networking-Content-Delivery");
+        String newLoc = (node_x) + " " + (node_y);
+        AlbNode.setLoc(newLoc);
+        AlbNode.setGroup("VPC");
+        System.out.println("ALBNode: "+AlbNode);
+
+        return AlbNode;
+
     }
 
 }
