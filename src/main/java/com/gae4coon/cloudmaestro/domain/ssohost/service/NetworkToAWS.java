@@ -23,6 +23,7 @@ public interface NetworkToAWS {
 
     void setNodeLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 
+    void deleteServiceDuplicatedNode(List<NodeData> nodeDataList);
 
     //void setNodeLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList);
 }

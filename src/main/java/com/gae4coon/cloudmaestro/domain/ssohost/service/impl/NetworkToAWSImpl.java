@@ -3,19 +3,49 @@ package com.gae4coon.cloudmaestro.domain.ssohost.service.impl;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
+import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
-
+@RequiredArgsConstructor
 public class NetworkToAWSImpl implements NetworkToAWS {
+    private final DiagramDTOService diagramDTOService;
+    @Override
+    public void deleteServiceDuplicatedNode(List<NodeData> nodeDataList){
+        List<NodeData> serviceNodeList = new ArrayList<>();
+        List<NodeData> removeNode = new ArrayList<>();
+        Set<String> seenTexts = new HashSet<>();
+
+        System.out.println("duplicate nodeDataList" + nodeDataList);
+        for(NodeData node: nodeDataList){
+            System.out.println(node.getGroup());
+            if(node.getGroup().equals("Service")){
+                System.out.println("node" + node);
+                removeNode.add(node);
+                if(seenTexts.add(node.getSource())){
+                    serviceNodeList.add(node);
+                }
+            }
+        }
+
+        for(NodeData node: removeNode){
+            nodeDataList.remove(node);
+        }
+        nodeDataList.addAll(serviceNodeList);
+
+        System.out.println("serviceNodeList" + serviceNodeList);
+
+    }
 
 
     @Override
     public void changeNodeSource(List<NodeData> nodeDataList) {
+
         for (NodeData nodeData : nodeDataList) {
             String node = nodeData.getKey();
             // server, web server
@@ -33,23 +63,28 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 nodeData.setText("Shield");
                 nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
                 nodeData.setType("Security-Identity-Compliance");
+                nodeData.setGroup("Service");
             } else if (node.contains("IPS")) {
+
                 String nodeKey = nodeData.getKey();
                 nodeKey = nodeKey.replace("IPS", "CloudTrail");
                 nodeData.setKey(nodeKey);
                 nodeData.setText("CloudTrail");
                 nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
                 nodeData.setType("Management-Governance");
+                nodeData.setGroup("Service");
+
             } else if (node.contains("IDS")){
+
                 String nodeKey = nodeData.getKey();
                 nodeKey = nodeKey.replace("IDS", "CloudTrail");
                 nodeData.setKey(nodeKey);
                 nodeData.setText("CloudTrail");
                 nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
                 nodeData.setType("Management-Governance");
+                nodeData.setGroup("Service");
 
-            }
-            else if (node.contains("Database")) {
+            }else if (node.contains("Database")) {
                 String nodeKey = nodeData.getKey();
                 nodeKey = nodeKey.replace("Database", "RDS");
                 nodeData.setKey(nodeKey);
@@ -95,8 +130,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
         Map<List<NodeData>, List<GroupData>> result = new HashMap<>();
         result.put(nodeDataList, groupDataList);
-
-        return;
     }
 
 
@@ -166,14 +199,13 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 value = node.replace("IPS", "CloudTrail");
                 linkData.setFrom(value);
             } else if(node.contains("IDS")){
-                value = node.replace("IPS","Shield");
+                value = node.replace("IDS","CloudTrail");
                 linkData.setFrom(value);
             } else if (node.contains("Database")) {
                 value = node.replace("Database","RDS");
                 linkData.setFrom(value);
             }
         }
-        return;
     }
 
 
@@ -218,21 +250,29 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
         GroupData regionSubnet = new GroupData();
         regionSubnet.setIsGroup(true);
+//        regionSubnet.setGroup("AWS Cloud");
         regionSubnet.setType("AWS_Groups");
         regionSubnet.setKey("Region");
         regionSubnet.setText("Region");
         regionSubnet.setStroke("rgb(0,164,166)");
         groupDataList.add(regionSubnet);
 
+//        GroupData AWSCloud = new GroupData();
+//        AWSCloud.setIsGroup(true);
+//        AWSCloud.setType("AWS_Groups");
+//        AWSCloud.setKey("AWS Cloud");
+//        AWSCloud.setText("AWS Cloud");
+//        AWSCloud.setStroke("rgb(0,0,0)");
+//        groupDataList.add(AWSCloud);
     }
 
     public void moveNodeToRegion(List<NodeData> nodeDataList){
        for(NodeData nodeData : nodeDataList){
             if(nodeData.getKey().contains("Shield")){
-                nodeData.setGroup("Region");
+//                nodeData.setGroup("Region");
             }
             if(nodeData.getKey().contains("CloudTrail")){
-                nodeData.setGroup("Region");
+//                nodeData.setGroup("Region");
             }
             else if(nodeData.getKey().contains("CloudFront")){
                 nodeData.setGroup("Region");
@@ -302,7 +342,6 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     public void addNacl(List<NodeData> nodeDataList, List<GroupData> groupDataList){
         int naclCount = 1;
 
-
         List<String> privateSubnetGroupKeys = new ArrayList<>();
         for (GroupData group : groupDataList) {
             if (group.getKey().contains("Private subnet")) {
@@ -367,6 +406,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     }
 
     public void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+        diagramDTOService.addServiceGroup(groupDataList);
+
         changeNodeSource(nodeDataList);
         changeLinkSource(linkDataList);
         changeGroupSource2(nodeDataList, groupDataList);

@@ -4,7 +4,6 @@ package com.gae4coon.cloudmaestro.domain.requirements.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
-import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;

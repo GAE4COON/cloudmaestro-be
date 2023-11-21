@@ -41,7 +41,7 @@ public class RehostController {
 
         // put s3
         String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
-        s3Service.uploadS3File(fileName, postData);
+//        s3Service.uploadS3File(fileName, postData);
 
 //       임시 할당
         Member member = Member.builder()
@@ -54,12 +54,12 @@ public class RehostController {
                 .role(Member.UserRole.valueOf("member"))
                 .build();
 
-        memberRepository.save(member);
+//        memberRepository.save(member);
 //       임시 할당
 
 
         // put network
-        networkService.addNetwork(member, fileName, null);
+//        networkService.addNetwork(member, fileName, null);
 
         // 파일 저장
         try {
@@ -75,8 +75,8 @@ public class RehostController {
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
             securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, unique(linkDataList));
             modifyLink.excludeNode(nodeDataList, groupDataList, unique(linkDataList));
-
             Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, unique(linkDataList));
+
             nodeDataList.clear();
             linkDataList.clear();
 
@@ -99,6 +99,9 @@ public class RehostController {
 
             // 위치 정보 수정 ,,, ,하하
             networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
+
+            // 서비스 노드 중복 잡기
+            networkToAWS.deleteServiceDuplicatedNode(nodeDataList);
 
             System.out.println("SetRegion and VPC Data : " + nodeDataList);
 
