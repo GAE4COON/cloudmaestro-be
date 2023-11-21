@@ -11,61 +11,111 @@ import java.util.stream.Collectors;
 public class RequirementService {
     public Map<String, Object> getRequirementAvailable(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
             int i = 0;
-            
-            //TODO 망별로 처리하기 위해 zones에 name을 확인하여 해당 망에서만 작업할 수 있도록
-            
-            Map<String, Object> result = new HashMap<>();
-            NodeData availabilityZoneNode = new NodeData();
-            availabilityZoneNode.setKey("Availability Zone2");
-            availabilityZoneNode.setText("Availability Zone");
-            availabilityZoneNode.setIsGroup(true);
-            availabilityZoneNode.setGroup("VPC");
-            availabilityZoneNode.setType("AWS_Groups");
-            availabilityZoneNode.setStroke("rgb(0,164,166)");
-            nodeDataList.add(availabilityZoneNode);
+//
+//            //TODO 망별로 처리하기 위해 zones에 name을 확인하여 해당 망에서만 작업할 수 있도록
+//
+//            Map<String, Object> result = new HashMap<>();
+//            NodeData availabilityZoneNode = new NodeData();
+//            availabilityZoneNode.setKey("Availability Zone2");
+//            availabilityZoneNode.setText("Availability Zone");
+//            availabilityZoneNode.setIsGroup(true);
+//            availabilityZoneNode.setGroup("VPC");
+//            availabilityZoneNode.setType("AWS_Groups");
+//            availabilityZoneNode.setStroke("rgb(0,164,166)");
+//            nodeDataList.add(availabilityZoneNode);
+//
+//            Point2D location = findLoc(nodeDataList, groupDataList);
+//
+//            System.out.println("loc: "+location);
+//
+//
+//            GroupData newPrivateSubnet = new GroupData();
+//            newPrivateSubnet.setKey("Multi-AZ Private subnet");
+//            newPrivateSubnet.setText("Multi-AZ Private subnet");
+//            newPrivateSubnet.setIsGroup(true);
+//            newPrivateSubnet.setGroup("Availability Zone2");
+//            newPrivateSubnet.setType("AWS_Groups");
+//            newPrivateSubnet.setStroke("rgb(0,164,166)");
+//            groupDataList.add(newPrivateSubnet);
+//
+//            Map<String, Object> rdsResult = countRdsNodesInPrivateSubnets(nodeDataList,groupDataList);
+//            int rdsCount = (int) rdsResult.get("rdsNodeCount");
+//
+//            List<String> groupKeys = (List<String>) rdsResult.get("groupKeys");
+//            int countNodes = countNodes(nodeDataList);
+//
+//            for (String key : groupKeys) {
+//                    countNodes++;
+//                    String newLoc = (location.getX()+(i*100)-200) + " " + (location.getY()+400);
+//                    NodeData rdsNode = new NodeData();
+//                    rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
+//                    rdsNode.setText("RDS"+countNodes);
+//                    rdsNode.setLoc(newLoc); // 계산된 위치 설정
+//                    rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
+//                    rdsNode.setType("Arch_Database");
+//                    rdsNode.setGroup(newPrivateSubnet.getKey());
+//                    nodeDataList.add(rdsNode);
+//
+//                    //TODO 여기에 link로 연결해주어야함
+//                    LinkData link = new LinkData();
+//                    link.setFrom(key);
+//                    link.setTo("RDS"+countNodes); //여기에 public subnet이 와야함
+//                    linkDataList.add(link);
+//
+//                    i++;
+//            }
 
+            Map<String, Object> result = new HashMap<>();
             Point2D location = findLoc(nodeDataList, groupDataList);
 
-            System.out.println("loc: "+location);
+            List<GroupData> regions = groupDataList.stream()
+                    .filter(group -> "AWS_Groups".equals(group.getType()) && group.getKey().contains("Region"))
+                    .collect(Collectors.toList());
 
+            // 각 리전별로 처리
+            for (GroupData region : regions) {
+                    // 2. 해당 리전의 'VPC' 그룹 식별
+                    Optional<GroupData> vpcGroup = groupDataList.stream()
+                            .filter(group -> group.getKey().contains("VPC") && group.getGroup() != null && group.getGroup().equals(region.getKey()))
+                            .findFirst();
 
-            GroupData newPrivateSubnet = new GroupData();
-            newPrivateSubnet.setKey("Multi-AZ Private subnet");
-            newPrivateSubnet.setText("Multi-AZ Private subnet");
-            newPrivateSubnet.setIsGroup(true);
-            newPrivateSubnet.setGroup("Availability Zone2");
-            newPrivateSubnet.setType("AWS_Groups");
-            newPrivateSubnet.setStroke("rgb(0,164,166)");
-            groupDataList.add(newPrivateSubnet);
+                    if (vpcGroup.isPresent()) {
+                            String vpcKey = vpcGroup.get().getKey();
 
-            Map<String, Object> rdsResult = countRdsNodesInPrivateSubnets(nodeDataList,groupDataList);
-            int rdsCount = (int) rdsResult.get("rdsNodeCount");
+                            // 3. AZ 생성 및 'VPC' 그룹에 추가
+                            String azKey = region.getKey()+"Multi-AZ"; // AZ 키 생성
+                            NodeData availabilityZoneNode = new NodeData();
+                            availabilityZoneNode.setKey(azKey);
+                            availabilityZoneNode.setText(azKey);
+                            availabilityZoneNode.setIsGroup(true);
+                            availabilityZoneNode.setGroup(vpcKey);
+                            availabilityZoneNode.setType("AWS_Groups");
+                            availabilityZoneNode.setStroke("rgb(0,164,166)");
+                            nodeDataList.add(availabilityZoneNode);
 
-            List<String> groupKeys = (List<String>) rdsResult.get("groupKeys");
-            int countNodes = countNodes(nodeDataList);
+                            GroupData newPrivateSubnet = new GroupData();
+                            newPrivateSubnet.setKey(azKey+"Private subnet");
+                            newPrivateSubnet.setText(azKey+"Private subnet");
+                            newPrivateSubnet.setIsGroup(true);
+                            newPrivateSubnet.setGroup(azKey);
+                            newPrivateSubnet.setType("AWS_Groups");
+                            newPrivateSubnet.setStroke("rgb(0,164,166)");
+                            groupDataList.add(newPrivateSubnet);
+                            String newLoc = (location.getX()+(i*100)-200) + " " + (location.getY()+400);
 
-            for (String key : groupKeys) {
-                    countNodes++;
-                    String newLoc = (location.getX()+(i*100)-200) + " " + (location.getY()+400);
-                    NodeData rdsNode = new NodeData();
-                    rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
-                    rdsNode.setText("RDS"+countNodes);
-                    rdsNode.setLoc(newLoc); // 계산된 위치 설정
-                    rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
-                    rdsNode.setType("Arch_Database");
-                    rdsNode.setGroup(newPrivateSubnet.getKey());
-                    nodeDataList.add(rdsNode);
-
-                    //TODO 여기에 link로 연결해주어야함
-                    LinkData link = new LinkData();
-                    link.setFrom(key);
-                    link.setTo("RDS"+countNodes); //여기에 public subnet이 와야함
-                    linkDataList.add(link);
-
-                    i++;
+                            // 4. 각 AZ에 RDS 인스턴스 생성 및 배치
+                            String rdsKey = availabilityZoneNode.getKey()+"RDS"; // RDS 키 생성
+                            NodeData rdsNode = new NodeData();
+                            rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
+                            rdsNode.setText("RDS");
+                            rdsNode.setLoc(newLoc); // 계산된 위치 설정
+                            rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
+                            rdsNode.setType("Arch_Database");
+                            rdsNode.setGroup(newPrivateSubnet.getKey());
+                            nodeDataList.add(rdsNode);
+                            i++;
+                    }
             }
-
-
             //TODO link로
 
             result.put("nodes", nodeDataList);
