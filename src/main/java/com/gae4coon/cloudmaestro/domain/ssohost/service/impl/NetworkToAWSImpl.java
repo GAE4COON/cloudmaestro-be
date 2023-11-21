@@ -406,7 +406,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     }
 
     public void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
-        diagramDTOService.addServiceGroup(groupDataList);
+//        diagramDTOService.addServiceGroup(groupDataList);
 
         changeNodeSource(nodeDataList);
         changeLinkSource(linkDataList);

@@ -15,7 +15,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class SecurityService{
 
-    private DiagramDTOService diagramDTOService;
+    private final DiagramDTOService diagramDTOService;
 
     List<NodeData> nodeDataList;
     List<GroupData> groupDataList;
@@ -23,23 +23,39 @@ public class SecurityService{
 
     // globalRequirements list service
 
-    public HashMap<String, Object> security(RequireDTO requireDTO, Map<String, Object> responseArray) {
-        nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
-        groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
-        linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+    public HashMap<String, Object> security(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
+        List<String> globalRequirements = requireDTO.getGlobalRequirements();
+        List<ZoneDTO> Zones = requireDTO.getZones();
 
-        globalService(requireDTO.getGlobalRequirements(), responseArray);
-        zoneService(requireDTO.getZones(), responseArray);
+        this.nodeDataList = originNodeDataList;
+        this.groupDataList = originGroupDataList;
+        this.linkDataList = originLinkDataList;
+
+        globalService(globalRequirements);
+        zoneService(Zones);
 
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
-        System.out.println("response" + response);
+
         return response;
     }
 
 
-    public void globalService(List<String> globalRequirements, Map<String, Object> responseArray) {
+
+    private void globalService(List<String> globalRequirements) {
         for (var global : globalRequirements) {
             switch (global) {
+                case "보안":
+                    setSecurity();
+                    break;
+                case "탐지 및 대응":
+                    setDetect();
+                    break;
+                case "네트워크 보호":
+                    setNetworkSecure();
+                    break;
+                case "데이터 보호":
+                    setDataSecure();
+                    break;
                 case "접근 권한 관리":
                     setIAM();
                     break;
@@ -72,7 +88,32 @@ public class SecurityService{
         }
     }
 
-    public void zoneService(List<ZoneDTO> Zones, Map<String, Object> responseArray) {
+    private void setDataSecure() {
+        setKMS();
+        setSecretsManager();
+    }
+
+    private void setNetworkSecure() {
+        setNetworkFW();
+        setShield();
+    }
+
+    private void setDetect() {
+        setDetective();
+        setGuardDuty();
+        setSecurityHub();
+    }
+
+    private void setSecurity() {
+        System.out.println("security");
+        setIAM();
+        setDetect();
+        setNetworkSecure();
+        setGlobalWAF();
+        setDataSecure();
+    }
+
+    public void zoneService(List<ZoneDTO> Zones) {
         // Zone Requiremnts 처리
         for (ZoneDTO zone : Zones) {
             for (String zoneRequirement : zone.getZoneRequirements()) {
@@ -183,7 +224,7 @@ public class SecurityService{
         Shield.setText("Shield");
         Shield.setType("Security-Identity-Compliance");
         Shield.setGroup("Service");
-        Shield.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_Amazon-Shield_48.svg");
+        Shield.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
         nodeDataList.add(Shield);
     }
 
@@ -228,7 +269,7 @@ public class SecurityService{
         SecretsManager.setText("Secrets Manager");
         SecretsManager.setType("Security-Identity-Compliance");
         SecretsManager.setGroup("Service");
-        SecretsManager.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_Amazon-Secrets-Manager_48.svg");
+        SecretsManager.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Secrets-Manager_48.svg");
         nodeDataList.add(SecretsManager);
     }
 
@@ -241,7 +282,7 @@ public class SecurityService{
         SecretsManager.setText("Secrets Manager");
         SecretsManager.setType("Security-Identity-Compliance");
         SecretsManager.setGroup("Service");
-        SecretsManager.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_Amazon-Secrets-Manager_48.svg");
+        SecretsManager.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Secrets-Manager_48.svg");
         nodeDataList.add(SecretsManager);
     }
 
