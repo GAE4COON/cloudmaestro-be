@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 public interface SecurityService {
-    HashMap<String, Object> globalService(List<String> globalRequirements, Map<String, Object> responseArray);
-    HashMap<String, Object> zoneService(List<ZoneDTO> zoneRequirements, Map<String, Object> responseArray);
+    HashMap<String, Object> security(RequireDTO requireDTO, Map<String, Object> responseArray);
 
 }
