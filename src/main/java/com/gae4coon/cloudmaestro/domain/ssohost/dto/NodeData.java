@@ -8,7 +8,8 @@ import lombok.EqualsAndHashCode;
 import java.util.List;
 
 @Data
-public class NodeData {
+public class
+NodeData {
     private String text;
     private String type;
     private String key;

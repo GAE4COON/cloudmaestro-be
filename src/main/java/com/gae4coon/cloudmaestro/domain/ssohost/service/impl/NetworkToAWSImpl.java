@@ -427,8 +427,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
     public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
 
-        double nacl_x = -762.9202380643841; //MAX보다 작은 Y를 찾으면
-        double nacl_y = -183.94175866569003;
+        double nacl_x = -762; //MAX보다 작은 Y를 찾으면
+        double nacl_y = -183;
 
         double node_x;
         double node_y;
@@ -481,18 +481,9 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                         nodedata.setLoc(newLoc);
 
                     }
-
                 }
-
-
             }
-
-
         }
-
-
-
-
     }
     public double[]  processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double nacl_x, double nacl_y) {
         double x = 0.0;
