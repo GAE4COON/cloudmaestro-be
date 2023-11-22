@@ -27,7 +27,6 @@ public class AllRequirementService {
     private final DiagramDTOService diagramDTOService;
     private final SecurityService securityService;
     private final LoggingService loggingService;
-    private final AddResourceService addResourceService;
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
@@ -46,14 +45,6 @@ public class AllRequirementService {
 
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
-
-        NodeData nodeData = addResourceService.addAntiDDoS();
-        nodeData.setGroup("Region");
-        nodeDataList.add(nodeData);
-
-        NodeData nodeData2 = addResourceService.addEC2();
-        nodeData2.setGroup("Region");
-        nodeDataList.add(nodeData2);
 
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
