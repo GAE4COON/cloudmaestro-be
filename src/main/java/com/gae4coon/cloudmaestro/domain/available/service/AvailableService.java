@@ -15,16 +15,15 @@ public class AvailableService {
     public int alb_index =0;
     public double alb_node_x; public double alb_node_y;
 
-    public HashMap<String, Object> availalbeService(List<ZoneDTO> zoneRequirements, Map<String, Object> responseArray) {
-        nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
-        groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
-        linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+    public HashMap<String, Object> availalbeService(List<ZoneDTO> zoneRequirements, List<NodeData>nodeDataList,List<GroupData> groupDataList,List<LinkData>linkDataList) {
 
         HashMap<String, Object> result = new HashMap<>();
 
         // 위치 정보가 제일 높은 Y의 Node를 선택을 함
         NodeData highestNode = null;
         highestNode = findNodeWithHighestYCoordinate(nodeDataList);
+
+        System.out.println("nodeDataList: " + nodeDataList);
 
 
         String location = highestNode.getLoc();
@@ -196,22 +195,22 @@ public class AvailableService {
                 LinkData albtogroup = createLinkData(AlbNode.getKey(),new_security_group.getKey(),key -=1);
                 System.out.println("albtogroup: " + albtogroup);
                 linkDataList.add(albtogroup);
-            }else{
-                for (NodeData nodedata : nodeDataList) {
-                    if (nodedata.getKey().equals(node)) {
-                        node_x += 150;
-                        String newLoc = (node_x) + " " + (node_y);
-                        NodeData copiedNode = new NodeData();
-                        copiedNode.setText(nodedata.getText());
-                        copiedNode.setType(nodedata.getType());
-                        copiedNode.setKey(nodedata.getKey() + alb_index);
-                        copiedNode.setSource(nodedata.getSource());
-                        copiedNode.setIsGroup(null);
-                        copiedNode.setGroup(privateSubnetName);
-                        copiedNode.setLoc(newLoc);
-                        nodeDataList.add(copiedNode);
-                    }
-                }
+//            }else{
+//                for (NodeData nodedata : nodeDataList) {
+//                    if (nodedata.getKey().equals(node)) {
+//                        node_x += 150;
+//                        String newLoc = (node_x) + " " + (node_y);
+//                        NodeData copiedNode = new NodeData();
+//                        copiedNode.setText(nodedata.getText());
+//                        copiedNode.setType(nodedata.getType());
+//                        copiedNode.setKey(nodedata.getKey() + alb_index);
+//                        copiedNode.setSource(nodedata.getSource());
+//                        copiedNode.setIsGroup(null);
+//                        copiedNode.setGroup(privateSubnetName);
+//                        copiedNode.setLoc(newLoc);
+//                        nodeDataList.add(copiedNode);
+//                    }
+//                }
             }
 
             nodeDataList.add(AlbNode);
