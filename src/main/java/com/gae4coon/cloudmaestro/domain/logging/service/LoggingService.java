@@ -176,11 +176,13 @@ public class LoggingService {
     }
 
     private void setQuickSight() {
-        NodeData athenaNode = diagramDTOService.getNodeDataByKey(nodeDataList, "Athena");
-        if(athenaNode==null){
-            athenaNode = addResourceService.addAthena();
+        List<NodeData> athenaNodeList = diagramDTOService.getNodeListByText(nodeDataList, "Athena");
+        if(athenaNodeList.isEmpty()){
+            NodeData athenaNode = addResourceService.addAthena();
             athenaNode.setGroup("Region");
             nodeDataList.add(athenaNode);
+
+            athenaNodeList.add(athenaNode);
         }
 
         NodeData quickSight = addResourceService.addQuickSight();
@@ -188,11 +190,12 @@ public class LoggingService {
         quickSight.setGroup("Region");
         nodeDataList.add(quickSight);
 
-        LinkData link = LinkData.builder()
-                .from(athenaNode.getKey())
-                .to(quickSight.getKey())
-                .build();
-        linkDataList.add(link);
-
+        for(NodeData athenaNode: athenaNodeList) {
+            LinkData link = LinkData.builder()
+                    .from(athenaNode.getKey())
+                    .to(quickSight.getKey())
+                    .build();
+            linkDataList.add(link);
+        }
     }
 }
