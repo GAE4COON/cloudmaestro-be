@@ -110,7 +110,17 @@ public class BPService {
             double x = Double.parseDouble(locParts[0]);
             double y = Double.parseDouble(locParts[1]);
 
+            for (LinkData link:BPlinkDataList){
+                if(link.getTo().equals(node.getKey())){
+                    link.setTo(link.getTo()+" BP"+cnt);
+                }
+                if(link.getFrom().equals(node.getKey())){
+                    link.setFrom(link.getFrom()+" BP"+cnt);
+                }
+            }
+
             node.setLoc(""+(x+maxX)+" "+y);
+            node.setKey(node.getKey()+" BP"+cnt);
             nodeDataList.add(node);
 
         }

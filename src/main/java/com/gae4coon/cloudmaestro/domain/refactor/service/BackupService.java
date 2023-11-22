@@ -21,11 +21,8 @@ public class BackupService {
 
     private final BPService bpService;
 
-    public Map<String, Object> requirementParsing(RequireDiagramDTO requireDiagramDTO, Map<String, Object>  responseArray){
+    public Map<String, Object> requirementParsing(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
 
-        List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
-        List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
-        List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
 //        List<String> centralManage= new ArrayList<>();
 //        List<String> generalManage= new ArrayList<>();
