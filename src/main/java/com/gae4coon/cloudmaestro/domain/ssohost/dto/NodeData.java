@@ -2,14 +2,14 @@ package com.gae4coon.cloudmaestro.domain.ssohost.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.ObjectIdGenerator;
+import lombok.*;
+
 import java.util.List;
 
 @Data
-public class
-NodeData {
+@NoArgsConstructor
+public class NodeData {
     private String text;
     private String type;
     private String key;
@@ -22,4 +22,14 @@ NodeData {
     private String stroke;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String figure;
+
+    @Builder
+    NodeData(String text, String type, String key, String source, String loc, Boolean isGroup, String group, String stroke, String figure) {
+        this.text = text;
+        this.type = type;
+        this.key = key;
+        this.source = source;
+        this.group = group;
+    }
+
 }

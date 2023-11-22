@@ -4,7 +4,7 @@ import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.impl.DiagramDTOServiceImpl;
+
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -14,7 +14,6 @@ public class AvailableService {
     List<NodeData> nodeDataList;
     List<GroupData> groupDataList;
     List<LinkData> linkDataList;
-    DiagramDTOServiceImpl diagramDTOService;
     public int alb_index =0;
     public double alb_node_x; public double alb_node_y;
 
