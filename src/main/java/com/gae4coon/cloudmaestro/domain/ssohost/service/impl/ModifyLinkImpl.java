@@ -18,7 +18,6 @@ public class ModifyLinkImpl implements ModifyLink {
             String rootTo = link.getTo();
             if(isExclude(rootTo)){
                 String normalTo = findNormalNode(rootTo, linkDataList);
-
                 link.setTo(normalTo);
             }
         }
@@ -49,7 +48,7 @@ public class ModifyLinkImpl implements ModifyLink {
 
 
     private Boolean isExclude(String node){
-        List<String> exclude = new ArrayList<>(Arrays.asList("IPS", "IDS", "Firewall"));
+        List<String> exclude = new ArrayList<>(Arrays.asList("Anti DDoS","IPS", "IDS", "Firewall"));
 
         for (String excludeItem : exclude) {
             if (node.contains(excludeItem)){
@@ -115,7 +114,7 @@ public class ModifyLinkImpl implements ModifyLink {
 
 
     private Boolean isReplace(String node){
-        List<String> replace = new ArrayList<>(Arrays.asList("IPS", "IDS"));
+        List<String> replace = new ArrayList<>(Arrays.asList("IPS", "IDS", "Anti DDoS"));
 
         for (String replaceNode : replace) {
             if (node.contains(replaceNode)){
