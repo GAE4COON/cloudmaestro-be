@@ -355,7 +355,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         NodeData naclNode = new NodeData();
         naclNode.setKey("NACL"); // NAT 키를 고유하게 만듦
         naclNode.setText("NACL");
-        naclNode.setLoc("-967.052314047733 -182.10191175195388"); // 계산된 위치 설정
+        naclNode.setLoc("200 0"); // 계산된 위치 설정
         naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
         naclNode.setType("Networking-Content-Delivery");
         naclNode.setGroup("VPC");
@@ -373,7 +373,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         internetNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Internet-Gateway_48.svg");
         internetNode.setType("Networking-Content-Delivery");
         internetNode.setGroup("VPC");
-        internetNode.setLoc("-1222.7918474306668 238.49008848431987");
+        internetNode.setLoc("0 0");
         nodeDataList.add(internetNode);
 
         for (GroupData group : groupDataList) {
@@ -468,8 +468,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
     public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
 
-        double nacl_x = -762.9202380643841; //MAX보다 작은 Y를 찾으면
-        double nacl_y = -183.94175866569003;
+        double nacl_x = 0; //MAX보다 작은 Y를 찾으면
+        double nacl_y = 0;
 
         double node_x;
         double node_y;
@@ -544,12 +544,12 @@ public class NetworkToAWSImpl implements NetworkToAWS {
                 String location = nodeData.getLoc();
                 String[] locParts = location.split(" ");
                 System.out.println("public Subnet" + publicSubnet);
-                x = nacl_x -1;
-                y = nacl_y + 260;
+                x = nacl_x + 400;
+                y = nacl_y - 200;
                 String newLoc = (x) + " " + (y);
                 System.out.println("newLoc" + newLoc);
-                nacl_x -= 1;
-                nacl_y += 260;
+//                nacl_x += 300;
+                nacl_y += 400;
                 nodeData.setLoc(newLoc);
                 break;
             }

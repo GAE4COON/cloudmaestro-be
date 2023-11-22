@@ -282,6 +282,7 @@ public class SecurityService{
         if (!diagramDTOService.isNodeDataContains(nodeDataList, "AWS_WAF")) {
             NodeData WAF = addResourceService.addAWS_WAF();
             WAF.setGroup("Region");
+            WAF.setLoc("0 100");
             nodeDataList.add(WAF);
         }
 

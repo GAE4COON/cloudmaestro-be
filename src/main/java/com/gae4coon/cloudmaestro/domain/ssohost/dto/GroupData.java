@@ -16,6 +16,9 @@ public class GroupData{
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String group;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private String loc;
+
     private String type;
     private String stroke;
 
