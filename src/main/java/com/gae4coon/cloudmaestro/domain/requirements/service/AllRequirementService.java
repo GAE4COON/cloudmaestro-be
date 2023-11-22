@@ -2,9 +2,11 @@ package com.gae4coon.cloudmaestro.domain.requirements.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
 import com.gae4coon.cloudmaestro.domain.logging.service.LoggingService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.resource.service.AddResourceService;
 import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
@@ -27,6 +29,7 @@ public class AllRequirementService {
     private final DiagramDTOService diagramDTOService;
     private final SecurityService securityService;
     private final LoggingService loggingService;
+    private final AvailableService availableService;
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
@@ -48,6 +51,7 @@ public class AllRequirementService {
 
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
+        //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),responseArray);
         return response;
     }
 }

@@ -368,8 +368,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             return;
         }
         NodeData internetNode = new NodeData();
-        internetNode.setKey("Internet");
-        internetNode.setText("Internet");
+        internetNode.setKey("VPC Internet Gateway");
+        internetNode.setText("Internet Gateway");
         internetNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Internet-Gateway_48.svg");
         internetNode.setType("Networking-Content-Delivery");
         internetNode.setGroup("VPC");
@@ -379,7 +379,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         for (GroupData group : groupDataList) {
             if (group.getKey().contains("Public subnet")) {
                 LinkData link = new LinkData();
-                link.setFrom("Internet");
+                link.setFrom("VPC Internet Gateway");
                 link.setTo(group.getKey()); //여기에 public subnet이 와야함
                 linkDataList.add(link);
             }
@@ -475,7 +475,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         double node_y;
 
         // Except 해야 하는 리스트
-        List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public subnet", "Private subnet"));
+        List<String> Except = new ArrayList<>(Arrays.asList("VPC Internet Gateway", "Public subnet", "Private subnet"));
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){

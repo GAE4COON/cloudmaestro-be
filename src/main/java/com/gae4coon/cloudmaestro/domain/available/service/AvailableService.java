@@ -11,9 +11,7 @@ import java.util.*;
 
 @Service
 public class AvailableService {
-    List<NodeData> nodeDataList;
-    List<GroupData> groupDataList;
-    List<LinkData> linkDataList;
+    List<NodeData> nodeDataList; List<GroupData> groupDataList; List<LinkData> linkDataList;
     public int alb_index =0;
     public double alb_node_x; public double alb_node_y;
 
@@ -73,7 +71,7 @@ public class AvailableService {
             NodeData publicSubnetNode = createNodeData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
             nodeDataList.add(publicSubnetNode);
 
-            NodeData privateSubnetNode = createNodeData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
+            NodeData privateSubnetNode = createNodeData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(0,164,166)",null);
             nodeDataList.add(privateSubnetNode);
 
             // link 정보 연결하기
@@ -198,6 +196,22 @@ public class AvailableService {
                 LinkData albtogroup = createLinkData(AlbNode.getKey(),new_security_group.getKey(),key -=1);
                 System.out.println("albtogroup: " + albtogroup);
                 linkDataList.add(albtogroup);
+            }else{
+                for (NodeData nodedata : nodeDataList) {
+                    if (nodedata.getKey().equals(node)) {
+                        node_x += 150;
+                        String newLoc = (node_x) + " " + (node_y);
+                        NodeData copiedNode = new NodeData();
+                        copiedNode.setText(nodedata.getText());
+                        copiedNode.setType(nodedata.getType());
+                        copiedNode.setKey(nodedata.getKey() + alb_index);
+                        copiedNode.setSource(nodedata.getSource());
+                        copiedNode.setIsGroup(null);
+                        copiedNode.setGroup(privateSubnetName);
+                        copiedNode.setLoc(newLoc);
+                        nodeDataList.add(copiedNode);
+                    }
+                }
             }
 
             nodeDataList.add(AlbNode);
@@ -205,11 +219,7 @@ public class AvailableService {
             alb_node_x += 220;
             alb_node_y += 10;
 
-            System.out.println("alb_node_x + " + alb_node_x);
         }
-
-        // Node들간의 연결정보를 추가해서 집어넣어야 함 ... 하 인생 쉬운거 하나도 없네
-
 
 
 
