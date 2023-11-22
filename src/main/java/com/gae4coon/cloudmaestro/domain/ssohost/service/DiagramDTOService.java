@@ -84,7 +84,13 @@ public class DiagramDTOService {
         return false;
     }
 
-    public LinkData getLinkDataByTo(List<LinkData> linkDataList, String from){
+    public LinkData getLinkDataByTo(List<LinkData> linkDataList, String to){
+        for (LinkData link : linkDataList) {
+            if(link.getTo().equals(to)) return link;
+        }
+        return null;
+    }
+    public LinkData getLinkDataByFrom(List<LinkData> linkDataList, String from){
         for (LinkData link : linkDataList) {
             if(link.getFrom().equals(from)) return link;
         }
@@ -126,7 +132,7 @@ public class DiagramDTOService {
 
         for (NodeData groupitem : nodeDataList) {
             if(groupitem.getKey().startsWith(text)){
-                Pattern pattern = Pattern.compile("^" + Pattern.quote(text) + "(\\d*)"); // 'S3' 대신 'text' 사용
+                Pattern pattern = Pattern.compile("^" + Pattern.quote(text) + "(\\d*)");
                 Matcher matcher = pattern.matcher(groupitem.getKey());
                 if (matcher.find()) {
                     String numberStr = matcher.group(1); // text 다음의 숫자 부분
@@ -162,6 +168,19 @@ public class DiagramDTOService {
             }
         }
         return number; // number 반환
+    }
+
+    public List<LinkData> uniqueLink(List<LinkData> linkDataList) {
+        Set<LinkData> linkDataSet = new HashSet<>();
+        for (LinkData link1 : linkDataList) {
+            linkDataSet.add(link1);
+        }
+
+        List<LinkData> setlist = new ArrayList<>();
+        for (LinkData l : linkDataSet) {
+            setlist.add(l);
+        }
+        return setlist;
     }
 
 }

@@ -7,10 +7,12 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
+import io.swagger.v3.oas.models.links.Link;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.Node;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,15 +81,90 @@ public class LoggingService {
         setLogAnalyze();
     }
 
+    private void setLogCollectStore() {
+        List<NodeData> cloudTrailList = diagramDTOService.getNodeListByText(nodeDataList, "CloudTrail");
+        List<NodeData> cloudWatchList = diagramDTOService.getNodeListByText(nodeDataList, "CloudWatch");
+        List<NodeData> cloudTrails3List = new ArrayList<>();
+
+        // 노드 없으면 추가
+        if(cloudTrailList.isEmpty()){
+            NodeData cloudTrail = addResourceService.addCloudTrail(nodeDataList);
+            cloudTrail.setKey(cloudTrail.getKey()+diagramDTOService.getNodeNumber(nodeDataList, cloudTrail.getText()));
+            cloudTrail.setGroup("Region");
+            nodeDataList.add(cloudTrail);
+            cloudTrailList.add(cloudTrail);
+        }
+        if(cloudWatchList.isEmpty()){
+            NodeData cloudWatch = addResourceService.addCloudWatch(nodeDataList);
+            cloudWatch.setKey(cloudWatch.getKey()+diagramDTOService.getNodeNumber(nodeDataList, cloudWatch.getText()));
+            cloudWatch.setGroup("Region");
+            nodeDataList.add(cloudWatch);
+            cloudWatchList.add(cloudWatch);
+        }
+        else{
+            // cloudWatch가 있다면 cloudWatch와 연결된 s3있는지 검사
+            List<NodeData> s3List = diagramDTOService.getNodeListByText(nodeDataList, "Simple Storage Service");
+
+            for(NodeData s3: s3List){
+                LinkData link = diagramDTOService.getLinkDataByTo(linkDataList, s3.getKey());
+                System.out.println(link);
+                if(link!=null && link.getFrom().contains("CloudWatch")){
+                    cloudTrails3List.add(s3);
+                }
+
+                LinkData link2 = diagramDTOService.getLinkDataByFrom(linkDataList, s3.getKey());
+                System.out.println(link2);
+                if(link2!=null && link2.getTo().contains("CloudWatch")){
+                    cloudTrails3List.add(s3);
+                }
+            }
+        }
+        // 연결된 s3 없으면 생성
+        if(cloudTrails3List.isEmpty()){
+            System.out.println("new");
+            NodeData s3 = addResourceService.addSimpleStorageService(nodeDataList);
+            s3.setGroup("Region");
+            nodeDataList.add(s3);
+            cloudTrails3List.add(s3);
+        }
+
+        for(NodeData cloudWatch : cloudWatchList){
+            // cloudtrail -> cloudwatch
+            for (NodeData cloudTrail : cloudTrailList) {
+                LinkData link = LinkData.builder()
+                        .from(cloudTrail.getKey())
+                        .to(cloudWatch.getKey())
+                        .build();
+                linkDataList.add(link);
+            }
+
+            for(NodeData s3: cloudTrails3List){
+                // cloudwatch -> s3
+                LinkData link = LinkData.builder()
+                        .from(cloudWatch.getKey())
+                        .to(s3.getKey())
+                        .build();
+                linkDataList.add(link);
+                // s3 -> cloudwatch
+                LinkData link2 = LinkData.builder()
+                        .from(s3.getKey())
+                        .to(cloudWatch.getKey())
+                        .build();
+                linkDataList.add(link2);
+
+            }
+        }
+
+        // unique link
+        List<LinkData> uniqueLink = LinkData.uniqueLink(linkDataList);
+        linkDataList.clear();
+        linkDataList.addAll(uniqueLink);
+    }
+
     private void setLogAnalyze() {
         setOpenSearch();
         setAthena();
         setQuickSight();
-    }
-
-    private void setLogCollectStore() {
-        setCloudTrail();
-        setCloudWatch();
     }
 
     private void setCloudTrail() {
@@ -124,6 +201,12 @@ public class LoggingService {
                 .to(cloudWatch.getKey())
                 .build();
         linkDataList.add(link);
+
+        LinkData link2 = LinkData.builder()
+                .from(cloudWatch.getKey())
+                .to(s3.getKey())
+                .build();
+        linkDataList.add(link2);
     }
 
     private void setOpenSearch() {

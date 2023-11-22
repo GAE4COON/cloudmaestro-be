@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.nio.file.attribute.FileTime;
-import java.util.Objects;
+import java.util.*;
 
 @Data
 @NoArgsConstructor
@@ -22,20 +22,21 @@ public class LinkData {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null) return false;
-
-        LinkData linkData = (LinkData) o;
-
-        if (!from.equals(linkData.from)) return false;
-        return to.equals(linkData.to);
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        LinkData linkData = (LinkData) obj;
+        return from.equals(linkData.from) && to.equals(linkData.to);
     }
 
     @Override
     public int hashCode() {
-        int result = from.hashCode();
-        result = 31 * result + to.hashCode();
-        return result;
+        return 31 * from.hashCode() + to.hashCode();
+    }
+
+    // 이 메소드는 중복된 링크 데이터를 제거합니다.
+    public static List<LinkData> uniqueLink(List<LinkData> linkDataList) {
+        Set<LinkData> uniqueSet = new HashSet<>(linkDataList);
+        return new ArrayList<>(uniqueSet);
     }
 }

@@ -2,13 +2,29 @@ package com.gae4coon.cloudmaestro.domain.resource.service;
 
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
+import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Node;
+
+import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class AddResourceService {
+    private final DiagramDTOService diagramDTOService;
     public NodeData addAntiDDoS(){
         return NodeData.builder()
                 .key("Anti DDoS")
+                .text("Anti DDoS")
+                .source("/img/Network_icon/Anti_DDoS.png")
+                .type("Network_icon")
+                .build();
+    }
+    // unique key
+    public NodeData addAntiDDoS(List<NodeData> nodeDataList){
+        return NodeData.builder()
+                .key("Anti DDoS"+diagramDTOService.getNodeNumber(nodeDataList,"Anti DDoS"))
                 .text("Anti DDoS")
                 .source("/img/Network_icon/Anti_DDoS.png")
                 .type("Network_icon")
@@ -1877,7 +1893,14 @@ public class AddResourceService {
                 .type("Management-Governance")
                 .build();
     }
-
+    public NodeData addCloudWatch(List<NodeData> nodeDataList){
+        return NodeData.builder()
+                .key("CloudWatch"+diagramDTOService.getNodeNumber(nodeDataList,"CloudWatch"))
+                .text("CloudWatch")
+                .source("/img/AWS_icon/Arch_Management-Governance/Arch_Amazon-CloudWatch_48.svg")
+                .type("Management-Governance")
+                .build();
+    }
     public NodeData addManagedGrafana(){
         return NodeData.builder()
                 .key("Managed Grafana")
@@ -1953,6 +1976,14 @@ public class AddResourceService {
     public NodeData addCloudTrail(){
         return NodeData.builder()
                 .key("CloudTrail")
+                .text("CloudTrail")
+                .source("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg")
+                .type("Management-Governance")
+                .build();
+    }
+    public NodeData addCloudTrail(List<NodeData> nodeDataList){
+        return NodeData.builder()
+                .key("CloudTrail"+diagramDTOService.getNodeNumber(nodeDataList,"CloudTrail"))
                 .text("CloudTrail")
                 .source("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg")
                 .type("Management-Governance")
@@ -2835,6 +2866,14 @@ public class AddResourceService {
     public NodeData addSimpleStorageService(){
         return NodeData.builder()
                 .key("Simple Storage Service")
+                .text("Simple Storage Service")
+                .source("/img/AWS_icon/Arch_Storage/Arch_Amazon-Simple-Storage-Service_48.svg")
+                .type("Storage")
+                .build();
+    }
+    public NodeData addSimpleStorageService(List<NodeData> nodeDataList){
+        return NodeData.builder()
+                .key("Simple Storage Service"+diagramDTOService.getNodeNumber(nodeDataList,"Simple Storage Service"))
                 .text("Simple Storage Service")
                 .source("/img/AWS_icon/Arch_Storage/Arch_Amazon-Simple-Storage-Service_48.svg")
                 .type("Storage")

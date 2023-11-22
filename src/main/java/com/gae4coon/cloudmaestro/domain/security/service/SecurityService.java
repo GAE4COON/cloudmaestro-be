@@ -256,7 +256,7 @@ public class SecurityService{
         // ALB 노드 모음
         for (NodeData alb : ALBList) {
             // ALB가 아니면 continue
-            LinkData ALBLink = diagramDTOService.getLinkDataByTo(linkDataList, alb.getKey());
+            LinkData ALBLink = diagramDTOService.getLinkDataByFrom(linkDataList, alb.getKey());
             if (ALBLink == null) continue;
 
             // ALB와 연결된 from 데이터의 group확인
