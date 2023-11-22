@@ -40,10 +40,12 @@ public class BackupService {
             };
         }
 
+        int cnt = 0;
         for (RequireDTO.Zone zone: requireDiagramDTO.getRequirementData().getZones()) {
             if(zone.getFunction()!=null){
-                bpService.bpsearch(zone.getFunction(), nodeDataList, linkDataList, groupDataList);
+                bpService.bpsearch(zone.getFunction(), nodeDataList, linkDataList, groupDataList, cnt);
             }
+            cnt += 1;
         }
 
 

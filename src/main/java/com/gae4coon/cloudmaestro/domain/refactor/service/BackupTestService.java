@@ -30,7 +30,9 @@ public class BackupTestService {
         backupService.generalBackup(nodeDataList, groupDataList);
         backupService.centralBackup(nodeDataList, linkDataList, groupDataList);
 
-        bpService.bpsearch("비동기", nodeDataList, linkDataList, groupDataList);
+        int cnt = 0;
+
+        bpService.bpsearch("비동기", nodeDataList, linkDataList, groupDataList, 0);
 
         List<Object> finalDataArray = new ArrayList<>();
         finalDataArray.addAll(nodeDataList);

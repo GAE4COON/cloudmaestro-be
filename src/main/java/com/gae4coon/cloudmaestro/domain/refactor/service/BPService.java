@@ -24,15 +24,15 @@ public class BPService {
 
     private final DiagramDTOService diagramDtoService;
     private final ModuleRepository moduleRepository;
-    public void bpsearch(String id, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
+    public void bpsearch(String id, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, int cnt){
         BpModule bp = moduleRepository.findBpModuleById(id);
-        bploc(bp, nodeDataList, linkDataList, groupDataList);
+        bploc(bp, nodeDataList, linkDataList, groupDataList, cnt);
 
         System.out.println("Test: BP????"+bp.getJsonData());
     }
 
 
-    public void bploc(BpModule bp, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
+    public void bploc(BpModule bp, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, int cnt){
 
         double maxY = Double.MIN_VALUE;
         double maxX = Double.MIN_VALUE;
@@ -53,7 +53,7 @@ public class BPService {
         }
 
         //maxY+=200;
-        maxX+=500;
+        maxX+=700;
         try {
 
         ObjectMapper mapper = new ObjectMapper();
@@ -67,6 +67,34 @@ public class BPService {
         System.out.println("---------------");
         System.out.println(BPnodeDataList);
 
+
+        for (GroupData group: BPgroupDataList) {
+
+            for (NodeData node:BPnodeDataList){
+                if(node.getGroup().equals(group.getKey())){
+                    node.setGroup(node.getGroup()+" BP"+cnt);
+                }
+            }
+
+            for (LinkData link:BPlinkDataList){
+                if(link.getTo().equals(group.getKey())){
+                    link.setTo(link.getTo()+" BP"+cnt);
+                }
+                if(link.getFrom().equals(group.getKey())){
+                    link.setFrom(link.getFrom()+" BP"+cnt);
+                }
+            }
+
+            for (GroupData groupitem:BPgroupDataList){
+                if (groupitem.getGroup() != null && groupitem.getGroup().equals(group.getKey())) {
+                    groupitem.setGroup(groupitem.getGroup() + " BP" + cnt);
+                }
+            }
+
+            group.setKey(group.getKey()+" BP"+cnt);
+            groupDataList.add(group);
+        }
+
         for (NodeData node:BPnodeDataList) {
             String location =node.getLoc();
             String[] locParts = location.split(" ");
@@ -74,9 +102,7 @@ public class BPService {
             double y = Double.parseDouble(locParts[1]);
 
             node.setLoc(""+(x+maxX)+" "+y);
-
             nodeDataList.add(node);
-
 
         }
 
@@ -84,9 +110,7 @@ public class BPService {
             linkDataList.add(link);
         }
 
-        for (GroupData group: BPgroupDataList) {
-            groupDataList.add(group);
-        }
+
 
 
         } catch (Exception e) {
