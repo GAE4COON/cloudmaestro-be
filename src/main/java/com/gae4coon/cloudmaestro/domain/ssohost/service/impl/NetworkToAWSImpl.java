@@ -50,7 +50,9 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
             }
             else if (node.contains("Database")) {
-                nodeData.setKey("RDS");
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("Database", "RDS");
+                nodeData.setKey(nodeKey);
                 nodeData.setText("RDS");
                 nodeData.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
                 nodeData.setType("Database");
@@ -310,44 +312,17 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         if (privateSubnetGroupKeys.isEmpty()){
             return;
         }
-        for (String privateSubnetGroupKey : privateSubnetGroupKeys) {
-            double minY = Double.MAX_VALUE; //MAX보다 작은 Y를 찾으면
-            double minX = Double.MAX_VALUE;
 
-            for (NodeData node : nodeDataList) {
-                for (GroupData groupData : groupDataList) { //group를 순회한다
-                    if(groupData.getKey().equals(node.getGroup())){
-                        if(groupData.getGroup()!= null && groupData.getGroup().equals(privateSubnetGroupKey)){
-                            String location = node.getLoc();
-                            String[] locParts = location.split(" ");
+        NodeData naclNode = new NodeData();
+        naclNode.setKey("NACL"); // NAT 키를 고유하게 만듦
+        naclNode.setText("NACL");
+        naclNode.setLoc("-967.052314047733 -182.10191175195388"); // 계산된 위치 설정
+        naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
+        naclNode.setType("Networking-Content-Delivery");
+        naclNode.setGroup("VPC");
 
-                            double x = Double.parseDouble(locParts[0]);
-                            double y = Double.parseDouble(locParts[1]);
-                            if (y < minY || (y == minY && x < minX)) { // y축이 -일때 위로 올라간다 x는 -일때 왼쪽이 맞음
-                                minY = y;
-                                minX = x;
-                            }
-                        }
-                    }
-                }
-            }
-
-            System.out.println("miny: "+minY);
-            System.out.println("minx: "+minX);
-            String newLoc = (minX) + " " + (minY-130);
-
-            NodeData naclNode = new NodeData();
-            naclNode.setKey("NACL"+naclCount); // NAT 키를 고유하게 만듦
-            naclNode.setText("NACL");
-            naclNode.setLoc(newLoc); // 계산된 위치 설정
-            naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
-            naclNode.setType("Networking-Content-Delivery");
-            naclNode.setGroup(privateSubnetGroupKey);
-
-            // NAT 노드를 리스트에 추가
-            nodeDataList.add(naclNode);
-            naclCount++;
-        }
+        // NAT 노드를 리스트에 추가
+        nodeDataList.add(naclNode);
     }
     public void addInternet(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
         if(groupDataList.isEmpty()){
@@ -428,43 +403,171 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             }
         }
 
+        // LinkData Public Subnet 별로 순서 정하기
+
+        // LinkData 정렬
+        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
+
+        Iterator<LinkData> iterator = linkDataList.iterator();
+        while(iterator.hasNext()){
+            LinkData linkData = iterator.next();
+            System.out.println("sortedlinkData" + linkData);
+            if(linkData.getFrom().contains("Shield")){
+                iterator.remove();
+            }
+        }
+
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
-        addPublicLocation(nodeDataList, linkDataList, count_public_subnets);
+        addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
+
 
     }
 
-    public void addPublicLocation(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<String> count_public_subnet){
-        // internet gateway +
 
-        // public subnet에 속한 nat gateway 위치 부터 정하기
-        // internet gateway ;
-        double minX = -762.9202380643841; //MAX보다 작은 Y를 찾으면
-        double minY = -183.94175866569003;
+
+    public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
+
+        double nacl_x = -762.9202380643841; //MAX보다 작은 Y를 찾으면
+        double nacl_y = -183.94175866569003;
+
+        double node_x;
+        double node_y;
+
+        // Except 해야 하는 리스트
+        List<String> Except = new ArrayList<>(Arrays.asList("Internet", "Public subnet", "Private subnet"));
 
         //NACL 정보 옮기기
         for(String public_subnet : count_public_subnet){
-            for (NodeData nodedata : nodeDataList){
-                // NACL의 위치 정보 옮기기
-                if(nodedata.getGroup().contains(public_subnet)){
-                    String location = nodedata.getLoc();
-                    String[] locParts = location.split(" ");
-                    double x = Double.parseDouble(locParts[0]);
-                    double y = Double.parseDouble(locParts[1]);
+            System.out.println("public subnet_name " + public_subnet);
 
-                    x = minX -1;
-                    y = minY + 260;
-                    String newLoc = (x) + " " + (y);
-                    nodedata.setLoc(newLoc);
-                    minX -= 1;
-                    minY += 260;
+            // Public Subnet에 있는 NACL 정하기
+            double[] updatedCoordinates  = processPublicSubnet(nodeDataList, public_subnet, nacl_x, nacl_y);
+
+            nacl_x = updatedCoordinates[0];
+            nacl_y = updatedCoordinates[1];
+
+            // 해당 prod private subnet에 포함된 링크 연결된 정보를 탐색해서 그에 맞게 위치 정보넣기
+            String[] parts = public_subnet.split(" ");
+            String netName = parts[0];
+            System.out.println("netName: " + netName);
+
+            node_x = nacl_x + 430;
+            node_y = nacl_y - 85;
+
+
+            for(LinkData linkdata : linkDataList){
+                for(NodeData nodedata : nodeDataList){
+                    // Group Data
+                    List<String> visitGroup = new ArrayList<>();
+
+                    if (linkdata.getFrom().contains("Group")) {
+                        double[] newCoordinates = processFromGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
+                        node_x = newCoordinates[0];
+                        node_y = newCoordinates[1];
+                    }
+                    if(linkdata.getTo().contains("Group")){
+                        System.out.println("GetTo"+linkdata.getTo());
+                        double[] newCoordinates = processToGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
+                        node_x = newCoordinates[0];
+                        node_y = newCoordinates[1];
+                    }
+                    // group에 없는 ec2일 경우
+                    if (linkdata.getFrom().contains(nodedata.getKey()) &&
+                            !Except.contains(nodedata.getKey()) &&
+                            nodedata.getGroup().contains(netName)
+                    ){
+                        System.out.println("Ec2 Comeon" + nodedata.getKey());
+                        node_x += 20;
+                        String newLoc = (node_x) + " " + (node_y);
+                        nodedata.setLoc(newLoc);
+
+                    }
+
                 }
+
+
             }
+
 
         }
 
 
 
 
+    }
+    public double[]  processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double nacl_x, double nacl_y) {
+        double x = 0.0;
+        double y = 0.0;
+        for (NodeData nodeData : nodeDataList) {
+            if (nodeData.getGroup().contains(publicSubnet)) {
+                String location = nodeData.getLoc();
+                String[] locParts = location.split(" ");
+                System.out.println("public Subnet" + publicSubnet);
+                x = nacl_x -1;
+                y = nacl_y + 260;
+                String newLoc = (x) + " " + (y);
+                System.out.println("newLoc" + newLoc);
+                nacl_x -= 1;
+                nacl_y += 260;
+                nodeData.setLoc(newLoc);
+                break;
+            }
+        }
+        return new double[]{nacl_x, nacl_y};
+    }
+
+    private double[] processFromGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
+        // 해당 group이 prod private subnet에 포함됐는 지 확인
+        String security_group = linkdata.getFrom();
+        for(GroupData group : groupDataList){
+            if(group.getKey().contains(security_group) &&
+                    group.getGroup().contains(netName) &&
+                    !visitGroup.contains(nodedata.getKey()) &&
+                    !Except.contains(security_group)
+                // 새로운 security 요소여야 함 &&
+
+            ){
+                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
+                if(nodedata.getGroup().contains(security_group)){
+                    visitGroup.add(nodedata.getKey());
+                    System.out.println("group include nodedata1 : "+nodedata);
+                    node_x += 150;
+                    String newLoc = (node_x) + " " + (node_y);
+                    nodedata.setLoc(newLoc);
+
+                }
+
+            }
+        }
+        return new double[]{node_x, node_y};
+    }
+
+    private  double[] processToGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
+
+        // 해당 group이 prod private subnet에 포함됐는 지 확인
+        String security_group = linkdata.getTo();
+        for(GroupData group : groupDataList){
+            if(group.getKey().contains(security_group) &&
+                    group.getGroup().contains(netName) &&
+                    !visitGroup.contains(nodedata.getKey()) &&
+                    !Except.contains(security_group)// 새로운 security 요소여야 함
+
+            ){
+                //visitGroup.add(security_group);
+                System.out.println("visitGroup_nodedata2" + visitGroup);
+                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
+                if(nodedata.getGroup().contains(security_group)){
+                    visitGroup.add(nodedata.getKey());
+                    System.out.println("group include nodedata2 : "+nodedata);
+                    node_x += 150;
+                    String newLoc = (node_x) + " " + (node_y);
+                    nodedata.setLoc(newLoc);
+
+                }
+
+            }
+        }
+        return new double[]{node_x, node_y};
     }
 
 
