@@ -79,7 +79,7 @@ public class AvailableService {
             linkDataList.add(pubToPriv);
 
             key -= 1;
-            LinkData intToPub = createLinkData("Internet", publicSubnetName, key - 1);
+            LinkData intToPub = createLinkData("VPC Internet Gateway", publicSubnetName, key - 1);
             linkDataList.add(intToPub);
 
             key -= 1;
@@ -160,7 +160,7 @@ public class AvailableService {
             AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
 
             // internet gateway to ALB
-            LinkData addIntoALB = createLinkData("Internet", AlbNode.getKey(), key - 1);
+            LinkData addIntoALB = createLinkData("VPC Internet Gateway", AlbNode.getKey(), key - 1);
             linkDataList.add(addIntoALB);
             // ALB to security Group
             LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
