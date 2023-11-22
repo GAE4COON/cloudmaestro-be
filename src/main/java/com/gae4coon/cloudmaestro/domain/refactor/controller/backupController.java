@@ -40,7 +40,9 @@ public class backupController {
             if (diagramData == null) return null;
 
             Map<String, Object> responseArray = diagramDtoService.dtoGenerator(diagramData);
-            backupService.requirementParsing(requireDiagramDTO, responseArray);
+            //backupService.requirementParsing(requireDiagramDTO, responseArray);
+
+
 
         } catch (Exception e) {
             System.out.println("error" + e);

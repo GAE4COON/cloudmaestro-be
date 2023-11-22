@@ -4,26 +4,29 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.gae4coon.cloudmaestro.domain.refactor.entity.BpModule;
+import com.gae4coon.cloudmaestro.domain.refactor.repository.ModuleRepository;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class BackupService {
 
+    private final BPService bpService;
 
-    public void requirementParsing(RequireDiagramDTO requireDiagramDTO, Map<String, Object>  responseArray){
+    public Map<String, Object> requirementParsing(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
 
-        List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
-        List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
-        List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-        List<String> centralManage= new ArrayList<>();
-        List<String> generalManage= new ArrayList<>();
-
-        GroupData newGroup;
+//        List<String> centralManage= new ArrayList<>();
+//        List<String> generalManage= new ArrayList<>();
+//        GroupData newGroup;
 
         if(requireDiagramDTO.getRequirementData().getBackup().size()!= 0){
             if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
@@ -34,37 +37,28 @@ public class BackupService {
             };
         }
 
-//        //사이즈 체크 후, 백업 옵션 여부 확인.
-//        for (RequireDTO.Zone zone: requireDiagramDTO.getRequirementData().getZones()) {
-//            if(zone.getDynamicBackup().size() == 0 && zone.getStaticBackup().size() == 0){
-//                continue;
-//            }
-//            backupFlag = true;
-//        }
-//
-//        // 백업 플래그가 있다면? CRR 용 백업 리전 그룹 추가
-//        if(backupFlag){
-//             newGroup= addRegionGroup(groupDataList);
-//        }
-//        else{//없다면? 바로 리턴
-//            System.out.println("return 해야됨");
-//            return;
-//        }
+        int cnt = 0;
+        for (ZoneDTO zone: requireDiagramDTO.getRequirementData().getZones()) {
+            if(zone.getFunction()!=null){
+                bpService.bpsearch(zone.getFunction(), nodeDataList, linkDataList, groupDataList, cnt);
+            }
+            cnt += 1;
+        }
 
-//        //이후부터 백업작업
-//        for (RequireDTO.Zone zone: requireDiagramDTO.getRequirementData().getZones()) {
-//            //중앙관리백업
-//            if(zone.getDynamicBackup().size() != 0){
-//                centralManage = zone.getDynamicBackup();
-//                centralBackup(centralManage, newGroup, nodeDataList, linkDataList, groupDataList);
-//            }
-//
-//            //일반백업
-//            if(zone.getStaticBackup().size() != 0){
-//                generalManage = zone.getStaticBackup();
-//
-//            }
-//        }
+
+        List<Object> finalDataArray = new ArrayList<>();
+        finalDataArray.addAll(nodeDataList);
+        finalDataArray.addAll(groupDataList);
+
+        Map<String, Object> responseBody = new HashMap<>();
+
+        responseBody.put("class", "GraphLinksModel");
+        responseBody.put("linkKeyProperty", "key");
+        responseBody.put("nodeDataArray", finalDataArray);  // 예시
+        responseBody.put("linkDataArray", linkDataList);  // 예시
+
+        return responseBody;
+
 
     }
 
