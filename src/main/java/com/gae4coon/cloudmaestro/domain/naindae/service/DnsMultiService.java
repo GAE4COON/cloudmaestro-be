@@ -28,7 +28,7 @@ public class DnsMultiService {
         Point2D location = findRouteLoc(nodeDataList);
 
         String newLoc = (location.getX()-350) + " " + (location.getY()+300);
-
+        String cdnLoc = (location.getX()-220) + " " + (location.getY()+300);
         NodeData routeNode = new NodeData();
         routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
         routeNode.setText("Route 53");
@@ -37,9 +37,16 @@ public class DnsMultiService {
         routeNode.setType("Networking-Content-Delivery");
         nodeDataList.add(routeNode);
 
+        NodeData cdnNode = new NodeData();
+        cdnNode.setKey("CloudFront"); // NAT 키를 고유하게 만듦
+        cdnNode.setText("CloudFront");
+        cdnNode.setLoc(cdnLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
+        cdnNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-CloudFront_48.svg");
+        cdnNode.setType("Networking-Content-Delivery");
+        nodeDataList.add(cdnNode);
 
         newLinkDataList = addRouteLink(nodeDataList,newNodeDataList, newLinkDataList);
-
+        newLinkDataList = addRouteToCloudFrontLink(nodeDataList,newLinkDataList);
         result.put("nodes", newNodeDataList);
         result.put("groups", newGroupDataList);
         result.put("links", newLinkDataList);
@@ -87,5 +94,26 @@ public class DnsMultiService {
 
             return linkDataList;
     }
+    public List<LinkData> addRouteToCloudFrontLink(List<NodeData> nodeDataList, List<LinkData> linkDataList) {
+        NodeData routeNode = null, cloudFrontNode = null;
+
+        for (NodeData node : nodeDataList) {
+            if (node.getKey().equals("Route 53")) {
+                routeNode = node;
+            } else if (node.getKey().equals("CloudFront")) {
+                cloudFrontNode = node;
+            }
+        }
+
+        if (routeNode != null && cloudFrontNode != null) {
+            LinkData link = new LinkData();
+            link.setFrom(routeNode.getKey());
+            link.setTo(cloudFrontNode.getKey());
+            linkDataList.add(link);
+        }
+
+        return linkDataList;
+    }
+
 
 }
