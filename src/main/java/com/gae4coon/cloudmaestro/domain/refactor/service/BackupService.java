@@ -8,6 +8,7 @@ import com.gae4coon.cloudmaestro.domain.refactor.entity.BpModule;
 import com.gae4coon.cloudmaestro.domain.refactor.repository.ModuleRepository;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
@@ -26,10 +27,9 @@ public class BackupService {
         List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
         List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-        List<String> centralManage= new ArrayList<>();
-        List<String> generalManage= new ArrayList<>();
-
-        GroupData newGroup;
+//        List<String> centralManage= new ArrayList<>();
+//        List<String> generalManage= new ArrayList<>();
+//        GroupData newGroup;
 
         if(requireDiagramDTO.getRequirementData().getBackup().size()!= 0){
             if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
@@ -41,7 +41,7 @@ public class BackupService {
         }
 
         int cnt = 0;
-        for (RequireDTO.Zone zone: requireDiagramDTO.getRequirementData().getZones()) {
+        for (ZoneDTO zone: requireDiagramDTO.getRequirementData().getZones()) {
             if(zone.getFunction()!=null){
                 bpService.bpsearch(zone.getFunction(), nodeDataList, linkDataList, groupDataList, cnt);
             }

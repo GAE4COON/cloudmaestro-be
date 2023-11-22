@@ -26,6 +26,10 @@ public class BPService {
     private final ModuleRepository moduleRepository;
     public void bpsearch(String id, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, int cnt){
         BpModule bp = moduleRepository.findBpModuleById(id);
+        if (nodeDataList == null) {
+            nodeDataList = new ArrayList<>();
+        }
+
         bploc(bp, nodeDataList, linkDataList, groupDataList, cnt);
 
         System.out.println("Test: BP????"+bp.getJsonData());
@@ -36,6 +40,11 @@ public class BPService {
 
         double maxY = Double.MIN_VALUE;
         double maxX = Double.MIN_VALUE;
+
+        if (nodeDataList == null) {
+            System.out.println("nodeDataList is null");
+            return;
+        }
 
         for (NodeData node:nodeDataList) {
             String location =node.getLoc();
