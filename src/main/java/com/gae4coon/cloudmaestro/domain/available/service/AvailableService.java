@@ -133,7 +133,7 @@ public class AvailableService {
     public void ServerNode(List<String> serverNode, List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, double node_x, double node_y, int key, String privateSubnetName, String originalprivatesubnetname) {
 
         int text_index;
-
+        List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화
         for(String node : serverNode){
             List<NodeData> exceptNode = new ArrayList<>();
             // Node 1개만 빼고 제외하기
@@ -147,21 +147,22 @@ public class AvailableService {
                 Auto_index += 1;
 
                 // 일단 AutoGroup은 복사를 한다.
-                GroupData CopyAutoGroup = createAutoGroup(node + 2 ,Auto_index, text_index, nodeDataList, groupDataList,privateSubnetName);
+                GroupData CopyAutoGroup = createAutoGroup(node + "a" ,Auto_index, text_index, nodeDataList, groupDataList,privateSubnetName);
                 System.out.println("CopyAutoGroup: "+ CopyAutoGroup);
 
                 // NodeData 순환하기
                 List<NodeData> newNodes = new ArrayList<>(); // 새로운 노드를 저장할 리스트
 
                 for (NodeData nodedata : nodeDataList) {
-                    if (nodedata.getGroup().contains(node)) {
+                    if (nodedata.getGroup().equals(node)) {
+                        System.out.println("Secruityg NodeData: " + nodedata);
                         NodeData copiedNode = new NodeData();
                         node_x += 200;
                         String newLoc = (node_x) + " " + (node_y);
 
                         copiedNode.setText(nodedata.getText());
                         copiedNode.setType(nodedata.getType());
-                        copiedNode.setKey(nodedata.getKey() + 2);
+                        copiedNode.setKey(nodedata.getKey() + "a");
                         copiedNode.setSource(nodedata.getSource());
                         copiedNode.setIsGroup(null);
                         copiedNode.setGroup(CopyAutoGroup.getKey());
@@ -176,9 +177,12 @@ public class AvailableService {
 
             }
             if(node.contains("EC2")){
-                List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화
+
 
                 if (exceptNode2.isEmpty() && !exceptNode2.contains(node)) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
+                    System.out.println("Except2Node" + exceptNode2);
+                    System.out.println("Node" + node);
+
                     exceptNode2 = ExceptandAddInvidiualNode(nodeDataList, linkDataList, groupDataList, node);
                     // Available 에 Node 넣기
                     text_index = Auto_index;
@@ -253,21 +257,20 @@ public class AvailableService {
 
     public void addOriginalNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String originalprivatesubnetname, int autoIndex, int text_index) {
         NodeData AutoGroup = new NodeData();
-        AutoGroup.setIsGroup(true);
-        AutoGroup.setStroke("rgb(237,113,0)");
-        AutoGroup.setText("Auto Scaling group" + text_index);
-        AutoGroup.setKey("Auto Scaling group" + autoIndex);
-        AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
-        AutoGroup.setType("AWS_Groups");
-        AutoGroup.setGroup(originalprivatesubnetname);
-        nodeDataList.add(AutoGroup);
-
         for(NodeData nodedata : nodeDataList){
             if(nodedata.getKey().equals(exceptNode.get(0))){
                 nodedata.setGroup("Auto Scaling group" + autoIndex);
+                AutoGroup.setIsGroup(true);
+                AutoGroup.setStroke("rgb(237,113,0)");
+                AutoGroup.setText("Auto Scaling group" + text_index);
+                AutoGroup.setKey("Auto Scaling group" + autoIndex);
+                AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
+                AutoGroup.setType("AWS_Groups");
+                AutoGroup.setGroup(originalprivatesubnetname);
 
             }
         }
+        nodeDataList.add(AutoGroup);
 
 
     }
@@ -321,7 +324,7 @@ public class AvailableService {
 
     public void ExceptNode(String node, List<NodeData> nodeDataList, List<GroupData> groupDataList, List<NodeData> exceptNode) {
         for(NodeData nodedata : nodeDataList){
-            if(nodedata.getGroup().contains(node)){
+            if(nodedata.getGroup().equals(node)){
                 exceptNode.add(nodedata);
             }
         }
