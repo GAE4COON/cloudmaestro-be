@@ -50,10 +50,10 @@ public class AllRequirementService {
         List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
 
-        //securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
-        //loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
+        securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
+        loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
 
-        //backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
 
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),responseArray);
