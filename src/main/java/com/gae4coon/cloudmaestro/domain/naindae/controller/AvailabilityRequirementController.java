@@ -1,4 +1,4 @@
-package com.gae4coon.cloudmaestro.domain.naindae.controller;
+/*package com.gae4coon.cloudmaestro.domain.naindae.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.naindae.service.RegionService;
@@ -227,4 +227,4 @@ public class AvailabilityRequirementController {
         }
     }
 
-}
+}*/

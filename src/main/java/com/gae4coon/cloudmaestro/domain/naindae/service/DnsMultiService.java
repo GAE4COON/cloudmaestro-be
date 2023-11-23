@@ -1,58 +1,81 @@
 package com.gae4coon.cloudmaestro.domain.naindae.service;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
+
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
+import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.basic.BasicInternalFrameTitlePane;
 import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class DnsMultiService {
     private final RegionService regionService; // final 키워드 추가
+    private final DiagramDTOService diagramDTOService;
 
-    public Map<String, Object> getRequirementDns(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+    public Map<String, Object> getRequirementDns(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList,  List<LinkData> linkDataList, List<GroupData> groupDataList) {
 
         Map<String, Object> result = new HashMap<>();
+        List<NodeData> finalNodeDataArray = new ArrayList<>();
+        List<GroupData> finalGroupDataArray = new ArrayList<>();
 
-        List<NodeData> newNodeDataList = new ArrayList<>();
-        List<GroupData> newGroupDataList = new ArrayList<>();
-        List<LinkData> newLinkDataList = new ArrayList<>();
+        List<String> globalRequirements = requireDiagramDTO.getRequirementData().getGlobalRequirements();
 
-        newNodeDataList = regionService.modifyNodeDataForNewRegion(nodeDataList);
-        newGroupDataList = regionService.modifyGroupDataForNewRegion(groupDataList);
-        newLinkDataList = regionService.modifyLinkDataForNewRegion(linkDataList);
+        // globalRequirements에 특정 문자열이 포함되어 있는지 확인
+        if (globalRequirements.contains("DNS 서버 이중화") || globalRequirements.contains("이중화")) {
 
-        Point2D location = findRouteLoc(nodeDataList);
+            List<NodeData> newNodeDataList = new ArrayList<>();
+            List<GroupData> newGroupDataList = new ArrayList<>();
+            List<LinkData> newLinkDataList = new ArrayList<>();
 
-        String newLoc = (location.getX()-350) + " " + (location.getY()+300);
-        String cdnLoc = (location.getX()-220) + " " + (location.getY()+300);
-        NodeData routeNode = new NodeData();
-        routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
-        routeNode.setText("Route 53");
-        routeNode.setLoc(newLoc); // 계산된 위치 설정
-        routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
-        routeNode.setType("Networking-Content-Delivery");
-        nodeDataList.add(routeNode);
+            newNodeDataList = regionService.modifyNodeDataForNewRegion(nodeDataList);
+            newGroupDataList = regionService.modifyGroupDataForNewRegion(groupDataList);
+            newLinkDataList = regionService.modifyLinkDataForNewRegion(linkDataList);
 
-        NodeData cdnNode = new NodeData();
-        cdnNode.setKey("CloudFront"); // NAT 키를 고유하게 만듦
-        cdnNode.setText("CloudFront");
-        cdnNode.setLoc(cdnLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
-        cdnNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-CloudFront_48.svg");
-        cdnNode.setType("Networking-Content-Delivery");
-        nodeDataList.add(cdnNode);
+            Point2D location = findRouteLoc(nodeDataList);
 
-        newLinkDataList = addRouteLink(nodeDataList,newNodeDataList, newLinkDataList);
-        newLinkDataList = addRouteToCloudFrontLink(nodeDataList,newLinkDataList);
-        result.put("nodes", newNodeDataList);
-        result.put("groups", newGroupDataList);
-        result.put("links", newLinkDataList);
+            String newLoc = (location.getX()-350) + " " + (location.getY()+300);
+            String cdnLoc = (location.getX()-220) + " " + (location.getY()+300);
+            NodeData routeNode = new NodeData();
+            routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
+            routeNode.setText("Route 53");
+            routeNode.setLoc(newLoc); // 계산된 위치 설정
+            routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
+            routeNode.setType("Networking-Content-Delivery");
+            nodeDataList.add(routeNode);
 
-        return result;
+            NodeData cdnNode = new NodeData();
+            cdnNode.setKey("CloudFront"); // NAT 키를 고유하게 만듦
+            cdnNode.setText("CloudFront");
+            cdnNode.setLoc(cdnLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
+            cdnNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-CloudFront_48.svg");
+            cdnNode.setType("Networking-Content-Delivery");
+            nodeDataList.add(cdnNode);
+
+            newLinkDataList = addRouteLink(nodeDataList,newNodeDataList, newLinkDataList);
+            newLinkDataList = addRouteToCloudFrontLink(nodeDataList,newLinkDataList);
+
+            finalNodeDataArray.addAll(nodeDataList);
+            finalNodeDataArray.addAll(newNodeDataList);
+            finalGroupDataArray.addAll(groupDataList);
+            finalGroupDataArray.addAll(newGroupDataList);   //이거 수정해야함
+
+            HashMap<String, Object> response = diagramDTOService.dtoComplete(finalNodeDataArray, finalGroupDataArray, Stream.concat(linkDataList.stream(), newLinkDataList.stream()).collect(Collectors.toList()));
+
+            return response;
+        } else {
+            HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
+            return response;
+        }
     }
     public Point2D findRouteLoc(List<NodeData> nodeDataList) {
         double minX = Double.MAX_VALUE;
@@ -84,7 +107,6 @@ public class DnsMultiService {
                 internetNodes.add(node);
             }
         }
-        System.out.println("internet nodes: "+internetNodes);
 
         for (NodeData internetNode : internetNodes) {
             LinkData newLink = new LinkData();
