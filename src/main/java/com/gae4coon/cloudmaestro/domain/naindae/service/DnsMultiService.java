@@ -15,6 +15,7 @@ public class DnsMultiService {
     private final RegionService regionService; // final 키워드 추가
 
     public Map<String, Object> getRequirementDns(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+
         Map<String, Object> result = new HashMap<>();
 
         List<NodeData> newNodeDataList = new ArrayList<>();

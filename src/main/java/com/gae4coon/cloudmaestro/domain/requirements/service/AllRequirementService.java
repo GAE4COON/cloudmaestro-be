@@ -7,6 +7,7 @@ import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.resource.service.AddResourceService;
 import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
+import com.gae4coon.cloudmaestro.domain.naindae.service.DnsMultiService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -27,6 +28,7 @@ public class AllRequirementService {
     private final DiagramDTOService diagramDTOService;
     private final SecurityService securityService;
     private final LoggingService loggingService;
+    private final DnsMultiService dnsMultiService;
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
