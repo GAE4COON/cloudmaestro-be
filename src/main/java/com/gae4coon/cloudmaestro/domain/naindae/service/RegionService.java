@@ -127,9 +127,9 @@ public class RegionService {
 
         for (String availabilityGroupKey : availabilityGroupKeys) {
             NodeData attachment = new NodeData();
-            attachment.setKey("VPC Elastic Network Interface"+num);
-            attachment.setText("VPC Elastic Network Interface");
-            attachment.setLoc("loc");
+            attachment.setKey("Elastic Network Interface"+num);
+            attachment.setText("Elastic Network Interface");
+            attachment.setLoc("loc"); //?
             attachment.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Interface_48.svg");
             attachment.setType("Networking-Content-Delivery");
             attachment.setGroup(availabilityGroupKey);

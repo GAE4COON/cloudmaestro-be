@@ -6977,8 +6977,8 @@ public class AddResourceService {
 
     public NodeData addElasticLoadBalancingApplicationLoadBalancer(){
         return NodeData.builder()
-                .key("Elastic Load Balancing Application Load Balancer")
-                .text("Elastic Load Balancing Application Load Balancer")
+                .key("Application Load Balancer (ALB)")
+                .text("Application Load Balancer (ALB)")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
@@ -7553,8 +7553,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceGlacierive(){
         return NodeData.builder()
-                .key("Simple Storage Service Glacier ive")
-                .text("Simple Storage Service Glacier ive")
+                .key("S3 Glacier ive")
+                .text("S3 Glacier ive")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service-Glacier_Archive_48.svg")
                 .type("Storage")
                 .build();
@@ -7562,8 +7562,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceGlacierVault(){
         return NodeData.builder()
-                .key("Simple Storage Service Glacier Vault")
-                .text("Simple Storage Service Glacier Vault")
+                .key("S3 Glacier Vault")
+                .text("S3 Glacier Vault")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service-Glacier_Vault_48.svg")
                 .type("Storage")
                 .build();
@@ -7571,8 +7571,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceBucketWithObjects(){
         return NodeData.builder()
-                .key("Simple Storage Service Bucket With Objects")
-                .text("Simple Storage Service Bucket With Objects")
+                .key("S3 Bucket With Objects")
+                .text("S3 Bucket With Objects")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Bucket-With-Objects_48.svg")
                 .type("Storage")
                 .build();
@@ -7580,8 +7580,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceBucket(){
         return NodeData.builder()
-                .key("Simple Storage Service Bucket")
-                .text("Simple Storage Service Bucket")
+                .key("S3 Bucket")
+                .text("S3 Bucket")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg")
                 .type("Storage")
                 .build();
@@ -7589,8 +7589,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceGeneralAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service General Access Points")
-                .text("Simple Storage Service General Access Points")
+                .key("S3 General Access Points")
+                .text("S3 General Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_General-Access-Points_48.svg")
                 .type("Storage")
                 .build();
@@ -7598,8 +7598,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceObject(){
         return NodeData.builder()
-                .key("Simple Storage Service Object")
-                .text("Simple Storage Service Object")
+                .key("S3 Object")
+                .text("S3 Object")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Object_48.svg")
                 .type("Storage")
                 .build();
@@ -7607,8 +7607,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3BatchOperations(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Batch Operations")
-                .text("Simple Storage Service S3 Batch Operations")
+                .key("S3 Batch Operations")
+                .text("S3 Batch Operations")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Batch-Operations_48.svg")
                 .type("Storage")
                 .build();
@@ -7616,8 +7616,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3GlacierDeepive(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Glacier Deep ive")
-                .text("Simple Storage Service S3 Glacier Deep ive")
+                .key("S3 Glacier Deep ive")
+                .text("S3 Glacier Deep ive")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Glacier-Deep-Archive_48.svg")
                 .type("Storage")
                 .build();
@@ -7625,8 +7625,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3GlacierFlexibleRetrieval(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Glacier Flexible Retrieval")
-                .text("Simple Storage Service S3 Glacier Flexible Retrieval")
+                .key("S3 Glacier Flexible Retrieval")
+                .text("S3 Glacier Flexible Retrieval")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Glacier-Flexible-Retrieval_48.svg")
                 .type("Storage")
                 .build();
@@ -7634,8 +7634,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3GlacierInstantRetrieval(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Glacier Instant Retrieval")
-                .text("Simple Storage Service S3 Glacier Instant Retrieval")
+                .key("S3 Glacier Instant Retrieval")
+                .text("S3 Glacier Instant Retrieval")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Glacier-Instant-Retrieval_48.svg")
                 .type("Storage")
                 .build();
@@ -7643,8 +7643,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3IntelligentTiering(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Intelligent Tiering")
-                .text("Simple Storage Service S3 Intelligent Tiering")
+                .key("S3 Intelligent Tiering")
+                .text("S3 Intelligent Tiering")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Intelligent-Tiering_48.svg")
                 .type("Storage")
                 .build();
@@ -7652,8 +7652,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3MultiRegionAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Multi Region Access Points")
-                .text("Simple Storage Service S3 Multi Region Access Points")
+                .key("S3 Multi Region Access Points")
+                .text("S3 Multi Region Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Multi-Region-Access-Points_48.svg")
                 .type("Storage")
                 .build();
@@ -7661,8 +7661,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3ObjectLambdaAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Object Lambda Access Points")
-                .text("Simple Storage Service S3 Object Lambda Access Points")
+                .key("S3 Object Lambda Access Points")
+                .text("S3 Object Lambda Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Object-Lambda-Access-Points_48.svg")
                 .type("Storage")
                 .build();
@@ -7670,8 +7670,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3ObjectLambda(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Object Lambda")
-                .text("Simple Storage Service S3 Object Lambda")
+                .key("S3 Object Lambda")
+                .text("S3 Object Lambda")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Object-Lambda_48.svg")
                 .type("Storage")
                 .build();
@@ -7679,8 +7679,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3ObjectLock(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Object Lock")
-                .text("Simple Storage Service S3 Object Lock")
+                .key("S3 Object Lock")
+                .text("S3 Object Lock")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Object-Lock_48.svg")
                 .type("Storage")
                 .build();
@@ -7688,8 +7688,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3OnOutposts(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 On Outposts")
-                .text("Simple Storage Service S3 On Outposts")
+                .key("S3 On Outposts")
+                .text("S3 On Outposts")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-On-Outposts_48.svg")
                 .type("Storage")
                 .build();
@@ -7697,8 +7697,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3OneZoneIA(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 One Zone IA")
-                .text("Simple Storage Service S3 One Zone IA")
+                .key("S3 One Zone IA")
+                .text("S3 One Zone IA")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-One-Zone-IA_48.svg")
                 .type("Storage")
                 .build();
@@ -7706,8 +7706,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3ReplicationTimeControl(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Replication Time Control")
-                .text("Simple Storage Service S3 Replication Time Control")
+                .key("S3 Replication Time Control")
+                .text("S3 Replication Time Control")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Replication-Time-Control_48.svg")
                 .type("Storage")
                 .build();
@@ -7715,8 +7715,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3Replication(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Replication")
-                .text("Simple Storage Service S3 Replication")
+                .key("S3 Replication")
+                .text("S3 Replication")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Replication_48.svg")
                 .type("Storage")
                 .build();
@@ -7724,8 +7724,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3Select(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Select")
-                .text("Simple Storage Service S3 Select")
+                .key("S3 Select")
+                .text("S3 Select")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Select_48.svg")
                 .type("Storage")
                 .build();
@@ -7733,8 +7733,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3StandardIA(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Standard IA")
-                .text("Simple Storage Service S3 Standard IA")
+                .key("S3 Standard IA")
+                .text("S3 Standard IA")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard-IA_48.svg")
                 .type("Storage")
                 .build();
@@ -7742,8 +7742,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3Standard(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Standard")
-                .text("Simple Storage Service S3 Standard")
+                .key("S3 Standard")
+                .text("S3 Standard")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg")
                 .type("Storage")
                 .build();
@@ -7751,8 +7751,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceS3StorageLens(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Storage Lens")
-                .text("Simple Storage Service S3 Storage Lens")
+                .key("S3 Storage Lens")
+                .text("S3 Storage Lens")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Storage-Lens_48.svg")
                 .type("Storage")
                 .build();
@@ -7760,8 +7760,8 @@ public class AddResourceService {
 
     public NodeData addSimpleStorageServiceVPCAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service VPC Access Points")
-                .text("Simple Storage Service VPC Access Points")
+                .key("S3 VPC Access Points")
+                .text("S3 VPC Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_VPC-Access-Points_48.svg")
                 .type("Storage")
                 .build();

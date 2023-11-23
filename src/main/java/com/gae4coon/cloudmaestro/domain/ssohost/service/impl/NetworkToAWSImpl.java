@@ -325,8 +325,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             }
 
             NodeData natNode = new NodeData();
-            natNode.setKey("NAT"+natCount);
-            natNode.setText("NAT");
+            natNode.setKey("NAT Gateway"+natCount);
+            natNode.setText("NAT Gateway");
             natNode.setLoc(newLoc);
             natNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_NAT-Gateway_48.svg");
             natNode.setType("Networking-Content-Delivery");
@@ -353,8 +353,8 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         }
 
         NodeData naclNode = new NodeData();
-        naclNode.setKey("NACL"); // NAT 키를 고유하게 만듦
-        naclNode.setText("NACL");
+        naclNode.setKey("Network Access Control List (NACL)"); // NAT 키를 고유하게 만듦
+        naclNode.setText("Network Access Control List (NACL)");
         naclNode.setLoc("200 -400"); // 계산된 위치 설정
         naclNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Network-Access-Control-List_48.svg");
         naclNode.setType("Networking-Content-Delivery");
@@ -368,7 +368,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             return;
         }
         NodeData internetNode = new NodeData();
-        internetNode.setKey("VPC Internet Gateway");
+        internetNode.setKey("Internet Gateway");
         internetNode.setText("Internet Gateway");
         internetNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_Internet-Gateway_48.svg");
         internetNode.setType("Networking-Content-Delivery");
@@ -379,7 +379,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         for (GroupData group : groupDataList) {
             if (group.getKey().contains("Public subnet")) {
                 LinkData link = new LinkData();
-                link.setFrom("VPC Internet Gateway");
+                link.setFrom("Internet Gateway");
                 link.setTo(group.getKey()); //여기에 public subnet이 와야함
                 linkDataList.add(link);
             }
@@ -475,7 +475,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         double node_y;
 
         // Except 해야 하는 리스트
-        List<String> Except = new ArrayList<>(Arrays.asList("VPC Internet Gateway", "Public subnet", "Private subnet"));
+        List<String> Except = new ArrayList<>(Arrays.asList("Internet Gateway", "Public subnet", "Private subnet"));
 
         //NAT 정보 옮기기
         for(String public_subnet : count_public_subnet){
