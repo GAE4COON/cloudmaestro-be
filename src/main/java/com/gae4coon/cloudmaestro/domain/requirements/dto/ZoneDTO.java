@@ -13,5 +13,6 @@ public class ZoneDTO {
     private String name;
     private String function;
     private List<String> availableNode;
+    private List<String> serverNode;
     private List<String> zoneRequirements;
 }

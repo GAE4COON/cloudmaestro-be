@@ -15,6 +15,8 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class BackupTestService {
     private final BackupService backupService;
+    private final BPService bpService;
+
 
     public Map<String, Object> testBackup(Map<String, Object> responseArray) {
 
@@ -27,6 +29,10 @@ public class BackupTestService {
 
         backupService.generalBackup(nodeDataList, groupDataList);
         backupService.centralBackup(nodeDataList, linkDataList, groupDataList);
+
+        int cnt = 0;
+
+        bpService.bpsearch("비동기", nodeDataList, linkDataList, groupDataList, 0);
 
         List<Object> finalDataArray = new ArrayList<>();
         finalDataArray.addAll(nodeDataList);
