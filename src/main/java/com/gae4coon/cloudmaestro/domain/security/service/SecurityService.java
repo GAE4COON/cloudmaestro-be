@@ -171,6 +171,7 @@ public class SecurityService{
             // add Network Firewall into Region
             NodeData NetworkFW = addResourceService.addNetworkFirewall();
             NetworkFW.setGroup("Region");
+            NetworkFW.setLoc("0 -300");
             nodeDataList.add(NetworkFW);
         }
 
@@ -184,6 +185,7 @@ public class SecurityService{
         // add Network Firewall endpoint into Firewall Public Subnet
         NodeData nodeData = addResourceService.addNetworkFirewallEndpoints();
         nodeData.setGroup("Firewall Public Subnet");
+        nodeData.setLoc("200 -200");
         nodeDataList.add(nodeData);
 
         LinkData netFWtoendpoint = new LinkData();

@@ -50,14 +50,14 @@ public class AllRequirementService {
 
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
-
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
 
-
-        //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),responseArray);
-
-
-
+        // Service 데이터 임시 위치 할당
+        for (NodeData node: nodeDataList){
+            if(node.getGroup()!=null && node.getGroup().equals("Service")){
+                node.setLoc("-200 0");
+            }
+        }
 
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
