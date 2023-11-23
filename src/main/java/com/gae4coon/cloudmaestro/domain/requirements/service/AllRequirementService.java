@@ -54,11 +54,11 @@ public class AllRequirementService {
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
 
 
-        HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
+        //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 
 
-        System.out.println("requriement data : " + available);
-
+        //System.out.println("requriement data : " + available);
+        availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
 
