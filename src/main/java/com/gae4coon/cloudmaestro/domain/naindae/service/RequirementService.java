@@ -18,7 +18,9 @@ public class RequirementService {
             for (ZoneDTO zone : Zones) {
                     if (zone.getZoneRequirements().contains("데이터베이스 분산")) {
                             System.out.println("데베분산");
+
                             int i = 0;
+                            int regionIndex = 0; // 리전을 추적하기 위한 인덱스
 
                             Map<String, Object> result = new HashMap<>();
 
@@ -36,7 +38,15 @@ public class RequirementService {
 
                                     if (vpcGroup.isPresent()) {
                                             String vpcKey = vpcGroup.get().getKey();
-
+                                            Map<String, Object> rdsNodeCountInfo = countRdsNodesInPrivateSubnets(nodeDataList, groupDataList);
+                                            int rdsNodeCount = (int) rdsNodeCountInfo.get("rdsNodeCount");
+                                            List<String> rdsSubnetKeys = (List<String>) rdsNodeCountInfo.get("groupKeys");
+                                            List<String> mrSubnetKeys = rdsSubnetKeys.stream()
+                                                    .filter(key -> key.startsWith("MR-"))
+                                                    .collect(Collectors.toList());
+                                            List<String> nonMrSubnetKeys = rdsSubnetKeys.stream()
+                                                    .filter(key -> !key.startsWith("MR-"))
+                                                    .collect(Collectors.toList());
                                             // 3. AZ 생성 및 'VPC' 그룹에 추가
                                             String azKey = region.getKey()+"Multi-AZ"; // AZ 키 생성
                                             NodeData availabilityZoneNode = new NodeData();
@@ -56,28 +66,48 @@ public class RequirementService {
                                             newPrivateSubnet.setType("AWS_Groups");
                                             newPrivateSubnet.setStroke("rgb(0,164,166)");
                                             groupDataList.add(newPrivateSubnet);
-                                            String newLoc = location.getX() + " " + location.getY();
+                                            //여기에 for문을 돌려주자
+                                            if (regionIndex==0){
+                                                    for (String subnetKey : nonMrSubnetKeys) {
+                                                            String newLoc = location.getX()+(i*100) + " " + location.getY();
 
-                                            // 4. 각 AZ에 RDS 인스턴스 생성 및 배치
-                                            String rdsKey = availabilityZoneNode.getKey()+"RDS"; // RDS 키 생성
-                                            NodeData rdsNode = new NodeData();
-                                            rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
-                                            rdsNode.setText("RDS");
-                                            rdsNode.setLoc(newLoc); // 계산된 위치 설정
-                                            rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
-                                            rdsNode.setType("Arch_Database");
-                                            rdsNode.setGroup(newPrivateSubnet.getKey());
-                                            nodeDataList.add(rdsNode);
-                                            i++;
+                                                            String rdsKey = availabilityZoneNode.getKey() + "RDS"; // RDS 키 생성
+                                                            NodeData rdsNode = new NodeData();
+                                                            rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
+                                                            rdsNode.setText("RDS");
+                                                            rdsNode.setLoc(newLoc); // 계산된 위치 설정
+                                                            rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
+                                                            rdsNode.setType("Arch_Database");
+                                                            rdsNode.setGroup(newPrivateSubnet.getKey());
+                                                            nodeDataList.add(rdsNode);
+                                                            i++;
+                                                    }
+                                            }
+                                            else{
+                                                    for (String subnetKey : mrSubnetKeys) {
+                                                            String newLoc = location.getX()+(i*100) + " " + location.getY();
+
+                                                            String rdsKey = availabilityZoneNode.getKey() + "RDS"; // RDS 키 생성
+                                                            NodeData rdsNode = new NodeData();
+                                                            rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
+                                                            rdsNode.setText("RDS");
+                                                            rdsNode.setLoc(newLoc); // 계산된 위치 설정
+                                                            rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
+                                                            rdsNode.setType("Arch_Database");
+                                                            rdsNode.setGroup(newPrivateSubnet.getKey());
+                                                            nodeDataList.add(rdsNode);
+                                                            i++;
+                                                    }
+                                            }
+                                            regionIndex++;
                                     }
                             }
                     }
             }
 
 
-
-
     }
+
         public Map<String, Object> countRdsNodesInPrivateSubnets(List<NodeData> nodeDataList, List<GroupData> groupDataList) {
                 int rdsNodeCount = 0;
                 List<String> matchingGroupKeys = new ArrayList<>();
@@ -104,6 +134,7 @@ public class RequirementService {
                 result.put("groupKeys", matchingGroupKeys);
                 return result;
         }
+
 
         public int countNodes(List<NodeData> nodeDataList) {
                 int nodeCount = 0;
