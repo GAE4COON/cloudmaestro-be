@@ -4,6 +4,7 @@ import com.gae4coon.cloudmaestro.domain.user.dto.UserJoinRequestDto;
 import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import com.gae4coon.cloudmaestro.domain.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,7 @@ public class MemberService {
     }
 
 
-    public String join(UserJoinRequestDto dto){
+    public String join(@NotNull UserJoinRequestDto dto){
         Member existingUser = this.memberRepository.findByUserId(dto.getUser_id());
         if(existingUser != null) {
             throw new RuntimeException(dto.getUser_id() + " 는 이미 있습니다.");
@@ -62,8 +63,6 @@ public class MemberService {
             .userId(dto.getUser_id())
             .userPw(encodedUserPw)
             .userName(dto.getUser_name())
-            .belong(dto.getBelong())
-            .phoneNumber(dto.getPhone_number())
             .email(dto.getEmail())
             .role(Member.UserRole.member)
             .build();

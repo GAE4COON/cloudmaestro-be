@@ -228,7 +228,7 @@ public class BackupService {
         newNode.setType("Storage");
         newNode.setText("Backup "+number);
         newNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
-        newNode.setLoc(""+(location.getX()+200)+" "+location.getY());
+        newNode.setLoc(""+(location.getX()+300)+" "+location.getY());
         newNode.setGroup(""+regionList.get(0).getKey());
 
         NodeData backupNode=new NodeData();
@@ -236,7 +236,7 @@ public class BackupService {
         backupNode.setType("Storage");
         backupNode.setText("Backup "+(number+1));
         backupNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
-        backupNode.setLoc(""+(location.getX()+400)+" "+location.getY());
+        backupNode.setLoc(""+(location.getX()+600)+" "+location.getY());
         backupNode.setGroup(""+regionList.get(1).getKey());
 
         LinkData newlink = new LinkData();
@@ -298,7 +298,7 @@ public class BackupService {
         newNode.setType("Storage");
         newNode.setText("S3"+number);
         newNode.setSource("/img/AWS_icon/Arch_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg");
-        newNode.setLoc(""+(location.getX()+400)+" "+(location.getY()+200));
+        newNode.setLoc(""+(location.getX()+600)+" "+(location.getY()+200));
 
         nodeDataList.add(newNode);
     }
