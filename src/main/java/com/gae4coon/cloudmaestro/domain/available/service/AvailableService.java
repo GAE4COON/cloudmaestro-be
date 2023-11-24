@@ -76,7 +76,7 @@ public class AvailableService {
             linkDataList.add(pubToPriv);
 
             key -= 1;
-            LinkData intToPub = createLinkData("VPC Internet Gateway", publicSubnetName, key - 1);
+            LinkData intToPub = createLinkData("Internet Gateway", publicSubnetName, key - 1);
             linkDataList.add(intToPub);
 
             key -= 1;
@@ -360,7 +360,7 @@ public class AvailableService {
             AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
 
             // internet gateway to ALB
-            LinkData addIntoALB = createLinkData("VPC Internet Gateway", AlbNode.getKey(), key - 1);
+            LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
             linkDataList.add(addIntoALB);
 
             // ALB to security Group
@@ -470,9 +470,9 @@ public class AvailableService {
 
         nat_sum += index;
         NodeData natnode = new NodeData();
-        natnode.setText("NAT");
+        natnode.setText("NAT Gateway");
         natnode.setType("Networking-Content-Delivery");
-        natnode.setKey("NAT" + nat_sum);
+        natnode.setKey("NAT Gateway" + nat_sum);
         natnode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-VPC_NAT-Gateway_48.svg");
         String newLoc = (natNodeX) + " " + (natNodeY);
         natnode.setLoc(newLoc);
@@ -508,8 +508,8 @@ public class AvailableService {
 
     public NodeData makeALb(int index, double node_x, double node_y){
         NodeData AlbNode = new NodeData();
-        AlbNode.setText("Application Load Balancer(ALB)");
-        AlbNode.setKey("Application Load Balancer(ALB)" + index);
+        AlbNode.setText("Application Load Balancer (ALB)");
+        AlbNode.setKey("Application Load Balancer (ALB)" + index);
         AlbNode.setFigure("Rectangle");
         AlbNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
         AlbNode.setType("Networking-Content-Delivery");

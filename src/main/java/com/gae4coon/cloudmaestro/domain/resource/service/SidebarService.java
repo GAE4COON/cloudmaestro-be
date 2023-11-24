@@ -9,15 +9,18 @@ import java.util.List;
 @Service
 public class SidebarService {
     public List<String> getResourceFilter(List<NodeData> nodeDataList){
-        List<String> result = new ArrayList<>();
+        List<String> service = new ArrayList<>();
         for (NodeData node: nodeDataList){
             String type = node.getType();
             boolean isGroup;
+            String group = node.getGroup();
+
             try {
                 isGroup = node.getIsGroup();
             } catch (NullPointerException e) {
                 isGroup = false; // 예외가 발생한 경우 기본값으로 false 설정
             }
+
             if (type != null &&
                 !type.equals("Compute") &&
                 !type.equals("Database") &&
@@ -26,11 +29,17 @@ public class SidebarService {
                 !type.equals("Group") &&
                 !type.equals("Network_icon") &&
                 !isGroup &&
-                !result.contains(node.getText())){
-                result.add(node.getText());
+                !service.contains(node.getText())){
+                service.add(node.getText());
+            }
+            if(group!=null && group.equals("Service") && !service.contains(node.getText())) {
+                service.add(node.getText());
+                // 서비스 노드 임시 할당
             }
         }
 
-        return result;
+        return service;
     }
+
+
 }
