@@ -49,7 +49,6 @@ public class AllRequirementService {
         List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
         List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
 
@@ -58,11 +57,7 @@ public class AllRequirementService {
 
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),responseArray);
 
-
-
-
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
-
 
         return response;
     }
