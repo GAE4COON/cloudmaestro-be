@@ -6,25 +6,25 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Node;
 
 import java.util.*;
 
 @Service
 public class AvailableService {
-    List<NodeData> nodeDataList; List<GroupData> groupDataList; List<LinkData> linkDataList;
+
     public int alb_index =0;
-    public double alb_node_x; public double alb_node_y;
+    public double alb_node_x; public double alb_node_y; public double node_x; public double node_y;
+    public String originalpublicsubnetname = ""; public String originalprivatesubnetname = ""; public int Auto_index = 0;
 
-    public HashMap<String, Object> availalbeService(List<ZoneDTO> zoneRequirements, Map<String, Object> responseArray) {
-        nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
-        groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
-        linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+    public void availalbeService(List<ZoneDTO> zoneRequirements, List<NodeData>nodeDataList,List<GroupData> groupDataList,List<LinkData>linkDataList) {
 
-        HashMap<String, Object> result = new HashMap<>();
 
         // 위치 정보가 제일 높은 Y의 Node를 선택을 함
         NodeData highestNode = null;
         highestNode = findNodeWithHighestYCoordinate(nodeDataList);
+
+        System.out.println("highestNode: " +highestNode);
 
 
         String location = highestNode.getLoc();
@@ -35,8 +35,6 @@ public class AvailableService {
         // nat_node 위치 설정
         double nat_node_x = Double.parseDouble(locParts[0]);
         double nat_node_y = Double.parseDouble(locParts[1]);
-        // node 위치 설정
-        double node_x; double node_y;
 
         alb_node_x += 460; alb_node_y += 220;
         nat_node_x += 10; nat_node_y += 600;
@@ -50,22 +48,21 @@ public class AvailableService {
 
         linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
 
+
         for(int i = 0; i < zoneRequirements.size(); i++){
             String zone_name = zoneRequirements.get(i).getName();
-            String publicsubnetname = "";
-            String privatesubnetname = "";
             for(LinkData linkdata : linkDataList){
                 if(linkdata.getFrom().contains(zone_name) && linkdata.getFrom().contains("Public")){
-                    publicsubnetname = linkdata.getFrom();
+                    originalpublicsubnetname = linkdata.getFrom();
                 }
                 if(linkdata.getTo().contains(zone_name) && linkdata.getTo().contains("Private")){
-                    privatesubnetname = linkdata.getTo();
+                    originalprivatesubnetname = linkdata.getTo();
                 }
             }
 
 
-            String publicSubnetName = publicsubnetname + 2;
-            String privateSubnetName = privatesubnetname + 2;
+            String publicSubnetName = originalpublicsubnetname + 2;
+            String privateSubnetName = originalprivatesubnetname + 2;
 
             // Availalbe Zone 생성
             NodeData publicSubnetNode = createNodeData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
@@ -85,6 +82,7 @@ public class AvailableService {
             key -= 1;
             NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,i);
             nat_node_x += 10; nat_node_y += 400;
+            // nat 기준으로 node data 설정
             node_x = nat_node_x + 430; node_y = nat_node_y - 460;
 
             // Available Node 정렬하기
@@ -93,35 +91,24 @@ public class AvailableService {
             linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
             List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
 
-            if (availalbeNodes.size()> 0) {
-                // ALB node 생성 및 node 연결
-                Available(availableNodes, node_x, node_y, key, privateSubnetName);
-            }
+//            if((availalbeNodes.size()> 0) && (zoneRequirements.get(i).getServerNode().size() > 0)){
+//                // 둘다 동시에 됐을 때 사고다 ,, 레알 ㅋ
+//
+//            }
             if (zoneRequirements.get(i).getServerNode().size() > 0) {
-                ServerNode(zoneRequirements.get(i).getServerNode());
+
+                ServerNode(zoneRequirements.get(i).getServerNode(), linkDataList,groupDataList,nodeDataList,node_x, node_y, key, privateSubnetName,originalprivatesubnetname);
+
             }
+
+//            if (availalbeNodes.size()> 0) {
+//                // ALB node 생성 및 node 연결
+//                Available(linkDataList,groupDataList,nodeDataList,availableNodes, node_x, node_y, key, privateSubnetName);
+//            }
+
         }
 
 
-        //// ========================== Final =====================================
-        List<Object> finalDataArray = new ArrayList<>();
-        finalDataArray.addAll(nodeDataList);
-        finalDataArray.addAll(groupDataList);
-
-        finalDataArray.removeIf(Objects::isNull);
-
-        Map<String, Object> responseBody = new HashMap<>();
-        responseBody.put("class", "GraphLinksModel");
-        responseBody.put("linkKeyProperty", "key");
-        responseBody.put("nodeDataArray", finalDataArray);
-        responseBody.put("linkDataArray", linkDataList);
-
-        HashMap<String, Object> response = new HashMap<>();
-        response.put("result", responseBody);
-        //HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
-        System.out.println("response"+ response);
-
-        return response;
 
     }
 
@@ -143,12 +130,225 @@ public class AvailableService {
         return availableNodes;
     }
 
-    private void ServerNode(List<String> serverNode) {
+    public void ServerNode(List<String> serverNode, List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, double node_x, double node_y, int key, String privateSubnetName, String originalprivatesubnetname) {
+
+        int text_index;
+        List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화
+        for(String node : serverNode){
+            List<NodeData> exceptNode = new ArrayList<>();
+            // Node 1개만 빼고 제외하기
+            if (node.contains("Security Group")){
+                // 먼저 노드 하나만 빼고 제외하기
+                ExceptNode(node, nodeDataList, groupDataList, exceptNode);
+                text_index = Auto_index;
+                // 기존에 있는 그룹을 Auto Group으로 변화시키기
+                GroupData newAutoGroup = createAutoGroup(node, Auto_index, text_index,nodeDataList, groupDataList,originalprivatesubnetname);
+
+                Auto_index += 1;
+
+                // 일단 AutoGroup은 복사를 한다.
+                GroupData CopyAutoGroup = createAutoGroup(node + "a" ,Auto_index, text_index, nodeDataList, groupDataList,privateSubnetName);
+                System.out.println("CopyAutoGroup: "+ CopyAutoGroup);
+
+                // NodeData 순환하기
+                List<NodeData> newNodes = new ArrayList<>(); // 새로운 노드를 저장할 리스트
+
+                for (NodeData nodedata : nodeDataList) {
+                    if (nodedata.getGroup().equals(node)) {
+                        System.out.println("Secruityg NodeData: " + nodedata);
+                        NodeData copiedNode = new NodeData();
+                        node_x += 200;
+                        String newLoc = (node_x) + " " + (node_y);
+
+                        copiedNode.setText(nodedata.getText());
+                        copiedNode.setType(nodedata.getType());
+                        copiedNode.setKey(nodedata.getKey() + "a");
+                        copiedNode.setSource(nodedata.getSource());
+                        copiedNode.setIsGroup(null);
+                        copiedNode.setGroup(CopyAutoGroup.getKey());
+                        copiedNode.setLoc(newLoc);
+
+                        System.out.println("copiedNode: " + copiedNode);
+                        newNodes.add(copiedNode); // 새 노드를 별도의 리스트에 추가
+                    }
+                }
+
+                nodeDataList.addAll(newNodes); // 순회가 끝난 후 새 노드들을 nodeDataList에 추가
+
+            }
+            if(node.contains("EC2")){
+
+
+                if (exceptNode2.isEmpty() && !exceptNode2.contains(node)) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
+                    System.out.println("Except2Node" + exceptNode2);
+                    System.out.println("Node" + node);
+
+                    exceptNode2 = ExceptandAddInvidiualNode(nodeDataList, linkDataList, groupDataList, node);
+                    // Available 에 Node 넣기
+                    text_index = Auto_index;
+                    addOriginalNode(exceptNode2, groupDataList, nodeDataList, originalprivatesubnetname, Auto_index, text_index);
+                    Auto_index += 1;
+                    addCopyNode(exceptNode2, groupDataList, nodeDataList, privateSubnetName, Auto_index, text_index);
+
+                    removeLinkandNode(exceptNode2, linkDataList, nodeDataList);
+                }
+            }
+
+            Auto_index += 1;
+        }
+
+
+        Auto_index += 1;
+
+    }
+
+    public void removeLinkandNode(List<String> exceptNode, List<LinkData> linkDataList, List<NodeData> nodeDataList) {
+        List<NodeData> exceptNode2 = new ArrayList<>(); // 올바른 리스트 초기화
+        for (int i = 0; i < exceptNode.size(); i++) {
+            for (NodeData nodedata : nodeDataList) {
+                if (nodedata.getKey().contains(exceptNode.get(i)) && nodedata.getGroup().contains("Auto Scaling group")) {
+                    // Auto Scaling group에 속하는 노드는 제외
+                } else if (nodedata.getKey().contains(exceptNode.get(i))) {
+                    // Auto Scaling group에 속하지 않는 노드는 삭제 목록에 추가
+                    exceptNode2.add(nodedata);
+                }
+            }
+        }
+        nodeDataList.removeAll(exceptNode2); // 삭제 목록에 있는 모든 노드 제거
+    }
+
+
+    public void addCopyNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String privateSubnetName, int autoIndex, int text_index) {
+        NodeData AutoGroup = new NodeData();
+        AutoGroup.setIsGroup(true);
+        AutoGroup.setStroke("rgb(237,113,0)");
+        AutoGroup.setText("Auto Scaling group" + text_index);
+        AutoGroup.setKey("Auto Scaling group" + autoIndex);
+        AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
+        AutoGroup.setType("AWS_Groups");
+        AutoGroup.setGroup(privateSubnetName);
+        nodeDataList.add(AutoGroup);
+
+        List<NodeData> newNodes = new ArrayList<>();
+        for(NodeData nodedata : nodeDataList){
+            if(nodedata.getKey().equals(exceptNode.get(0))){
+                NodeData copiedNode = new NodeData();
+                node_x += 200;
+                String newLoc = (node_x) + " " + (node_y);
+
+                copiedNode.setText(nodedata.getText());
+                copiedNode.setType(nodedata.getType());
+                copiedNode.setKey(nodedata.getKey() + 2);
+                copiedNode.setSource(nodedata.getSource());
+                copiedNode.setIsGroup(null);
+                copiedNode.setGroup("Auto Scaling group" + autoIndex);
+                copiedNode.setLoc(newLoc);
+
+                System.out.println("copiedNode: " + copiedNode);
+                newNodes.add(copiedNode);
+
+            }
+        }
+
+        nodeDataList.addAll(newNodes);
+
+
+    }
+
+    public void addOriginalNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String originalprivatesubnetname, int autoIndex, int text_index) {
+        NodeData AutoGroup = new NodeData();
+        for(NodeData nodedata : nodeDataList){
+            if(nodedata.getKey().equals(exceptNode.get(0))){
+                nodedata.setGroup("Auto Scaling group" + autoIndex);
+                AutoGroup.setIsGroup(true);
+                AutoGroup.setStroke("rgb(237,113,0)");
+                AutoGroup.setText("Auto Scaling group" + text_index);
+                AutoGroup.setKey("Auto Scaling group" + autoIndex);
+                AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
+                AutoGroup.setType("AWS_Groups");
+                AutoGroup.setGroup(originalprivatesubnetname);
+
+            }
+        }
+        nodeDataList.add(AutoGroup);
+
+
+    }
+
+    public List<String> ExceptandAddInvidiualNode(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, String node) {
+        List<String> ExceptNode = new ArrayList<>();
+        String to = "";
+        int text_index;
+        for(LinkData listdata : linkDataList){
+            if(listdata.getFrom().equals(node)){
+                to = listdata.getTo();
+                System.out.println("TO: " + to);
+            }
+
+        }
+        for(LinkData listdata2: linkDataList){
+            if(listdata2.getTo().equals(to)){
+                ExceptNode.add(listdata2.getFrom());
+            }
+        }
+
+
+        System.out.println("ExceptNode: " + ExceptNode);
+        return ExceptNode;
+    }
+
+    public GroupData createAutoGroup(String security_group, int index, int text_index, List<NodeData> nodeDataList, List<GroupData> groupDataList, String privateSubnetName) {
+        System.out.println("SecurityGroup: " + security_group);
+        GroupData autogroup = new GroupData();
+        autogroup.setKey(security_group);
+        autogroup.setText(security_group);
+        autogroup.setIsGroup(true);
+        autogroup.setGroup("Auto Scaling group" + index);
+        autogroup.setType("group");
+        autogroup.setStroke("rgb(221,52,76)");
+
+        groupDataList.add(autogroup);
+
+        NodeData AutoGroup = new NodeData();
+        AutoGroup.setIsGroup(true);
+        AutoGroup.setStroke("rgb(237,113,0)");
+        AutoGroup.setText("Auto Scaling group" + text_index);
+        AutoGroup.setKey("Auto Scaling group" + index);
+        AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
+        AutoGroup.setType("AWS_Groups");
+        AutoGroup.setGroup(privateSubnetName);
+
+        nodeDataList.add(AutoGroup);
+        return autogroup;
+    }
+
+    public void ExceptNode(String node, List<NodeData> nodeDataList, List<GroupData> groupDataList, List<NodeData> exceptNode) {
+        for(NodeData nodedata : nodeDataList){
+            if(nodedata.getGroup().equals(node)){
+                exceptNode.add(nodedata);
+            }
+        }
+        System.out.println("NodeName : " + node);
+        System.out.println("ExceptNode : " + exceptNode);
+
+        if(exceptNode.size() >=2){
+            for (int i = 1; i < exceptNode.size(); i++) {
+                nodeDataList.remove(exceptNode.get(i));
+            }
+        }
+        List<GroupData> exceptgroup = new ArrayList<>();
+        for(GroupData groupData : groupDataList){
+            if(groupData.getKey().equals(node)){
+                exceptgroup.add(groupData);
+            }
+        }
+
+        groupDataList.remove(exceptgroup.get(0));
 
     }
 
 
-    public void Available(List<String> availableNode,double node_x, double node_y, int key, String privateSubnetName){
+    public void Available(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNode,double node_x, double node_y, int key, String privateSubnetName){
         for(String node : availableNode)
         {
             // NodeData 복사 시작
@@ -162,6 +362,7 @@ public class AvailableService {
             // internet gateway to ALB
             LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
             linkDataList.add(addIntoALB);
+
             // ALB to security Group
             LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
             linkDataList.add(addALBintoGroup);
@@ -170,49 +371,18 @@ public class AvailableService {
             if (node.contains("Security Group")){
                 security_group = node + 2;
                 GroupData new_security_group = createAndConfigureGroupData(security_group, privateSubnetName);
-                if (!groupDataList.contains(new_security_group)) {
-                    groupDataList.add(new_security_group); // Add new security group if not present
-                }
-                for (NodeData nodedata : nodeDataList) {
-                    if (nodedata.getGroup().equals(node)) {
-                        node_temp_list.add(nodedata);
-                    }
-                }
+                // 새로운 그룹 생성하고 그룹과 alb의 연결
+                addSecurityGroup(node,security_group,new_security_group,groupDataList,nodeDataList,linkDataList,node_temp_list,node_x,node_y,AlbNode, key-=1);
 
-                for (NodeData copy_node : node_temp_list){
-                    node_x += 150;
-                    String newLoc = (node_x) + " " + (node_y);
-                    NodeData copiedNode = new NodeData();
-                    copiedNode.setText(copy_node.getText());
-                    copiedNode.setType(copy_node.getType());
-                    copiedNode.setKey(copy_node.getKey() + alb_index);
-                    copiedNode.setSource(copy_node.getSource());
-                    copiedNode.setIsGroup(null);
-                    copiedNode.setGroup(security_group);
-                    copiedNode.setLoc(newLoc);
-                    nodeDataList.add(copiedNode);
-                }
-                System.out.println("security_group: "+new_security_group);
-                LinkData albtogroup = createLinkData(AlbNode.getKey(),new_security_group.getKey(),key -=1);
-                System.out.println("albtogroup: " + albtogroup);
-                linkDataList.add(albtogroup);
-            }else{
-                for (NodeData nodedata : nodeDataList) {
-                    if (nodedata.getKey().equals(node)) {
-                        node_x += 150;
-                        String newLoc = (node_x) + " " + (node_y);
-                        NodeData copiedNode = new NodeData();
-                        copiedNode.setText(nodedata.getText());
-                        copiedNode.setType(nodedata.getType());
-                        copiedNode.setKey(nodedata.getKey() + alb_index);
-                        copiedNode.setSource(nodedata.getSource());
-                        copiedNode.setIsGroup(null);
-                        copiedNode.setGroup(privateSubnetName);
-                        copiedNode.setLoc(newLoc);
-                        nodeDataList.add(copiedNode);
-                    }
-                }
             }
+
+            else if(!node.contains("Security Group")){
+                // 새로운 인스턴스 생성하고, alb과 노드들과의 연결
+                double[] newCoordinates = addNode(node,groupDataList,nodeDataList,linkDataList,AlbNode,node_x,node_y,privateSubnetName, key-=1);
+                node_x = newCoordinates[0];
+                node_y = newCoordinates[1];
+            }
+
 
             nodeDataList.add(AlbNode);
             alb_index +=1 ;
@@ -222,6 +392,57 @@ public class AvailableService {
         }
 
 
+    }
+
+    public double[] addNode(String node, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList, NodeData AlbNode, double node_x, double node_y, String privateSubnetName, int Key) {
+        String node_name = node + "2";
+        NodeData nodedata = new NodeData();
+        node_x += 150;
+        nodedata.setGroup(privateSubnetName);
+        nodedata.setText("EC2");
+        nodedata.setType("Compute");
+        nodedata.setKey(node_name);
+        nodedata.setSource( "/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
+        String newLoc = (node_x) + " " + (node_y);
+        nodedata.setLoc(newLoc);
+        nodedata.setIsGroup(null);
+
+        nodeDataList.add(nodedata);
+        LinkData albtogroup = createLinkData(AlbNode.getKey(),nodedata.getKey(),Key-=1);
+        System.out.println("albtogroup: " + albtogroup);
+        linkDataList.add(albtogroup);
+        return new double[]{node_x, node_y};
+    }
+
+    public double[] addSecurityGroup(String node, String security_group, GroupData new_security_group, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<NodeData> node_temp_list, double node_x, double node_y, NodeData AlbNode, int key) {
+        if (!groupDataList.contains(new_security_group)) {
+            groupDataList.add(new_security_group); // Add new security group if not present
+        }
+        for (NodeData nodedata : nodeDataList) {
+            if (nodedata.getGroup().equals(node)) {
+                node_temp_list.add(nodedata);
+            }
+        }
+        // 새로운 그룹을 생성하면서, 그룹에 해당하는 노드들  복사
+        for (NodeData copy_node : node_temp_list){
+            node_x += 150;
+            String newLoc = (node_x) + " " + (node_y);
+            NodeData copiedNode = new NodeData();
+            copiedNode.setText(copy_node.getText());
+            copiedNode.setType(copy_node.getType());
+            copiedNode.setKey(copy_node.getKey() + alb_index);
+            copiedNode.setSource(copy_node.getSource());
+            copiedNode.setIsGroup(null);
+            copiedNode.setGroup(security_group);
+            copiedNode.setLoc(newLoc);
+            nodeDataList.add(copiedNode);
+        }
+        System.out.println("security_group: "+new_security_group);
+        // ALB Node와 연결
+        LinkData albtogroup = createLinkData(AlbNode.getKey(),new_security_group.getKey(),key -=1);
+        System.out.println("albtogroup: " + albtogroup);
+        linkDataList.add(albtogroup);
+        return new double[]{node_x, node_y};
 
     }
 
@@ -269,14 +490,16 @@ public class AvailableService {
         double highestY = Double.NEGATIVE_INFINITY;
 
         for (NodeData nodedata : nodeDataList) {
-            String location = nodedata.getLoc();
-            String[] locParts = location.split(" ");
 
-            double y = Double.parseDouble(locParts[1]);
+            if(nodedata.getKey().contains("NAT")){
+                String location = nodedata.getLoc();
+                String[] locParts = location.split(" ");
 
-            if (y > highestY) {
-                highestY = y;
-                highestYNode = nodedata;
+                double y = Double.parseDouble(locParts[1]);
+                if (y > highestY) {
+                    highestY = y;
+                    highestYNode = nodedata;
+                }
             }
         }
 
