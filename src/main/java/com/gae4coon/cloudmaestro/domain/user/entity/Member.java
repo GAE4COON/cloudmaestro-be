@@ -23,12 +23,6 @@ public class Member extends BaseTimeEntity {
     @Column(name = "user_name", nullable = false, length = 15)
     private String userName;
 
-    @Column(name = "phone_number", length = 15)
-    private String phoneNumber;
-
-    @Column(name = "belong", length = 15)
-    private String belong;
-
     @Column(name = "email", unique = true, nullable = false, length = 100)
     private String email;
 
@@ -45,8 +39,6 @@ public class Member extends BaseTimeEntity {
         this.userPw = userPw;
         this.userName = userName;
         this.email = email;
-        this.belong = belong;
-        this.phoneNumber = phoneNumber;
         this.role = role;
     }
 

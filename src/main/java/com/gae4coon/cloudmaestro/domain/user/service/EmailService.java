@@ -65,6 +65,7 @@ public class EmailService {
         mailSender.send(mailMessage);
 
         redisUtil.setDataExpire(mail, authKey, 60L * 3L); //3분
+        System.out.println("confirm reids!");
 
         return authKey;
     }
