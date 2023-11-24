@@ -22,12 +22,7 @@ public class DnsMultiService {
     private final RegionService regionService; // final 키워드 추가
     private final DiagramDTOService diagramDTOService;
 
-    public Map<String, Object> getRequirementDns(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList,  List<LinkData> linkDataList, List<GroupData> groupDataList) {
-
-        Map<String, Object> result = new HashMap<>();
-        List<NodeData> finalNodeDataArray = new ArrayList<>();
-        List<GroupData> finalGroupDataArray = new ArrayList<>();
-
+    public void getRequirementDns(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList,  List<LinkData> linkDataList, List<GroupData> groupDataList) {
         List<String> globalRequirements = requireDiagramDTO.getRequirementData().getGlobalRequirements();
 
         // globalRequirements에 특정 문자열이 포함되어 있는지 확인
@@ -64,17 +59,11 @@ public class DnsMultiService {
             newLinkDataList = addRouteLink(nodeDataList,newNodeDataList, newLinkDataList);
             newLinkDataList = addRouteToCloudFrontLink(nodeDataList,newLinkDataList);
 
-            finalNodeDataArray.addAll(nodeDataList);
-            finalNodeDataArray.addAll(newNodeDataList);
-            finalGroupDataArray.addAll(groupDataList);
-            finalGroupDataArray.addAll(newGroupDataList);   //이거 수정해야함
-
-            HashMap<String, Object> response = diagramDTOService.dtoComplete(finalNodeDataArray, finalGroupDataArray, Stream.concat(linkDataList.stream(), newLinkDataList.stream()).collect(Collectors.toList()));
-
-            return response;
+            nodeDataList.addAll(newNodeDataList);
+            groupDataList.addAll(newGroupDataList);
+            linkDataList.addAll(newLinkDataList);
         } else {
-            HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
-            return response;
+            System.out.println("no require");
         }
     }
     public Point2D findRouteLoc(List<NodeData> nodeDataList) {
