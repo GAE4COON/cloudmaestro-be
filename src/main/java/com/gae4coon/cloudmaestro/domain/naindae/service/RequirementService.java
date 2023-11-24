@@ -17,7 +17,7 @@ public class RequirementService {
 
             for (ZoneDTO zone : Zones) {
                     if (zone.getZoneRequirements().contains("데이터베이스 분산")) {
-                            System.out.println("데베분산");
+
 
                             int i = 0;
                             int regionIndex = 0; // 리전을 추적하기 위한 인덱스
@@ -66,7 +66,6 @@ public class RequirementService {
                                             newPrivateSubnet.setType("AWS_Groups");
                                             newPrivateSubnet.setStroke("rgb(0,164,166)");
                                             groupDataList.add(newPrivateSubnet);
-                                            //여기에 for문을 돌려주자
                                             if (regionIndex==0){
                                                     for (String subnetKey : nonMrSubnetKeys) {
                                                             String newLoc = location.getX()+(i*100) + " " + location.getY();
