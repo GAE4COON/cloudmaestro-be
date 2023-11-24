@@ -124,7 +124,7 @@ public class LoggingService {
         // 연결된 s3 없으면 생성
         if(cloudTrails3List.isEmpty()){
             System.out.println("new");
-            NodeData s3 = addResourceService.addSimpleStorageService(nodeDataList);
+            NodeData s3 = addResourceService.addSimpleStorageServiceS3(nodeDataList);
             s3.setGroup("Region");
             s3.setLoc("600, -750");
             nodeDataList.add(s3);
@@ -177,7 +177,7 @@ public class LoggingService {
         cloudTrail.setLoc("400 -600");
         nodeDataList.add(cloudTrail);
 
-        NodeData s3 = addResourceService.addSimpleStorageService();
+        NodeData s3 = addResourceService.addSimpleStorageServiceS3();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
         s3.setLoc("400 -750");
@@ -197,7 +197,7 @@ public class LoggingService {
         cloudWatch.setLoc("600, -600");
         nodeDataList.add(cloudWatch);
 
-        NodeData s3 = addResourceService.addSimpleStorageService();
+        NodeData s3 = addResourceService.addSimpleStorageServiceS3();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
         s3.setLoc("450, -600");
@@ -257,7 +257,7 @@ public class LoggingService {
         athena.setLoc("700 -700");
         nodeDataList.add(athena);
 
-        NodeData s3 = addResourceService.addSimpleStorageService();
+        NodeData s3 = addResourceService.addSimpleStorageServiceS3();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
         s3.setLoc("700 -900");

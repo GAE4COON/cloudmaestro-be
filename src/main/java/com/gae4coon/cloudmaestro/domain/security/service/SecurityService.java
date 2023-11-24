@@ -118,8 +118,10 @@ public class SecurityService{
         // Zone Requiremnts 처리
         for (ZoneDTO zone : Zones) {
             for (String zoneRequirement : zone.getZoneRequirements()) {
+                System.out.println("zoneRequirement"+zoneRequirement);
+                System.out.println(zone.getName());
                 switch (zoneRequirement) {
-                    case "망별_웹 애플리케이션 보호":
+                    case "웹 방화벽으로 보호":
                         setZoneWAF(zone.getName());
                         break;
                 }
@@ -131,7 +133,7 @@ public class SecurityService{
         if (diagramDTOService.isNodeDataContains(nodeDataList, "Identity and Access Management")) return;
         diagramDTOService.addServiceGroup(groupDataList);
 
-        NodeData IAM = addResourceService.addIdentityandAccessManagement();
+        NodeData IAM = addResourceService.addIdentityandAccessManagementIAM();
         IAM.setGroup("Service");
         nodeDataList.add(IAM);
     }
@@ -218,7 +220,7 @@ public class SecurityService{
         if (!diagramDTOService.isNodeDataContains(nodeDataList, "AWS_WAF")) {
             NodeData WAF = addResourceService.addAWS_WAF();
             WAF.setGroup("Region");
-            WAF.setLoc("0 -200");
+            WAF.setLoc("0 200");
             nodeDataList.add(WAF);
         }
 
@@ -252,7 +254,7 @@ public class SecurityService{
 
     private void setZoneWAF(String zoneName) {
         List<NodeData> zoneConnectedALB = new ArrayList<>();
-        List<NodeData> ALBList = diagramDTOService.getNodeListByText(nodeDataList, "Application Load Balancer(ALB)");
+        List<NodeData> ALBList = diagramDTOService.getNodeListByText(nodeDataList, "Application Load Balancer (ALB)");
 
         if (ALBList.isEmpty()) return;
 

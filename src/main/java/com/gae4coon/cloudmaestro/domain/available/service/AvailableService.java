@@ -285,8 +285,8 @@ public class AvailableService {
 
     public NodeData makeALb(int index, double node_x, double node_y){
         NodeData AlbNode = new NodeData();
-        AlbNode.setText("Application Load Balancer(ALB)");
-        AlbNode.setKey("Application Load Balancer(ALB)" + index);
+        AlbNode.setText("Application Load Balancer (ALB)");
+        AlbNode.setKey("Application Load Balancer (ALB)" + index);
         AlbNode.setFigure("Rectangle");
         AlbNode.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg");
         AlbNode.setType("Networking-Content-Delivery");
