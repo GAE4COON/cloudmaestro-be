@@ -74,8 +74,8 @@ public class RegionService {
             NodeData newNode = new NodeData();
             newNode.setText(node.getText());
             String[] locParts = node.getLoc().split(" ");
-            double x = Double.parseDouble(locParts[0]) + 1300;
-            double y = Double.parseDouble(locParts[1]);
+            double x = Double.parseDouble(locParts[0]);
+            double y = Double.parseDouble(locParts[1]) + 1300;
             newNode.setLoc(x + " " + y); // 수정된 좌표 설정
             newNode.setType(node.getType());
             newNode.setSource(node.getSource());
@@ -127,9 +127,9 @@ public class RegionService {
 
         for (String availabilityGroupKey : availabilityGroupKeys) {
             NodeData attachment = new NodeData();
-            attachment.setKey("VPC Elastic Network Interface"+num);
-            attachment.setText("VPC Elastic Network Interface");
-            attachment.setLoc("loc");
+            attachment.setKey("Elastic Network Interface"+num);
+            attachment.setText("Elastic Network Interface");
+            attachment.setLoc("loc"); //?
             attachment.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Interface_48.svg");
             attachment.setType("Networking-Content-Delivery");
             attachment.setGroup(availabilityGroupKey);
