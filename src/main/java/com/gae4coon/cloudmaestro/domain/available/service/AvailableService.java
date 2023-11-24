@@ -91,25 +91,15 @@ public class AvailableService {
             linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
             List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
 
-//            if((availalbeNodes.size()> 0) && (zoneRequirements.get(i).getServerNode().size() > 0)){
-//                // 둘다 동시에 됐을 때 사고다 ,, 레알 ㅋ
-//
-//            }
             if (zoneRequirements.get(i).getServerNode().size() > 0) {
-
                 ServerNode(zoneRequirements.get(i).getServerNode(), linkDataList,groupDataList,nodeDataList,node_x, node_y, key, privateSubnetName,originalprivatesubnetname);
-
             }
 
-//            if (availalbeNodes.size()> 0) {
-//                // ALB node 생성 및 node 연결
-//                Available(linkDataList,groupDataList,nodeDataList,availableNodes, node_x, node_y, key, privateSubnetName);
-//            }
-
+            if (availalbeNodes.size()> 0) {
+                // ALB node 생성 및 node 연결
+                Available(linkDataList,groupDataList,nodeDataList,availableNodes, node_x, node_y, key, privateSubnetName);
+            }
         }
-
-
-
     }
 
 
@@ -155,7 +145,6 @@ public class AvailableService {
 
                 for (NodeData nodedata : nodeDataList) {
                     if (nodedata.getGroup().equals(node)) {
-                        System.out.println("Secruityg NodeData: " + nodedata);
                         NodeData copiedNode = new NodeData();
                         node_x += 200;
                         String newLoc = (node_x) + " " + (node_y);
@@ -238,7 +227,7 @@ public class AvailableService {
 
                 copiedNode.setText(nodedata.getText());
                 copiedNode.setType(nodedata.getType());
-                copiedNode.setKey(nodedata.getKey() + 2);
+                copiedNode.setKey(nodedata.getKey() + "a");
                 copiedNode.setSource(nodedata.getSource());
                 copiedNode.setIsGroup(null);
                 copiedNode.setGroup("Auto Scaling group" + autoIndex);
@@ -360,7 +349,7 @@ public class AvailableService {
             AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
 
             // internet gateway to ALB
-            LinkData addIntoALB = createLinkData("VPC Internet Gateway", AlbNode.getKey(), key - 1);
+            LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
             linkDataList.add(addIntoALB);
 
             // ALB to security Group
@@ -369,7 +358,7 @@ public class AvailableService {
 
             // node 추가하기
             if (node.contains("Security Group")){
-                security_group = node + 2;
+                security_group = node + "a";
                 GroupData new_security_group = createAndConfigureGroupData(security_group, privateSubnetName);
                 // 새로운 그룹 생성하고 그룹과 alb의 연결
                 addSecurityGroup(node,security_group,new_security_group,groupDataList,nodeDataList,linkDataList,node_temp_list,node_x,node_y,AlbNode, key-=1);
@@ -395,7 +384,7 @@ public class AvailableService {
     }
 
     public double[] addNode(String node, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList, NodeData AlbNode, double node_x, double node_y, String privateSubnetName, int Key) {
-        String node_name = node + "2";
+        String node_name = node + "a";
         NodeData nodedata = new NodeData();
         node_x += 150;
         nodedata.setGroup(privateSubnetName);
