@@ -43,7 +43,6 @@ public class DiagramDTOService {
         List<Object> finalDataArray = new ArrayList<>();
         finalDataArray.addAll(nodeDataList);
         finalDataArray.addAll(groupDataList);
-
         finalDataArray.removeIf(Objects::isNull);
 
         Map<String, Object> responseBody = new HashMap<>();
