@@ -16,6 +16,7 @@ public class GroupData{
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String group;
 
+
     private String type;
     private String stroke;
 
@@ -27,6 +28,7 @@ public class GroupData{
         this.type = type;
         this.stroke = stroke;
     }
+
 
     public void addKey(String Key) {
         this.key = Key;

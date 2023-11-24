@@ -99,7 +99,14 @@ public class DiagramDTOService {
 
     public NodeData getNodeDataByKey(List<NodeData> nodeDataList, String key){
         for (NodeData node : nodeDataList) {
-            if(node.getKey().contains(key)) return node;
+            if(node.getKey().equals(key)) return node;
+        }
+        return null;
+    }
+
+    public NodeData getNodeDataByText(List<NodeData> nodeDataList, String text){
+        for (NodeData node : nodeDataList) {
+            if(node.getKey().contains(text)) return node;
         }
         return null;
     }
@@ -110,6 +117,8 @@ public class DiagramDTOService {
         }
         return null;
     }
+
+
 
     public List<NodeData> getNodeListByText(List<NodeData> nodeDataList, String text){
         List<NodeData> nodeList = new ArrayList<>();
