@@ -136,39 +136,32 @@ public class RegionService {
 
         for (GroupData group : groupDataList) {
             if (group.getKey().contains("Availability")) {
-                availabilityGroupKeys.add(group.getKey());
+                NodeData attachment = new NodeData();
+                attachment.setKey("Elastic Network Interface"+num);
+                attachment.setText("Elastic Network Interface");
+                attachment.setLoc("loc");
+                attachment.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Interface_48.svg");
+                attachment.setType("Networking-Content-Delivery");
+                attachment.setGroup(group.getKey());
+                nodeDataList.add(attachment);
+                attachmentCount++;
             }
-        }
-
-        for (String availabilityGroupKey : availabilityGroupKeys) {
-            NodeData attachment = new NodeData();
-            attachment.setKey("Elastic Network Interface"+num);
-            attachment.setText("Elastic Network Interface");
-            attachment.setLoc("loc"); //?
-            attachment.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Interface_48.svg");
-            attachment.setType("Networking-Content-Delivery");
-            attachment.setGroup(availabilityGroupKey);
-            nodeDataList.add(attachment);
-            attachmentCount++;
         }
 
         for (GroupData group : groupDataList) {
             if (group.getKey().contains("Region")) {
-                regionGroupKeys.add(group.getKey());
+                NodeData transit = new NodeData();
+                transit.setKey("Transit Gateway"+num);
+                transit.setText("Transit Gateway");
+                transit.setLoc("loc");
+                transit.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_AWS-Transit-Gateway_48.svg");
+                transit.setType("Networking-Content-Delivery");
+                transit.setGroup(group.getKey());
+                nodeDataList.add(transit);
+                transitCount++;
             }
         }
 
-        for (String regionGroupKey : regionGroupKeys) {
-            NodeData transit = new NodeData();
-            transit.setKey("Transit Gateway"+num);
-            transit.setText("Transit Gateway");
-            transit.setLoc("loc");
-            transit.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_AWS-Transit-Gateway_48.svg");
-            transit.setType("Networking-Content-Delivery");
-            transit.setGroup(regionGroupKey);
-            nodeDataList.add(transit);
-            transitCount++;
-        }
             return nodeDataList;
     }
 
@@ -176,18 +169,6 @@ public class RegionService {
         List<String> availabilityGroupKeys = new ArrayList<>();
         List<String> vpcGroupKeys = new ArrayList<>();
 
-//        for (GroupData group : groupDataList) {
-//            if (group.getKey().contains("Availability")) {
-//                availabilityGroupKeys.add(group.getKey());
-//            }
-//        }
-//        for (String availabilityGroupKey : availabilityGroupKeys){
-//            for (GroupData group : groupDataList){
-//                if(group.getKey().equals(availabilityGroupKey)){
-//                    vpcGroupKeys.add(group.getGroup()); //vpc의 key를 얻는데 1개 밖에 오지 않지 당연히.
-//                }
-//            }
-//        }
         String eni = "";
         String transit = "";
         System.out.println("Node link list: "+ nodeDataList);

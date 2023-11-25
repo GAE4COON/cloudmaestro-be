@@ -17,8 +17,6 @@ public class RequirementService {
 
             for (ZoneDTO zone : Zones) {
                     if (zone.getZoneRequirements().contains("데이터베이스 분산")) {
-
-
                             int i = 0;
                             int regionIndex = 0; // 리전을 추적하기 위한 인덱스
 
@@ -72,13 +70,19 @@ public class RequirementService {
 
                                                             String rdsKey = availabilityZoneNode.getKey() + "RDS"; // RDS 키 생성
                                                             NodeData rdsNode = new NodeData();
-                                                            rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
+                                                            rdsNode.setKey(rdsKey); // NAT 키를 고유하게 만듦
                                                             rdsNode.setText("RDS");
                                                             rdsNode.setLoc(newLoc); // 계산된 위치 설정
                                                             rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
                                                             rdsNode.setType("Arch_Database");
                                                             rdsNode.setGroup(newPrivateSubnet.getKey());
                                                             nodeDataList.add(rdsNode);
+
+                                                            // RDS 노드와 서브넷을 연결하는 링크 생성
+                                                            LinkData link = new LinkData();
+                                                            link.setFrom(subnetKey); // 링크의 시작은 서브넷
+                                                            link.setTo(newPrivateSubnet.getKey()); // 링크의 종료는 RDS 노드
+                                                            linkDataList.add(link); // 링크 리스트에 추가
                                                             i++;
                                                     }
                                             }
@@ -88,13 +92,20 @@ public class RequirementService {
 
                                                             String rdsKey = availabilityZoneNode.getKey() + "RDS"; // RDS 키 생성
                                                             NodeData rdsNode = new NodeData();
-                                                            rdsNode.setKey("RDS"); // NAT 키를 고유하게 만듦
+                                                            rdsNode.setKey(rdsKey); // NAT 키를 고유하게 만듦
                                                             rdsNode.setText("RDS");
                                                             rdsNode.setLoc(newLoc); // 계산된 위치 설정
                                                             rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
                                                             rdsNode.setType("Arch_Database");
                                                             rdsNode.setGroup(newPrivateSubnet.getKey());
                                                             nodeDataList.add(rdsNode);
+
+                                                            // RDS 노드와 서브넷을 연결하는 링크 생성
+                                                            LinkData link = new LinkData();
+                                                            link.setFrom(subnetKey); // 링크의 시작은 서브넷
+                                                            link.setTo(newPrivateSubnet.getKey()); // 링크의 종료는 RDS 노드
+                                                            // 필요한 추가 설정들...
+                                                            linkDataList.add(link); // 링크 리스트에 추가
                                                             i++;
                                                     }
                                             }

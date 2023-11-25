@@ -22,7 +22,7 @@ public class DiagramDTOService {
 
         for (NodeData data : dataArray) {
             if (data.getIsGroup() != null) {
-                GroupData groupData = new GroupData(data.getKey(), data.getText(), data.getIsGroup(), data.getGroup(), data.getType(), data.getStroke());
+                GroupData groupData = new GroupData(data.getKey(), data.getText(), data.getIsGroup(), data.getGroup(), data.getType(), data.getStroke(), data.getLoc());
                 groupDataList.add(groupData);
             } else {
                 nodeDataList.add(data);

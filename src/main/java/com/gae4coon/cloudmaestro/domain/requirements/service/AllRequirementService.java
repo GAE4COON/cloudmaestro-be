@@ -57,8 +57,8 @@ public class AllRequirementService {
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         requirementService.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 

@@ -147,7 +147,7 @@ public class BackupService {
             }
         }
 
-        GroupData newGroup=new GroupData("Region" + number,"Region"+number,true,null,"AWS_Groups","rgb(0,164,166)");
+        GroupData newGroup=new GroupData("Region" + number,"Region"+number,true,null,"AWS_Groups","rgb(0,164,166)",null);
         groupDataList.add(newGroup);
 
         return newGroup;
