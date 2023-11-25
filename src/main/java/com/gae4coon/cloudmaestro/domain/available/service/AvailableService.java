@@ -1,12 +1,12 @@
 package com.gae4coon.cloudmaestro.domain.available.service;
 
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Node;
 
 import java.util.*;
 
@@ -17,91 +17,194 @@ public class AvailableService {
     public double alb_node_x; public double alb_node_y; public double node_x; public double node_y;
     public String originalpublicsubnetname = ""; public String originalprivatesubnetname = ""; public int Auto_index = 0;
 
-    public void availalbeService(List<ZoneDTO> zoneRequirements, List<NodeData>nodeDataList,List<GroupData> groupDataList,List<LinkData>linkDataList) {
+    public void availalbeService(RequireDiagramDTO requireDiagramDTO, List<NodeData>nodeDataList, List<GroupData> groupDataList, List<LinkData>linkDataList) {
+
+        if( requireDiagramDTO.getRequirementData().getZones().get(0).getAvailableNode().size() > 0 ||
+                requireDiagramDTO.getRequirementData().getZones().get(0).getServerNode().size() > 0
+        ){
+           List<ZoneDTO> zoneRequirements = requireDiagramDTO.getRequirementData().getZones();
+
+            // 위치 정보가 제일 높은 Y의 Node를 선택을 함
+            NodeData highestNode = null;
+            highestNode = findNodeWithHighestYCoordinate(nodeDataList);
+
+            System.out.println("highestNode: " +highestNode);
 
 
-        // 위치 정보가 제일 높은 Y의 Node를 선택을 함
-        NodeData highestNode = null;
-        highestNode = findNodeWithHighestYCoordinate(nodeDataList);
+            String location = highestNode.getLoc();
+            // alb node 위치 설정
+            String[] locParts = location.split(" ");
+            alb_node_x = Double.parseDouble(locParts[0]);
+            alb_node_y = Double.parseDouble(locParts[1]);
+            // nat_node 위치 설정
+            double nat_node_x = Double.parseDouble(locParts[0]);
+            double nat_node_y = Double.parseDouble(locParts[1]);
 
-        System.out.println("highestNode: " +highestNode);
+            alb_node_x += 460; alb_node_y += 220;
+            nat_node_x += 10; nat_node_y += 600;
 
+            int key = -10;
 
-        String location = highestNode.getLoc();
-        // alb node 위치 설정
-        String[] locParts = location.split(" ");
-        alb_node_x = Double.parseDouble(locParts[0]);
-        alb_node_y = Double.parseDouble(locParts[1]);
-        // nat_node 위치 설정
-        double nat_node_x = Double.parseDouble(locParts[0]);
-        double nat_node_y = Double.parseDouble(locParts[1]);
+            // AZ 존은 하나 생성
+            GroupData Azdata = makeAz(groupDataList);
 
-        alb_node_x += 460; alb_node_y += 220;
-        nat_node_x += 10; nat_node_y += 600;
-
-        int key = -10;
-
-        // AZ 존은 하나 생성
-        GroupData Azdata = makeAz(groupDataList);
-
-        // linkdata from, to 를 기준으로 zoneRequirement를 정렬시키기
-
-        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
-
-
-        for(int i = 0; i < zoneRequirements.size(); i++){
-            String zone_name = zoneRequirements.get(i).getName();
-            for(LinkData linkdata : linkDataList){
-                if(linkdata.getFrom().contains(zone_name) && linkdata.getFrom().contains("Public")){
-                    originalpublicsubnetname = linkdata.getFrom();
-                }
-                if(linkdata.getTo().contains(zone_name) && linkdata.getTo().contains("Private")){
-                    originalprivatesubnetname = linkdata.getTo();
-                }
-            }
-
-
-            String publicSubnetName = originalpublicsubnetname + 2;
-            String privateSubnetName = originalprivatesubnetname + 2;
-
-            // Availalbe Zone 생성
-            NodeData publicSubnetNode = createNodeData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
-            nodeDataList.add(publicSubnetNode);
-
-            NodeData privateSubnetNode = createNodeData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(0,164,166)",null);
-            nodeDataList.add(privateSubnetNode);
-
-            // link 정보 연결하기
-            LinkData pubToPriv = createLinkData(publicSubnetName, privateSubnetName, key - 1);
-            linkDataList.add(pubToPriv);
-
-            key -= 1;
-            LinkData intToPub = createLinkData("VPC Internet Gateway", publicSubnetName, key - 1);
-            linkDataList.add(intToPub);
-
-            key -= 1;
-            NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,i);
-            nat_node_x += 10; nat_node_y += 400;
-            // nat 기준으로 node data 설정
-            node_x = nat_node_x + 430; node_y = nat_node_y - 460;
-
-            // Available Node 정렬하기
-            List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
+            // linkdata from, to 를 기준으로 zoneRequirement를 정렬시키기
 
             linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
-            List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
 
-            if (zoneRequirements.get(i).getServerNode().size() > 0) {
-                ServerNode(zoneRequirements.get(i).getServerNode(), linkDataList,groupDataList,nodeDataList,node_x, node_y, key, privateSubnetName,originalprivatesubnetname);
-            }
 
-            if (availalbeNodes.size()> 0) {
-                // ALB node 생성 및 node 연결
-                Available(linkDataList,groupDataList,nodeDataList,availableNodes, node_x, node_y, key, privateSubnetName);
+            for(int i = 0; i < zoneRequirements.size(); i++){
+                String zone_name = zoneRequirements.get(i).getName();
+                for(LinkData linkdata : linkDataList){
+                    if(linkdata.getFrom().contains(zone_name) && linkdata.getFrom().contains("Public")){
+                        originalpublicsubnetname = linkdata.getFrom();
+                    }
+                    if(linkdata.getTo().contains(zone_name) && linkdata.getTo().contains("Private")){
+                        originalprivatesubnetname = linkdata.getTo();
+                    }
+                }
+
+
+                String publicSubnetName = originalpublicsubnetname + 2;
+                String privateSubnetName = originalprivatesubnetname + 2;
+
+                // Availalbe Zone 생성
+                NodeData publicSubnetNode = createNodeData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
+                nodeDataList.add(publicSubnetNode);
+
+                NodeData privateSubnetNode = createNodeData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(0,164,166)",null);
+                nodeDataList.add(privateSubnetNode);
+
+                // link 정보 연결하기
+                LinkData pubToPriv = createLinkData(publicSubnetName, privateSubnetName, key - 1);
+                linkDataList.add(pubToPriv);
+
+                key -= 1;
+                LinkData intToPub = createLinkData("VPC Internet Gateway", publicSubnetName, key - 1);
+                linkDataList.add(intToPub);
+
+                key -= 1;
+                NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,i);
+                nat_node_x += 10; nat_node_y += 400;
+                // nat 기준으로 node data 설정
+                node_x = nat_node_x + 430; node_y = nat_node_y - 460;
+
+                // Available Node 정렬하기
+                List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
+
+                linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
+                List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
+
+                List<String> serverNodes = zoneRequirements.get(i).getServerNode();
+
+                if (zoneRequirements.get(i).getServerNode().size() > 0) {
+                    ServerNode(serverNodes, linkDataList,groupDataList,nodeDataList,node_x, node_y, key, privateSubnetName,originalprivatesubnetname);
+                }
+                // ALB 추가
+
+                System.out.println("zoneRequirements  : " + zoneRequirements);
+                // 여기서 sererNode를 통해서 AutoScaling Group으로 분리 ...
+                // 그리고 해당 AutoScalingGroup에 저 것들이 포함되어 있다면,, 해당 ALB를 진행을 한다.
+                if (zoneRequirements.get(i).getServerNode().size() > 0 && availalbeNodes.size()> 0) {
+                    // ALB node 생성 및 node 연결
+                    ServerandAvailable(linkDataList,groupDataList,nodeDataList,availableNodes,node_x, node_y, key, privateSubnetName);
+                }
+
+//                if (availalbeNodes.size()> 0) {
+//                    // ALB node 생성 및 node 연결
+//                    Available(linkDataList,groupDataList,nodeDataList,availableNodes, node_x, node_y, key, privateSubnetName);
+//                }
+
+
+                // 마지막 linked list 제거를 해야 한다. [ 추가 ]
+
             }
         }
+
+
     }
 
+    public void ServerandAvailable(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNodes, double nodeX, double nodeY, int key, String privateSubnetName) {
+        // AZ에 AutoScalingGroup이 속해 있다면 ?
+
+        // 1. 서버 수 조절에 트래픽 조절에 포함되어 있다면?
+
+        // 2. 서버 수 조절 그룹 -> 트래픽 조절 연결을 한다.
+
+        // 3. 서버 수 Auto Scaling Group 포함되어 있으면 그때로 ALB 처리
+
+        // 4. 서버 수 조절에 트래픽 조절에 포함되어 있지 않다면 그대로 처리
+
+        System.out.println("여기까지 들어오나 ? " );
+
+        for(String node : availableNodes)
+        {
+            // NodeData 복사 시작
+            List<NodeData> node_temp_list = new ArrayList<>();
+            String security_group = "";
+
+            // ALB Node 생성
+            NodeData AlbNode;
+            AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
+
+            // internet gateway to ALB
+            LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
+            linkDataList.add(addIntoALB);
+
+            // ALB to security Group
+            LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
+            linkDataList.add(addALBintoGroup);
+
+            // node 추가하기
+            boolean includeGroup = true;
+            System.out.println("groupDataList : " + groupDataList);
+            if (node.contains("Security Group")){
+                security_group= node + "a";
+                // 이미 기존에 있는 그룹일테니깐 ... 그 그룹에다가 선택을 하는 거지 ...
+                for (GroupData groupdata : groupDataList){
+
+                    if(groupdata.getKey().equals(security_group)){
+                        GroupData new_security_group = groupdata;
+                        addLinkSecurityGroup(new_security_group,linkDataList,AlbNode, key-=1);
+                        includeGroup = false;
+                    }
+                }
+                if(includeGroup){
+                    // 새로운 그룹 생성하고 그룹과 alb의 연결
+                    GroupData new_security_group = createAndConfigureGroupData(security_group, privateSubnetName);
+                    addSecurityGroup(node,security_group,new_security_group,groupDataList,nodeDataList,linkDataList,node_temp_list,node_x,node_y,AlbNode, key-=1);
+                }
+
+            }
+
+            else if(node.contains("EC2")){
+                // 새로운 인스턴스 생성하고, alb과 노드들과의 연결
+                double[] newCoordinates = addNode(node,groupDataList,nodeDataList,linkDataList,AlbNode,node_x,node_y,privateSubnetName, key-=1);
+                node_x = newCoordinates[0];
+                node_y = newCoordinates[1];
+            }
+
+
+            nodeDataList.add(AlbNode);
+            alb_index +=1 ;
+            alb_node_x += 220;
+            alb_node_y += 10;
+
+        }
+
+
+
+    }
+
+    private double[] addLinkSecurityGroup( GroupData new_security_group, List<LinkData> linkDataList, NodeData albNode, int key) {
+
+        // ALB Node와 연결
+        LinkData albtogroup = createLinkData(albNode.getKey(),new_security_group.getKey(),key-=1);
+        System.out.println("albtogroup: " + albtogroup);
+        linkDataList.add(albtogroup);
+        return new double[]{node_x, node_y};
+
+    }
 
 
     public List<String> LinkDataSort(List<LinkData> linkDataList, List<String> availableNodes) {
@@ -380,7 +483,6 @@ public class AvailableService {
 
         }
 
-
     }
 
     public double[] addNode(String node, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList, NodeData AlbNode, double node_x, double node_y, String privateSubnetName, int Key) {
@@ -409,6 +511,7 @@ public class AvailableService {
         }
         for (NodeData nodedata : nodeDataList) {
             if (nodedata.getGroup().equals(node)) {
+                System.out.println("기존의 있는 nodedata +" + node);
                 node_temp_list.add(nodedata);
             }
         }
