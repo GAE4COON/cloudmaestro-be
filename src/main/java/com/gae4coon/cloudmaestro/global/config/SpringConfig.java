@@ -1,5 +1,4 @@
 package com.gae4coon.cloudmaestro.global.config;
-
 import com.gae4coon.cloudmaestro.global.config.exception.JwtAccessDeniedHandler;
 import com.gae4coon.cloudmaestro.global.config.exception.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +14,15 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.springframework.security.config.Customizer.withDefaults;
 
 
 @Configuration
@@ -27,8 +35,7 @@ public class SpringConfig {
 
     private static final String[] WHITE_LIST = {
             "/api/v1/users-api/**",
-            "/api/v1/test-api/**",
-            "/**"
+            "/api/v1/test-api/**"
     };
 
     @Bean
@@ -36,38 +43,41 @@ public class SpringConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Bean
-    public WebSecurityCustomizer webSecurityCustomizer() {
-        return (web) -> web.ignoring().requestMatchers("/favicon.ico");
-    }
-
-    @Bean
-    public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration authenticationConfiguration
-    ) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
 
     @Bean
     protected SecurityFilterChain config(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())
                 .formLogin(form -> form.disable())
-                //.headers(headers -> headers.frameOptions(frameOptions -> frameOptions.disable()))
-                .authorizeRequests(authorize -> authorize
-                        .requestMatchers("/api/v1/test-api/**").access("hasRole('business')")
-                        .requestMatchers(WHITE_LIST).permitAll()
-                        .requestMatchers("/v3/api-docs/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll()
-                        .anyRequest().authenticated()) // 그외 인증없이 접근X
-                .sessionManagement(session -> session.sessionCreationPolicy(
-                        SessionCreationPolicy.STATELESS))
-                // .exceptionHandling(e -> e //권한 없으면 해당 error 뜨게끔
-                //          .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                //          .accessDeniedHandler(jwtAccessDeniedHandler))
-                .apply(new JWTConfig(tokenProvider));
+                .csrf(c -> c.disable())
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
+                .headers(c -> c.frameOptions(f -> f.disable()).disable())
+                .authorizeHttpRequests(auth -> {
+                    try {
+                        auth
+                            .requestMatchers(WHITE_LIST).permitAll()
+                            .anyRequest().authenticated();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                .apply(new JWTConfig(tokenProvider));
+
 
         return http.build();
+    }
+
+    @Bean
+    public CorsConfigurationSource  corsConfigurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Content-Type", "Authorization", "X-XSRF-token"));
+        configuration.setAllowCredentials(false);
+        configuration.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 
 }

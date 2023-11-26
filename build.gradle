@@ -28,6 +28,8 @@ dependencies {
     implementation 'org.springframework.security:spring-security-config'
 
     implementation 'org.projectlombok:lombok:1.18.22'
+    implementation 'org.testng:testng:7.1.0'
+    implementation 'org.testng:testng:7.1.0'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
 
     annotationProcessor('org.projectlombok:lombok')
