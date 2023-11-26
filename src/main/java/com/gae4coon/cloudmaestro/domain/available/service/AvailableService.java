@@ -6,6 +6,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -105,18 +106,14 @@ public class AvailableService {
                 System.out.println("zoneRequirements  : " + zoneRequirements);
                 // 여기서 sererNode를 통해서 AutoScaling Group으로 분리 ...
                 // 그리고 해당 AutoScalingGroup에 저 것들이 포함되어 있다면,, 해당 ALB를 진행을 한다.
-                if (zoneRequirements.get(i).getServerNode().size() > 0 && availalbeNodes.size()> 0) {
+                if (availalbeNodes.size()> 0) {
                     // ALB node 생성 및 node 연결
                     ServerandAvailable(linkDataList,groupDataList,nodeDataList,availableNodes,node_x, node_y, key, privateSubnetName);
                 }
 
-//                if (availalbeNodes.size()> 0) {
-//                    // ALB node 생성 및 node 연결
-//                    Available(linkDataList,groupDataList,nodeDataList,availableNodes, node_x, node_y, key, privateSubnetName);
-//                }
 
+                // 자꾸 에러가 나서 .. 마지막에 정리를 하는 것으로 변경
 
-                // 마지막 linked list 제거를 해야 한다. [ 추가 ]
 
             }
         }
@@ -124,18 +121,10 @@ public class AvailableService {
 
     }
 
-    public void ServerandAvailable(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNodes, double nodeX, double nodeY, int key, String privateSubnetName) {
-        // AZ에 AutoScalingGroup이 속해 있다면 ?
-
-        // 1. 서버 수 조절에 트래픽 조절에 포함되어 있다면?
-
-        // 2. 서버 수 조절 그룹 -> 트래픽 조절 연결을 한다.
-
-        // 3. 서버 수 Auto Scaling Group 포함되어 있으면 그때로 ALB 처리
-
-        // 4. 서버 수 조절에 트래픽 조절에 포함되어 있지 않다면 그대로 처리
-
+    public List<LinkData> ServerandAvailable(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNodes, double nodeX, double nodeY, int key, String privateSubnetName) {
         System.out.println("여기까지 들어오나 ? " );
+        // 삭제할 linked list 가져오기
+        List<LinkData> delete_linked_list = new ArrayList<>();
 
         for(String node : availableNodes)
         {
@@ -151,14 +140,14 @@ public class AvailableService {
             LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
             linkDataList.add(addIntoALB);
 
-            // ALB to security Group
+            // ALB to 기존 Node
             LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
             linkDataList.add(addALBintoGroup);
-
             // node 추가하기
             boolean includeGroup = true;
             System.out.println("groupDataList : " + groupDataList);
             if (node.contains("Security Group")){
+
                 security_group= node + "a";
                 // 이미 기존에 있는 그룹일테니깐 ... 그 그룹에다가 선택을 하는 거지 ...
                 for (GroupData groupdata : groupDataList){
@@ -167,6 +156,7 @@ public class AvailableService {
                         GroupData new_security_group = groupdata;
                         addLinkSecurityGroup(new_security_group,linkDataList,AlbNode, key-=1);
                         includeGroup = false;
+                        break;
                     }
                 }
                 if(includeGroup){
@@ -178,10 +168,51 @@ public class AvailableService {
             }
 
             else if(node.contains("EC2")){
-                // 새로운 인스턴스 생성하고, alb과 노드들과의 연결
-                double[] newCoordinates = addNode(node,groupDataList,nodeDataList,linkDataList,AlbNode,node_x,node_y,privateSubnetName, key-=1);
-                node_x = newCoordinates[0];
-                node_y = newCoordinates[1];
+
+                // Ec2를 선택을 했는데 같은 계층에 ec2 중 auto scaling group 이 있다면 그것과 연결을 하기
+                String To = "";
+                boolean nodeExists = false;
+                for(LinkData linkData : linkDataList){
+                    if(linkData.getFrom().equals(node)){
+                        To = linkData.getTo();
+                        break;
+                    }
+                }
+
+                System.out.println("To" + To);
+
+                boolean includeEc2 = false;
+                // 같은 To를 향한 node 중에 auto scaling group이 있다면 ?
+                for(LinkData linkData : linkDataList){
+                    if(linkData.getTo().equals(To)){
+                        for(NodeData nodeData : nodeDataList){
+                            if(nodeData.getKey().equals(linkData.getFrom()) &&
+                                    nodeData.getGroup().contains("Auto Scaling")){
+                                    node = nodeData.getKey();
+                                    includeEc2 = true;
+                                    break;
+                            }
+                        }
+                    }
+                }
+
+                if(includeEc2){
+                    System.out.println("들어와라 ㅠㅠ ");
+
+                    LinkData albtogroup = createLinkData(AlbNode.getKey(),node+"a",key-=1);
+                    if(!linkDataList.contains(albtogroup)){
+                        System.out.println("albtogroup: " + albtogroup);
+                        linkDataList.add(albtogroup);
+                    }
+
+                }
+                if(!includeEc2){
+                    System.out.println("들어와라 ㅠㅠ ");
+                    double[] newCoordinates = addNode(node,groupDataList,nodeDataList,linkDataList,AlbNode,node_x,node_y,privateSubnetName, key-=1);
+                    node_x = newCoordinates[0];
+                    node_y = newCoordinates[1];
+                }
+
             }
 
 
@@ -192,7 +223,28 @@ public class AvailableService {
 
         }
 
+        return delete_linked_list;
 
+    }
+
+    public double[] addLinkNode(NodeData nodeData, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList, NodeData albNode, double nodeX, double nodeY, String privateSubnetName, int key) {
+        String node_name = nodeData.getKey() + "a";
+        NodeData nodedata = new NodeData();
+        node_x += 150;
+        nodedata.setGroup(privateSubnetName);
+        nodedata.setText("EC2");
+        nodedata.setType("Compute");
+        nodedata.setKey(node_name);
+        nodedata.setSource( "/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
+        String newLoc = (node_x) + " " + (node_y);
+        nodedata.setLoc(newLoc);
+        nodedata.setIsGroup(null);
+
+        nodeDataList.add(nodedata);
+        LinkData albtogroup = createLinkData(albNode.getKey(),nodedata.getKey(),key-=1);
+        System.out.println("albtogroup: " + albtogroup);
+        linkDataList.add(albtogroup);
+        return new double[]{node_x, node_y};
 
     }
 
@@ -282,7 +334,7 @@ public class AvailableService {
                     Auto_index += 1;
                     addCopyNode(exceptNode2, groupDataList, nodeDataList, privateSubnetName, Auto_index, text_index);
 
-                    removeLinkandNode(exceptNode2, linkDataList, nodeDataList);
+                    removeNode(exceptNode2, linkDataList, nodeDataList);
                 }
             }
 
@@ -294,7 +346,7 @@ public class AvailableService {
 
     }
 
-    public void removeLinkandNode(List<String> exceptNode, List<LinkData> linkDataList, List<NodeData> nodeDataList) {
+    public void removeNode(List<String> exceptNode, List<LinkData> linkDataList, List<NodeData> nodeDataList) {
         List<NodeData> exceptNode2 = new ArrayList<>(); // 올바른 리스트 초기화
         for (int i = 0; i < exceptNode.size(); i++) {
             for (NodeData nodedata : nodeDataList) {
