@@ -11,6 +11,8 @@ import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
 import com.gae4coon.cloudmaestro.domain.resource.service.AddResourceService;
 import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DnsMultiService;
+import com.gae4coon.cloudmaestro.domain.naindae.service.RegionService;
+import com.gae4coon.cloudmaestro.domain.naindae.service.RequirementService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -34,6 +36,9 @@ public class AllRequirementService {
     private final AvailableService availableService;
     private final BackupService backupService;
     private final DnsMultiService dnsMultiService;
+    private final RegionService regionService;
+    private final RequirementService requirementService;
+
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
@@ -49,12 +54,12 @@ public class AllRequirementService {
         List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
         List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-
+        requirementService.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 
         // Service 데이터 임시 위치 할당
@@ -66,9 +71,8 @@ public class AllRequirementService {
 
 
         //System.out.println("requriement data : " + available);
-        availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
+        //availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
-
 
         return response;
     }
