@@ -116,6 +116,9 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
     public List<NodeData> modifyNodeDataForNewRegion(List<NodeData> originalNodeDataList) {
         List<NodeData> modifiedList = new ArrayList<>();
         for (NodeData node : originalNodeDataList) {
+            if (node.getKey().contains("Route 53")){
+                continue;
+            }
             NodeData newNode = new NodeData();
             newNode.setText(node.getText());
             String[] locParts = node.getLoc().split(" ");
