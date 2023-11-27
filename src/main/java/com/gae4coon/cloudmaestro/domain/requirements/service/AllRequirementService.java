@@ -70,14 +70,10 @@ public class AllRequirementService {
         }
 
 
-<<<<<<< HEAD
         //System.out.println("requriement data : "x + available);
         System.out.println("ReuqireDiagramDTO : " + requireDiagramDTO);
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
-=======
-        //System.out.println("requriement data : " + available);
-        //availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
->>>>>>> 7a4d19a734213598e2668459cc822ac66a281510
+
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
         return response;
