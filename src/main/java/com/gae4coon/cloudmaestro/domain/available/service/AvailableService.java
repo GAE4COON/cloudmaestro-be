@@ -20,7 +20,8 @@ public class AvailableService {
     public double nat_node_x; public double nat_node_y;
     public void availalbeService(RequireDiagramDTO requireDiagramDTO, List<NodeData>nodeDataList, List<GroupData> groupDataList, List<LinkData>linkDataList) {
 
-        if( requireDiagramDTO.getRequirementData().getZones().get(0).getAvailableNode().size() > 0 ||
+        if( requireDiagramDTO.getRequirementData().getZones() != null  &&
+                requireDiagramDTO.getRequirementData().getZones().get(0).getAvailableNode().size() > 0 ||
                 requireDiagramDTO.getRequirementData().getZones().get(0).getServerNode().size() > 0
         ){
             List<ZoneDTO> zoneRequirements = requireDiagramDTO.getRequirementData().getZones();
@@ -64,7 +65,6 @@ public class AvailableService {
 
     public void DeleteLinkedList(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<LinkData> deleteLink) {
         // A -> TO -> FROM 이 같은 경우 //
-        System.out.println("deletelink" + deleteLink);
         List<LinkData> temp = new ArrayList<>();
         for(LinkData linkdata : linkDataList){
             for (LinkData linkdata2 : linkDataList){
@@ -73,11 +73,6 @@ public class AvailableService {
                 }
             }
         }
-
-
-
-
-        System.out.println("temp" + temp);
         linkDataList.remove(deleteLink);
 
     }
@@ -299,13 +294,11 @@ public class AvailableService {
     public void linkEc2andALB(NodeData AlbNode, String node, int key,List<LinkData> linkDataList) {
         LinkData addALBintoEC2 = createLinkData(AlbNode.getKey(), node, key - 1);
         if(!linkDataList.contains(addALBintoEC2)){
-            System.out.println("albtogroup: " + addALBintoEC2);
             linkDataList.add(addALBintoEC2);
         }
 
         LinkData albtogroup = createLinkData(AlbNode.getKey(),node+"a",key-=1);
         if(!linkDataList.contains(albtogroup)){
-            System.out.println("albtogroup: " + albtogroup);
             linkDataList.add(albtogroup);
         }
     }
@@ -314,7 +307,6 @@ public class AvailableService {
 
         // ALB Node와 연결
         LinkData albtogroup = createLinkData(albNode.getKey(),new_security_group.getKey(),key-=1);
-        System.out.println("albtogroup: " + albtogroup);
         linkDataList.add(albtogroup);
         return new double[]{node_x, node_y};
 
@@ -444,14 +436,10 @@ public class AvailableService {
                 }
         }
 
-
-
-        System.out.println("ExceptNode: " + ExceptNode);
         return ExceptNode;
     }
 
     public GroupData createAutoGroup(String security_group, int index, int text_index, List<NodeData> nodeDataList, List<GroupData> groupDataList, String privateSubnetName) {
-        System.out.println("SecurityGroup: " + security_group);
         GroupData autogroup = new GroupData();
         autogroup.setKey(security_group);
         autogroup.setText(security_group);
@@ -516,7 +504,6 @@ public class AvailableService {
 
         nodeDataList.add(nodedata);
         LinkData albtogroup = createLinkData(AlbNode.getKey(),nodedata.getKey(),Key-=1);
-        System.out.println("albtogroup: " + albtogroup);
         linkDataList.add(albtogroup);
         return new double[]{node_x, node_y};
     }
@@ -527,7 +514,6 @@ public class AvailableService {
         }
         for (NodeData nodedata : nodeDataList) {
             if (nodedata.getGroup().equals(node)) {
-                System.out.println("기존의 있는 nodedata +" + node);
                 node_temp_list.add(nodedata);
             }
         }
@@ -545,7 +531,6 @@ public class AvailableService {
             copiedNode.setLoc(newLoc);
             nodeDataList.add(copiedNode);
         }
-        System.out.println("security_group: "+new_security_group);
         // ALB Node와 연결
         LinkData albtogroup = createLinkData(AlbNode.getKey(),new_security_group.getKey(),key -=1);
         System.out.println("albtogroup: " + albtogroup);
@@ -681,7 +666,6 @@ public class AvailableService {
 
                 // 일단 AutoGroup은 복사를 한다.
                 GroupData CopyAutoGroup = createAutoGroup(node + "a" , Auto_index, text_index, nodeDataList, groupDataList,privateSubnetName);
-                System.out.println("CopyAutoGroup: "+ CopyAutoGroup);
 
                 // NodeData 순환하기
                 List<NodeData> newNodes = new ArrayList<>(); // 새로운 노드를 저장할 리스트
@@ -711,7 +695,6 @@ public class AvailableService {
             if(node.contains("EC2")){
 
                 System.out.println("2222" + exceptNode2);
-                System.out.println("Node" + node);
                 boolean exit = true;
                 for(String except : exceptNode2){
                     if(except.equals(node)){
@@ -719,8 +702,6 @@ public class AvailableService {
                     }
                 }
                 if (exceptNode2.isEmpty() || exit) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
-                    System.out.println("Except2Node" + exceptNode2);
-                    System.out.println("Node" + node);
 
                     exceptNode2 = ExceptandAddInvidiualNode(nodeDataList, linkDataList, groupDataList, node);
                     // Available 에 Node 넣기
