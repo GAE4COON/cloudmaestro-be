@@ -27,6 +27,8 @@ public class DnsMultiService {
 
         // globalRequirements에 특정 문자열이 포함되어 있는지 확인
         if (globalRequirements.contains("DNS 서버 이중화") || globalRequirements.contains("이중화")) {
+            boolean route53Exists = nodeDataList.stream()
+                    .anyMatch(node -> node.getKey().contains("Route 53"));
 
             List<NodeData> newNodeDataList = new ArrayList<>();
             List<GroupData> newGroupDataList = new ArrayList<>();
@@ -40,13 +42,16 @@ public class DnsMultiService {
 
             String newLoc = (location.getX()-350) + " " + (location.getY()+300);
             String cdnLoc = (location.getX()-220) + " " + (location.getY()+300);
-            NodeData routeNode = new NodeData();
-            routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
-            routeNode.setText("Route 53");
-            routeNode.setLoc(newLoc); // 계산된 위치 설정
-            routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
-            routeNode.setType("Networking-Content-Delivery");
-            nodeDataList.add(routeNode);
+
+            if (!route53Exists) {
+                NodeData routeNode = new NodeData();
+                routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
+                routeNode.setText("Route 53");
+                routeNode.setLoc(newLoc); // 계산된 위치 설정
+                routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
+                routeNode.setType("Networking-Content-Delivery");
+                nodeDataList.add(routeNode);
+            }
 
             NodeData cdnNode = new NodeData();
             cdnNode.setKey("CloudFront"); // NAT 키를 고유하게 만듦
@@ -63,21 +68,33 @@ public class DnsMultiService {
             groupDataList.addAll(newGroupDataList);
             linkDataList.addAll(newLinkDataList);
         } else {
-            System.out.println("no require");
+            System.out.println("");
         }
     }
     public Point2D findRouteLoc(List<NodeData> nodeDataList) {
         double minX = Double.MAX_VALUE;
         double minY = 0;
         for (NodeData node : nodeDataList) {
-            String location = node.getLoc();
-            String[] locParts = location.split(" ");
-            double x = Double.parseDouble(locParts[0]);
-            double y = Double.parseDouble(locParts[1]);
+            try {
+                String location = node.getLoc();
+                if (location == null || location.isEmpty()) {
+                    throw new IllegalArgumentException("Location is null or empty for node: " + node);
+                }
 
-            if (x < minX) {
-                minX = x;
-                minY = y;
+                String[] locParts = location.split(" ");
+                if (locParts.length != 2) {
+                    throw new IllegalArgumentException("Location format is incorrect for node: " + node);
+                }
+                double x = Double.parseDouble(locParts[0]);
+                double y = Double.parseDouble(locParts[1]);
+
+                if (x < minX) {
+                    minX = x;
+                    minY = y;
+                }
+            }
+            catch (NumberFormatException e) {
+            } catch (IllegalArgumentException e) {
             }
         }
         return new Point2D.Double(minX, minY);
