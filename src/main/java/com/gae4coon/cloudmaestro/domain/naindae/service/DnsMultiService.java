@@ -35,7 +35,9 @@ public class DnsMultiService {
             List<LinkData> newLinkDataList = new ArrayList<>();
 
             newNodeDataList = regionService.modifyNodeDataForNewRegion(nodeDataList);
+
             newGroupDataList = regionService.modifyGroupDataForNewRegion(groupDataList);
+
             newLinkDataList = regionService.modifyLinkDataForNewRegion(linkDataList);
 
             Point2D location = findRouteLoc(nodeDataList);

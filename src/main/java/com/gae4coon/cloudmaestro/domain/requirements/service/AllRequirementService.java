@@ -59,7 +59,6 @@ public class AllRequirementService {
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
-        diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         requirementService.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
