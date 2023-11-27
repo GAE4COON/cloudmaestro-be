@@ -19,7 +19,7 @@ public class GroupData{
 
     private String type;
     private String stroke;
-
+    private String loc;
     @Builder
     GroupData(String key, String text, Boolean isGroup, String type, String stroke) {
         this.key = key;

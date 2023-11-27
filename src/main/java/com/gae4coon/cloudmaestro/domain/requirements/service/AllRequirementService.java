@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
 import com.gae4coon.cloudmaestro.domain.logging.service.LoggingService;
+import com.gae4coon.cloudmaestro.domain.naindae.service.DnsService;
 import com.gae4coon.cloudmaestro.domain.refactor.service.BackupService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
@@ -38,7 +39,7 @@ public class AllRequirementService {
     private final DnsMultiService dnsMultiService;
     private final RegionService regionService;
     private final RequirementService requirementService;
-
+    private final DnsService dnsService;
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
@@ -57,9 +58,10 @@ public class AllRequirementService {
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         requirementService.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 
         // Service 데이터 임시 위치 할당
