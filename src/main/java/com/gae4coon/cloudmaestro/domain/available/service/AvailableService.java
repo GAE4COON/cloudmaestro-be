@@ -20,48 +20,50 @@ public class AvailableService {
     public double nat_node_x; public double nat_node_y;
     public void availalbeService(RequireDiagramDTO requireDiagramDTO, List<NodeData>nodeDataList, List<GroupData> groupDataList, List<LinkData>linkDataList) {
 
-        if( requireDiagramDTO.getRequirementData().getZones() != null  &&
-                requireDiagramDTO.getRequirementData().getZones().get(0).getAvailableNode().size() > 0 ||
-                requireDiagramDTO.getRequirementData().getZones().get(0).getServerNode().size() > 0
-        ){
-            List<ZoneDTO> zoneRequirements = requireDiagramDTO.getRequirementData().getZones();
+            if (    ! requireDiagramDTO.getRequirementData().getZones().isEmpty()
+            ) {
+                if (    requireDiagramDTO.getRequirementData().getZones().get(0).getAvailableNode().size() > 0 ||
+                        requireDiagramDTO.getRequirementData().getZones().get(0).getServerNode().size() > 0) {
+                    List<ZoneDTO> zoneRequirements = requireDiagramDTO.getRequirementData().getZones();
 
-            // 위치 정보가 제일 높은 Y의 Node를 선택을 함
-            defaulSetting(nodeDataList,linkDataList,groupDataList,nat_node_x,nat_node_y);
-            int key = -10;
+                    // 위치 정보가 제일 높은 Y의 Node를 선택을 함
+                    defaulSetting(nodeDataList, linkDataList, groupDataList, nat_node_x, nat_node_y);
+                    int key = -10;
 
-            for(int i = 0; i < zoneRequirements.size(); i++){
-                String zone_name = zoneRequirements.get(i).getName();
-                madeSubnetName(linkDataList,zone_name);
+                    for (int i = 0; i < zoneRequirements.size(); i++) {
+                        String zone_name = zoneRequirements.get(i).getName();
+                        madeSubnetName(linkDataList, zone_name);
 
-                String publicSubnetName = originalpublicsubnetname + 2;
-                String privateSubnetName = originalprivatesubnetname + 2;
+                        String publicSubnetName = originalpublicsubnetname + 2;
+                        String privateSubnetName = originalprivatesubnetname + 2;
 
-                // Availalbe Zone 생성
-                madeAvaliableZone(publicSubnetName,privateSubnetName,nodeDataList,linkDataList,key);
+                        // Availalbe Zone 생성
+                        madeAvaliableZone(publicSubnetName, privateSubnetName, nodeDataList, linkDataList, key);
 
-                // Available Node 정렬하기
-                List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
+                        // Available Node 정렬하기
+                        List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
 
-                linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
-                List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
+                        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
+                        List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
 
-                List<String> serverNodes = zoneRequirements.get(i).getServerNode();
-                List<LinkData> deleteLink = new ArrayList<>();
+                        List<String> serverNodes = zoneRequirements.get(i).getServerNode();
+                        List<LinkData> deleteLink = new ArrayList<>();
 
-                if (zoneRequirements.get(i).getServerNode().size() > 0) {
-                    ServerNode(serverNodes, linkDataList,groupDataList,nodeDataList,node_x, node_y, key, privateSubnetName,originalprivatesubnetname,deleteLink);
+                        if (zoneRequirements.get(i).getServerNode().size() > 0) {
+                            ServerNode(serverNodes, linkDataList, groupDataList, nodeDataList, node_x, node_y, key, privateSubnetName, originalprivatesubnetname, deleteLink);
+                        }
+                        if (availalbeNodes.size() > 0) {
+                            // ALB node 생성 및 node 연결
+                            ServerandAvailable(linkDataList, groupDataList, nodeDataList, availableNodes, node_x, node_y, key, privateSubnetName);
+                        }
+                        // 마지막에 linked list data 정리 ..
+                        DeleteLinkedList(nodeDataList, linkDataList, deleteLink);
+
+                    }
                 }
-                if (availalbeNodes.size()> 0) {
-                    // ALB node 생성 및 node 연결
-                    ServerandAvailable(linkDataList,groupDataList,nodeDataList,availableNodes,node_x, node_y, key, privateSubnetName);
-                }
-                // 마지막에 linked list data 정리 ..
-                DeleteLinkedList(nodeDataList,linkDataList,deleteLink);
-
             }
         }
-    }
+
 
     public void DeleteLinkedList(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<LinkData> deleteLink) {
         // A -> TO -> FROM 이 같은 경우 //
@@ -141,141 +143,140 @@ public class AvailableService {
 
     }
 
-    public List<LinkData> ServerandAvailable(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNodes, double nodeX, double nodeY, int key, String privateSubnetName) {
-        // 삭제할 linked list 가져오기
-        List<LinkData> delete_linked_list = new ArrayList<>();
-
-        for(String node : availableNodes)
+    public List<LinkData> ServerandAvailable(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNodes, double nodeX, double nodeY, int key, String privateSubnetName)
         {
-            // NodeData 복사 시작
-            List<NodeData> node_temp_list = new ArrayList<>();
-            String security_group = "";
+            // 삭제할 linked list 가져오기
+            List<LinkData> delete_linked_list = new ArrayList<>();
 
-            // ALB Node 생성makeALBandInternet
-            NodeData AlbNode;
+            for (String node : availableNodes) {
+                // NodeData 복사 시작
+                List<NodeData> node_temp_list = new ArrayList<>();
+                String security_group = "";
 
-            // node 추가하기
-            boolean includeGroup = true;
-            boolean includeALB = true;
-            System.out.println("groupDataList : " + groupDataList);
-            if (node.contains("Security Group")){
+                // ALB Node 생성makeALBandInternet
+                NodeData AlbNode;
 
-                security_group= node + "a";
-                AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
+                // node 추가하기
+                boolean includeGroup = true;
+                boolean includeALB = true;
+                System.out.println("groupDataList : " + groupDataList);
+                if (node.contains("Security Group")) {
 
-                // internet gateway to ALB
-                LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
-                linkDataList.add(addIntoALB);
+                    security_group = node + "a";
+                    AlbNode = makeALb(alb_index, alb_node_x, alb_node_y);
 
-                // ALB to 기존 Node
-                LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
-                linkDataList.add(addALBintoGroup);
-                nodeDataList.add(AlbNode);
-                // 이미 기존에 있는 그룹일테니깐 ... 그 그룹에다가 선택을 하는 거지 ...
-                for (GroupData groupdata : groupDataList){
+                    // internet gateway to ALB
+                    LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
+                    linkDataList.add(addIntoALB);
 
-                    if(groupdata.getKey().equals(security_group)){
-                        GroupData new_security_group = groupdata;
-                        addLinkSecurityGroup(new_security_group,linkDataList,AlbNode, key-=1);
-                        includeGroup = false;
-                        break;
+                    // ALB to 기존 Node
+                    LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
+                    linkDataList.add(addALBintoGroup);
+                    nodeDataList.add(AlbNode);
+                    // 이미 기존에 있는 그룹일테니깐 ... 그 그룹에다가 선택을 하는 거지 ...
+                    for (GroupData groupdata : groupDataList) {
+
+                        if (groupdata.getKey().equals(security_group)) {
+                            GroupData new_security_group = groupdata;
+                            addLinkSecurityGroup(new_security_group, linkDataList, AlbNode, key -= 1);
+                            includeGroup = false;
+                            break;
+                        }
                     }
-                }
-                if(includeGroup){
-                    // 새로운 그룹 생성하고 그룹과 alb의 연결
-                    GroupData new_security_group = createAndConfigureGroupData(security_group, privateSubnetName);
-                    addSecurityGroup(node,security_group,new_security_group,groupDataList,nodeDataList,linkDataList,node_temp_list,node_x,node_y,AlbNode, key-=1);
-                }
-
-            }
-
-            else if(node.contains("EC2")){
-
-                // Ec2를 선택을 했는데 같은 계층에 ec2 중 auto scaling group 이 있다면 그것과 연결을 하기
-                String To = "";
-                boolean nodeExists = false;
-                for(LinkData linkData : linkDataList){
-                    if(linkData.getFrom().equals(node)){
-                        To = linkData.getTo();
-                        break;
+                    if (includeGroup) {
+                        // 새로운 그룹 생성하고 그룹과 alb의 연결
+                        GroupData new_security_group = createAndConfigureGroupData(security_group, privateSubnetName);
+                        addSecurityGroup(node, security_group, new_security_group, groupDataList, nodeDataList, linkDataList, node_temp_list, node_x, node_y, AlbNode, key -= 1);
                     }
-                }
 
-                System.out.println("To" + To);
+                } else if (node.contains("EC2")) {
 
-                boolean includeEc2 = false;
-                // 같은 To를 향한 node 중에 auto scaling group이 있다면 ?
-                for(LinkData linkData : linkDataList){
-                    if(linkData.getTo().equals(To)){
-                        for(NodeData nodeData : nodeDataList){
-                            if(nodeData.getKey().equals(linkData.getFrom()) &&
-                                    nodeData.getGroup().contains("Auto Scaling")){
-                                node = nodeData.getKey();
-                                includeEc2 = true;
-                                break;
+                    // Ec2를 선택을 했는데 같은 계층에 ec2 중 auto scaling group 이 있다면 그것과 연결을 하기
+                    String To = "";
+                    boolean nodeExists = false;
+                    for (LinkData linkData : linkDataList) {
+                        if (linkData.getFrom().equals(node)) {
+                            To = linkData.getTo();
+                            break;
+                        }
+                    }
+
+                    System.out.println("To" + To);
+
+                    boolean includeEc2 = false;
+                    // 같은 To를 향한 node 중에 auto scaling group이 있다면 ?
+                    for (LinkData linkData : linkDataList) {
+                        if (linkData.getTo().equals(To)) {
+                            for (NodeData nodeData : nodeDataList) {
+                                if (nodeData.getKey().equals(linkData.getFrom()) &&
+                                        nodeData.getGroup().contains("Auto Scaling")) {
+                                    node = nodeData.getKey();
+                                    includeEc2 = true;
+                                    break;
+                                }
                             }
                         }
                     }
-                }
 
-                for(LinkData linkdata : linkDataList){
-                    if(linkdata.getFrom().contains("ALB") && linkdata.getTo().equals(node)){
-                        includeALB = false;
-                    }
-                }
-
-                if(includeEc2 && includeALB){
-                    AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
-
-                    // internet gateway to ALB
-                    LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
-                    linkDataList.add(addIntoALB);
-
-                    // ALB to 기존 Node
-                    LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
-                    linkDataList.add(addALBintoGroup);
-
-                    LinkData addALBintoEC2 = createLinkData(AlbNode.getKey(), node, key - 1);
-                    nodeDataList.add(AlbNode);
-                    if(!linkDataList.contains(addALBintoEC2)){
-                        System.out.println("albtogroup: " + addALBintoEC2);
-                        linkDataList.add(addALBintoEC2);
+                    for (LinkData linkdata : linkDataList) {
+                        if (linkdata.getFrom().contains("ALB") && linkdata.getTo().equals(node)) {
+                            includeALB = false;
+                        }
                     }
 
-                    LinkData albtogroup = createLinkData(AlbNode.getKey(),node+"a",key-=1);
-                    if(!linkDataList.contains(albtogroup)){
-                        System.out.println("albtogroup: " + albtogroup);
-                        linkDataList.add(albtogroup);
+                    if (includeEc2 && includeALB) {
+                        AlbNode = makeALb(alb_index, alb_node_x, alb_node_y);
+
+                        // internet gateway to ALB
+                        LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
+                        linkDataList.add(addIntoALB);
+
+                        // ALB to 기존 Node
+                        LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
+                        linkDataList.add(addALBintoGroup);
+
+                        LinkData addALBintoEC2 = createLinkData(AlbNode.getKey(), node, key - 1);
+                        nodeDataList.add(AlbNode);
+                        if (!linkDataList.contains(addALBintoEC2)) {
+                            System.out.println("albtogroup: " + addALBintoEC2);
+                            linkDataList.add(addALBintoEC2);
+                        }
+
+                        LinkData albtogroup = createLinkData(AlbNode.getKey(), node + "a", key -= 1);
+                        if (!linkDataList.contains(albtogroup)) {
+                            System.out.println("albtogroup: " + albtogroup);
+                            linkDataList.add(albtogroup);
+                        }
+
+                    }
+                    if (!includeEc2) {
+                        AlbNode = makeALb(alb_index, alb_node_x, alb_node_y);
+                        System.out.println("hello");
+                        // internet gateway to ALB
+                        LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
+                        linkDataList.add(addIntoALB);
+
+                        // ALB to 기존 Node
+                        LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
+                        linkDataList.add(addALBintoGroup);
+                        nodeDataList.add(AlbNode);
+                        double[] newCoordinates = addNode(node, groupDataList, nodeDataList, linkDataList, AlbNode, node_x, node_y, privateSubnetName, key -= 1);
+                        node_x = newCoordinates[0];
+                        node_y = newCoordinates[1];
                     }
 
                 }
-                if(!includeEc2){
-                    AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
-                    System.out.println("hello");
-                    // internet gateway to ALB
-                    LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
-                    linkDataList.add(addIntoALB);
 
-                    // ALB to 기존 Node
-                    LinkData addALBintoGroup = createLinkData(AlbNode.getKey(), node, key - 1);
-                    linkDataList.add(addALBintoGroup);
-                    nodeDataList.add(AlbNode);
-                    double[] newCoordinates = addNode(node,groupDataList,nodeDataList,linkDataList,AlbNode,node_x,node_y,privateSubnetName, key-=1);
-                    node_x = newCoordinates[0];
-                    node_y = newCoordinates[1];
-                }
+                alb_index += 1;
+                alb_node_x += 220;
+                alb_node_y += 10;
 
             }
 
-            alb_index +=1 ;
-            alb_node_x += 220;
-            alb_node_y += 10;
-
-        }
-
-        return delete_linked_list;
+            return delete_linked_list;
 
     }
+
 
     public void makeALBandInternet(NodeData AlbNode, List<LinkData> linkDataList, int albIndex, double albNodeX, double albNodeY, int key, String node) {
         AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
