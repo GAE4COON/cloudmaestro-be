@@ -92,7 +92,7 @@ public class AvailableService {
         linkDataList.add(pubToPriv);
 
         key -= 1;
-        LinkData intToPub = createLinkData("VPC Internet Gateway", publicSubnetName, key - 1);
+        LinkData intToPub = createLinkData("Internet Gateway", publicSubnetName, key - 1);
         linkDataList.add(intToPub);
 
         key -= 1;
