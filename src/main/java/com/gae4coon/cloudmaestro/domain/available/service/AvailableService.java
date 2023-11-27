@@ -38,7 +38,7 @@ public class AvailableService {
                         String privateSubnetName = originalprivatesubnetname + 2;
 
                         // Availalbe Zone 생성
-                        madeAvaliableZone(publicSubnetName, privateSubnetName, nodeDataList, linkDataList, key);
+                        madeAvaliableZone(publicSubnetName, privateSubnetName, nodeDataList, linkDataList,groupDataList ,key);
 
                         // Available Node 정렬하기
                         List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
@@ -80,19 +80,18 @@ public class AvailableService {
     }
 
 
-    public void madeAvaliableZone(String publicSubnetName, String privateSubnetName, List<NodeData> nodeDataList, List<LinkData> linkDataList, int key) {
-        NodeData publicSubnetNode = createNodeData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
-        nodeDataList.add(publicSubnetNode);
-
-        NodeData privateSubnetNode = createNodeData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(0,164,166)",null);
-        nodeDataList.add(privateSubnetNode);
+    public void madeAvaliableZone(String publicSubnetName, String privateSubnetName, List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList ,int key) {
+        GroupData publicSubnetNode = createGroupData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
+        groupDataList.add(publicSubnetNode);
+        GroupData privateSubnetNode = createGroupData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(0,164,166)",null);
+        groupDataList.add(privateSubnetNode);
 
         // link 정보 연결하기
         LinkData pubToPriv = createLinkData(publicSubnetName, privateSubnetName, key - 1);
         linkDataList.add(pubToPriv);
 
         key -= 1;
-        LinkData intToPub = createLinkData("VPC Internet Gateway", publicSubnetName, key - 1);
+        LinkData intToPub = createLinkData("Internet Gateway", publicSubnetName, key - 1);
         linkDataList.add(intToPub);
 
         key -= 1;
@@ -101,6 +100,7 @@ public class AvailableService {
         // nat 기준으로 node data 설정
         node_x = nat_node_x + 430; node_y = nat_node_y - 460;
     }
+
 
     public void madeSubnetName(List<LinkData> linkDataList,String zone_name) {
         for(LinkData linkdata : linkDataList){
@@ -355,15 +355,14 @@ public class AvailableService {
 
 
     public void addCopyNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String privateSubnetName, int autoIndex, int text_index) {
-        NodeData AutoGroup = new NodeData();
+        GroupData AutoGroup = new GroupData();
         AutoGroup.setIsGroup(true);
         AutoGroup.setStroke("rgb(237,113,0)");
         AutoGroup.setText("Auto Scaling group" + text_index);
         AutoGroup.setKey("Auto Scaling group" + autoIndex);
-        AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
         AutoGroup.setType("AWS_Groups");
         AutoGroup.setGroup(privateSubnetName);
-        nodeDataList.add(AutoGroup);
+        groupDataList.add(AutoGroup);
 
         List<NodeData> newNodes = new ArrayList<>();
         for(NodeData nodedata : nodeDataList){
@@ -375,8 +374,8 @@ public class AvailableService {
                 copiedNode.setText(nodedata.getText());
                 copiedNode.setType(nodedata.getType());
                 copiedNode.setKey(nodedata.getKey() + "a");
-                copiedNode.setSource(nodedata.getSource());
                 copiedNode.setIsGroup(null);
+                copiedNode.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 copiedNode.setGroup("Auto Scaling group" + autoIndex);
                 copiedNode.setLoc(newLoc);
 
@@ -392,7 +391,7 @@ public class AvailableService {
     }
 
     public void addOriginalNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String originalprivatesubnetname, int autoIndex, int text_index) {
-        NodeData AutoGroup = new NodeData();
+        GroupData AutoGroup = new GroupData();
         for(NodeData nodedata : nodeDataList){
             if(nodedata.getKey().equals(exceptNode.get(0))){
                 nodedata.setGroup("Auto Scaling group" + autoIndex);
@@ -400,13 +399,12 @@ public class AvailableService {
                 AutoGroup.setStroke("rgb(237,113,0)");
                 AutoGroup.setText("Auto Scaling group" + text_index);
                 AutoGroup.setKey("Auto Scaling group" + autoIndex);
-                AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
                 AutoGroup.setType("AWS_Groups");
                 AutoGroup.setGroup(originalprivatesubnetname);
 
             }
         }
-        nodeDataList.add(AutoGroup);
+        groupDataList.add(AutoGroup);
 
 
     }
@@ -451,16 +449,15 @@ public class AvailableService {
 
         groupDataList.add(autogroup);
 
-        NodeData AutoGroup = new NodeData();
+        GroupData AutoGroup = new GroupData();
         AutoGroup.setIsGroup(true);
         AutoGroup.setStroke("rgb(237,113,0)");
         AutoGroup.setText("Auto Scaling group" + text_index);
         AutoGroup.setKey("Auto Scaling group" + index);
-        AutoGroup.setSource("/img/AWS_icon/AWS_Groups/Auto_Scaling_group.svg");
         AutoGroup.setType("AWS_Groups");
         AutoGroup.setGroup(privateSubnetName);
 
-        nodeDataList.add(AutoGroup);
+        groupDataList.add(AutoGroup);
         return autogroup;
     }
 
@@ -616,13 +613,12 @@ public class AvailableService {
 
     }
 
-    public NodeData createNodeData(String name, String type, String group, String source, String stroke, String newLoc) {
-        NodeData node = new NodeData();
+    public GroupData createGroupData(String name, String type, String group, String source, String stroke, String newLoc) {
+        GroupData node = new GroupData();
         node.setKey(name);
         node.setText(name);
         node.setIsGroup(true);
         node.setGroup(group);
-        node.setSource(source);
         node.setType(type);
         node.setStroke(stroke);
         if (newLoc != null && !newLoc.isEmpty()) {
