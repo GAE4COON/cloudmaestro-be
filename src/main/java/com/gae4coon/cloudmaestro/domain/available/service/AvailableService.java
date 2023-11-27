@@ -117,9 +117,6 @@ public class AvailableService {
         NodeData highestNode = null;
         highestNode = findNodeWithHighestYCoordinate(nodeDataList);
 
-        System.out.println("highestNode: " +highestNode);
-
-
         String location = highestNode.getLoc();
         // alb node 위치 설정
         String[] locParts = location.split(" ");
@@ -159,7 +156,6 @@ public class AvailableService {
                 // node 추가하기
                 boolean includeGroup = true;
                 boolean includeALB = true;
-                System.out.println("groupDataList : " + groupDataList);
                 if (node.contains("Security Group")) {
 
                     security_group = node + "a";
@@ -200,9 +196,6 @@ public class AvailableService {
                             break;
                         }
                     }
-
-                    System.out.println("To" + To);
-
                     boolean includeEc2 = false;
                     // 같은 To를 향한 node 중에 auto scaling group이 있다면 ?
                     for (LinkData linkData : linkDataList) {
@@ -238,20 +231,17 @@ public class AvailableService {
                         LinkData addALBintoEC2 = createLinkData(AlbNode.getKey(), node, key - 1);
                         nodeDataList.add(AlbNode);
                         if (!linkDataList.contains(addALBintoEC2)) {
-                            System.out.println("albtogroup: " + addALBintoEC2);
                             linkDataList.add(addALBintoEC2);
                         }
 
                         LinkData albtogroup = createLinkData(AlbNode.getKey(), node + "a", key -= 1);
                         if (!linkDataList.contains(albtogroup)) {
-                            System.out.println("albtogroup: " + albtogroup);
                             linkDataList.add(albtogroup);
                         }
 
                     }
                     if (!includeEc2) {
                         AlbNode = makeALb(alb_index, alb_node_x, alb_node_y);
-                        System.out.println("hello");
                         // internet gateway to ALB
                         LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
                         linkDataList.add(addIntoALB);
@@ -378,8 +368,6 @@ public class AvailableService {
                 copiedNode.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 copiedNode.setGroup("Auto Scaling group" + autoIndex);
                 copiedNode.setLoc(newLoc);
-
-                System.out.println("copiedNode: " + copiedNode);
                 newNodes.add(copiedNode);
 
             }
@@ -416,7 +404,6 @@ public class AvailableService {
         for(LinkData listdata : linkDataList){
             if(listdata.getFrom().equals(node)){
                 to = listdata.getTo();
-                System.out.println("TO: " + to);
             }
 
         }
@@ -424,7 +411,6 @@ public class AvailableService {
             for(LinkData listdata2: linkDataList) {
                 if (to != "") {
                     if (listdata2.getTo().equals(to)) {
-                        System.out.println("To" + listdata2.getFrom());
                         ExceptNode.add(listdata2.getFrom());
                     }
                 }else{
@@ -467,9 +453,6 @@ public class AvailableService {
                 exceptNode.add(nodedata);
             }
         }
-        System.out.println("NodeName : " + node);
-        System.out.println("ExceptNode : " + exceptNode);
-
         if(exceptNode.size() >=2){
             for (int i = 1; i < exceptNode.size(); i++) {
                 nodeDataList.remove(exceptNode.get(i));
@@ -531,7 +514,6 @@ public class AvailableService {
         }
         // ALB Node와 연결
         LinkData albtogroup = createLinkData(AlbNode.getKey(),new_security_group.getKey(),key -=1);
-        System.out.println("albtogroup: " + albtogroup);
         linkDataList.add(albtogroup);
         return new double[]{node_x, node_y};
 
@@ -607,8 +589,6 @@ public class AvailableService {
         String newLoc = (node_x) + " " + (node_y);
         AlbNode.setLoc(newLoc);
         AlbNode.setGroup("VPC");
-        System.out.println("ALBNode: "+AlbNode);
-
         return AlbNode;
 
     }
@@ -680,8 +660,6 @@ public class AvailableService {
                         copiedNode.setIsGroup(null);
                         copiedNode.setGroup(CopyAutoGroup.getKey());
                         copiedNode.setLoc(newLoc);
-
-                        System.out.println("copiedNode: " + copiedNode);
                         newNodes.add(copiedNode); // 새 노드를 별도의 리스트에 추가
                     }
                 }
@@ -690,8 +668,6 @@ public class AvailableService {
 
             }
             if(node.contains("EC2")){
-
-                System.out.println("2222" + exceptNode2);
                 boolean exit = true;
                 for(String except : exceptNode2){
                     if(except.equals(node)){
