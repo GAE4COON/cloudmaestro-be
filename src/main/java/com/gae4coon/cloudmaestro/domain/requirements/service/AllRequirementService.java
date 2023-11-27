@@ -72,8 +72,10 @@ public class AllRequirementService {
         }
 
 
-        //System.out.println("requriement data : " + available);
-        //availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
+        //System.out.println("requriement data : "x + available);
+        System.out.println("ReuqireDiagramDTO : " + requireDiagramDTO);
+        availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
+
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
         return response;
