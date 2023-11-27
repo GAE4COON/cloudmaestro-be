@@ -1,6 +1,7 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.service;
 
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
+import io.swagger.v3.oas.models.links.Link;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +23,7 @@ public class DiagramDTOService {
 
         for (NodeData data : dataArray) {
             if (data.getIsGroup() != null) {
-                GroupData groupData = new GroupData(data.getKey(), data.getText(), data.getIsGroup(), data.getGroup(), data.getType(), data.getStroke());
+                GroupData groupData = new GroupData(data.getKey(), data.getText(), data.getIsGroup(), data.getGroup(), data.getType(), data.getStroke(), data.getLoc());
                 groupDataList.add(groupData);
             } else {
                 nodeDataList.add(data);
@@ -83,6 +84,33 @@ public class DiagramDTOService {
         return false;
     }
 
+    public boolean isGroupDataEquals(List<GroupData> groupDataList, String groupText){
+        for (GroupData group: groupDataList){
+            if(group.getKey().equals(groupText)) return true;
+        }
+        return false;
+    }
+
+    public Set<String> getNestedGroupList(List<GroupData> groupDataList, String groupName){
+        Set<String> nestedGroup = new HashSet<>();
+        for (GroupData groupData: groupDataList){
+            if (groupData.getGroup()!=null && groupData.getGroup().equals(groupName)){
+                nestedGroup.add(groupData.getKey());
+            }
+        }
+        return nestedGroup;
+    }
+
+    public Set<String> getNestedGroupListByLabel(List<GroupData> groupDataList, String groupLabel){
+        Set<String> nestedGroup = new HashSet<>();
+        for (GroupData groupData: groupDataList){
+            if (groupData.getGroup()!=null && groupData.getGroup().startsWith(groupLabel)){
+                nestedGroup.add(groupData.getKey());
+            }
+        }
+        return nestedGroup;
+    }
+
     public LinkData getLinkDataByTo(List<LinkData> linkDataList, String to){
         for (LinkData link : linkDataList) {
             if(link.getTo().equals(to)) return link;
@@ -94,6 +122,24 @@ public class DiagramDTOService {
             if(link.getFrom().equals(from)) return link;
         }
         return null;
+    }
+
+    public List<LinkData> getLinkDataListByFrom(List<LinkData> linkDataList, String from){
+        List<LinkData> linklist = new ArrayList<>();
+        for (LinkData link : linkDataList) {
+            if(link.getFrom().equals(from))
+                linklist.add(link);
+        }
+
+        return linklist;
+    }
+    public boolean isLink(List<LinkData> LinkDataList, String from, String to){
+        for (LinkData link: LinkDataList){
+            if(link.getFrom().contains(from) && link.getTo().contains(to)){
+                return true;
+            }
+        }
+        return false;
     }
 
     public NodeData getNodeDataByKey(List<NodeData> nodeDataList, String key){
