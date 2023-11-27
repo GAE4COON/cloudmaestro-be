@@ -64,7 +64,7 @@ public class CheckController {
                 List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
                 if (inputData.getCheckOption().equals("VPC")) {
-                    HashMap ResponseMap = diagramCheckService.vpcCheck(groupDataList);
+                    HashMap ResponseMap = diagramCheckService.vpcCheck(groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 } else {
                     HashMap<String, String> check = new HashMap<>();
