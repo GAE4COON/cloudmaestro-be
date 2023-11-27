@@ -13,18 +13,200 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AddResourceService {
     private final DiagramDTOService diagramDTOService;
+
+    // Group
+    public GroupData addAWSCloudLogo(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("AWS Cloud Logo")
+                .text("AWS Cloud Logo")
+                .type("AWS_Groups")
+                .stroke("rgb(0,0,0)")
+                .build();
+    }
+
+    public GroupData addAWSCloud(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("AWS Cloud")
+                .text("AWS Cloud")
+                .type("AWS_Groups")
+                .stroke("rgb(0,0,0)")
+                .build();
+    }
+
+    public GroupData addIoTGreengrassGroup(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("IoT Greengrass")
+                .text("IoT Greengrass")
+                .type("AWS_Groups")
+                .stroke("rgb(122,161,22)")
+                .build();
+    }
+
+    public GroupData addIoTGreengrassDeployment(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("IoT Greengrass Deployment")
+                .text("IoT Greengrass Deployment")
+                .type("AWS_Groups")
+                .stroke("rgb(122,161,22)")
+                .build();
+    }
+
+    public GroupData addStepFuctionsworkflow(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Step Fuctions workflow")
+                .text("Step Fuctions workflow")
+                .type("AWS_Groups")
+                .stroke("rgb(231,21,123)")
+                .build();
+    }
+
+    public GroupData addCorporatedatacenter(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Corporate data center")
+                .text("Corporate data center")
+                .type("AWS_Groups")
+                .stroke("rgb(125,137,152)")
+                .build();
+    }
+
+    public GroupData addEC2instacecontents(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("EC2 instace contents")
+                .text("EC2 instace contents")
+                .type("AWS_Groups")
+                .stroke("rgb(237,113,0)")
+                .build();
+    }
+
+    public GroupData addElaticBeanstalkcontainer(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Elatic Beanstalk container")
+                .text("Elatic Beanstalk container")
+                .type("AWS_Groups")
+                .stroke("rgb(237,113,0)")
+                .build();
+    }
+
+    public GroupData addPrivatesubnet(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Private subnet")
+                .text("Private subnet")
+                .type("AWS_Groups")
+                .stroke("rgb(0,164,166)")
+                .build();
+    }
+
+    public GroupData addPublicsubnet(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Public subnet")
+                .text("Public subnet")
+                .type("AWS_Groups")
+                .stroke("rgb(122,161,22)")
+                .build();
+    }
+
+    public GroupData addRegion(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Region")
+                .text("Region")
+                .type("AWS_Groups")
+                .stroke("rgb(0,164,166)")
+                .build();
+    }
+
+    public GroupData addAvailabilityZone(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Availability Zone")
+                .text("Availability Zone")
+                .type("AWS_Groups")
+                .stroke("rgb(0,164,166)")
+                .build();
+    }
+
+    public GroupData addSecurityGroup(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Security Group")
+                .text("Security Group")
+                .type("AWS_Groups")
+                .stroke("rgb(221,52,76)")
+                .build();
+    }
+
+    public GroupData addServercontents(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Server contents")
+                .text("Server contents")
+                .type("AWS_Groups")
+                .stroke("rgb(125,137,152)")
+                .build();
+    }
+
+    public GroupData addSpotFleet(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Spot Fleet")
+                .text("Spot Fleet")
+                .type("AWS_Groups")
+                .stroke("rgb(237,113,0)")
+                .build();
+    }
+
+    public GroupData addAutoScalinggroup(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Auto Scaling group")
+                .text("Auto Scaling group")
+                .type("AWS_Groups")
+                .stroke("rgb(237,113,0)")
+                .build();
+    }
+
+    public GroupData addVPC(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("VPC")
+                .text("VPC")
+                .type("AWS_Groups")
+                .stroke("rgb(140,79,255)")
+                .build();
+    }
+
+    public GroupData addService(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("Service")
+                .text("Service")
+                .type("AWS_Groups")
+                .stroke("rgb(150,150,150)")
+                .build();
+    }
+
+    public GroupData addEC2Group(){
+        return GroupData.builder()
+                .isGroup(true)
+                .key("EC2Group")
+                .text("EC2Group")
+                .type("AWS_Groups")
+                .stroke("rgb(150,100,150)")
+                .build();
+    }
     public NodeData addAntiDDoS(){
         return NodeData.builder()
                 .key("Anti DDoS")
-                .text("Anti DDoS")
-                .source("/img/Network_icon/Anti_DDoS.png")
-                .type("Network_icon")
-                .build();
-    }
-    // unique key
-    public NodeData addAntiDDoS(List<NodeData> nodeDataList){
-        return NodeData.builder()
-                .key("Anti DDoS"+diagramDTOService.getNodeNumber(nodeDataList,"Anti DDoS"))
                 .text("Anti DDoS")
                 .source("/img/Network_icon/Anti_DDoS.png")
                 .type("Network_icon")
@@ -1893,14 +2075,16 @@ public class AddResourceService {
                 .type("Management-Governance")
                 .build();
     }
+
     public NodeData addCloudWatch(List<NodeData> nodeDataList){
         return NodeData.builder()
-                .key("CloudWatch"+diagramDTOService.getNodeNumber(nodeDataList,"CloudWatch"))
+                .key("CloudWatch "+diagramDTOService.getNodeNumber(nodeDataList, "CloudWatch"))
                 .text("CloudWatch")
                 .source("/img/AWS_icon/Arch_Management-Governance/Arch_Amazon-CloudWatch_48.svg")
                 .type("Management-Governance")
                 .build();
     }
+
     public NodeData addManagedGrafana(){
         return NodeData.builder()
                 .key("Managed Grafana")
@@ -1981,9 +2165,10 @@ public class AddResourceService {
                 .type("Management-Governance")
                 .build();
     }
+
     public NodeData addCloudTrail(List<NodeData> nodeDataList){
         return NodeData.builder()
-                .key("CloudTrail"+diagramDTOService.getNodeNumber(nodeDataList,"CloudTrail"))
+                .key("CloudTrail "+diagramDTOService.getNodeNumber(nodeDataList, "CloudTrail"))
                 .text("CloudTrail")
                 .source("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg")
                 .type("Management-Governance")
@@ -2179,7 +2364,7 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addMediaServicesKinesisVideoStreams(){
+    public NodeData addMediaServices_KinesisVideoStreams(){
         return NodeData.builder()
                 .key("Media-Services_Kinesis Video Streams")
                 .text("Media-Services_Kinesis Video Streams")
@@ -2674,10 +2859,10 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addIdentityandAccessManagement(){
+    public NodeData addIdentityandAccessManagementIAM(){
         return NodeData.builder()
-                .key("Identity and Access Management")
-                .text("Identity and Access Management")
+                .key("Identity and Access Management (IAM)")
+                .text("Identity and Access Management (IAM)")
                 .source("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Identity-and-Access-Management_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
@@ -2764,10 +2949,10 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addEFS(){
+    public NodeData addElasticFileSystmeEFS(){
         return NodeData.builder()
-                .key("EFS")
-                .text("EFS")
+                .key("Elastic File Systme (EFS)")
+                .text("Elastic File Systme (EFS)")
                 .source("/img/AWS_icon/Arch_Storage/Arch_Amazon-EFS_48.svg")
                 .type("Storage")
                 .build();
@@ -2863,18 +3048,19 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addSimpleStorageService(){
+    public NodeData addSimpleStorageServiceS3(){
         return NodeData.builder()
-                .key("Simple Storage Service")
-                .text("Simple Storage Service")
+                .key("Simple Storage Service (S3)")
+                .text("Simple Storage Service (S3)")
                 .source("/img/AWS_icon/Arch_Storage/Arch_Amazon-Simple-Storage-Service_48.svg")
                 .type("Storage")
                 .build();
     }
-    public NodeData addSimpleStorageService(List<NodeData> nodeDataList){
+
+    public NodeData addSimpleStorageServiceS3(List<NodeData> nodeDataList){
         return NodeData.builder()
-                .key("Simple Storage Service"+diagramDTOService.getNodeNumber(nodeDataList,"Simple Storage Service"))
-                .text("Simple Storage Service")
+                .key("Simple Storage Service (S3) "+diagramDTOService.getNodeNumber(nodeDataList, "Simple Storage Service (S3)"))
+                .text("Simple Storage Service (S3)")
                 .source("/img/AWS_icon/Arch_Storage/Arch_Amazon-Simple-Storage-Service_48.svg")
                 .type("Storage")
                 .build();
@@ -4005,7 +4191,7 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addEC2MicroserviceExtractorfor(){
+    public NodeData addEC2MicroserviceExtractorforNET(){
         return NodeData.builder()
                 .key("EC2 Microservice Extractor for .NET")
                 .text("EC2 Microservice Extractor for .NET")
@@ -4662,37 +4848,37 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addCloud9Cloud9(){
+    public NodeData addRes_Cloud9(){
         return NodeData.builder()
-                .key("Cloud9 Cloud9")
-                .text("Cloud9 Cloud9")
+                .key("Res_Cloud9")
+                .text("Cloud9")
                 .source("/img/AWS_icon/Resource_icon/Res_Developer-Tools/Res_AWS-Cloud9_Cloud9_48.svg")
                 .type("Developer-Tools")
                 .build();
     }
 
-    public NodeData addWorkSpacesFamilyWorkSpacesCore(){
+    public NodeData addWorkSpacesCore(){
         return NodeData.builder()
-                .key("WorkSpaces Family WorkSpaces Core")
-                .text("WorkSpaces Family WorkSpaces Core")
+                .key("WorkSpaces Core")
+                .text("WorkSpaces Core")
                 .source("/img/AWS_icon/Resource_icon/Res_End-User-Computing/Res_Amazon-WorkSpaces-Family_Amazon-WorkSpaces-Core_48.svg")
                 .type("End-User-Computing")
                 .build();
     }
 
-    public NodeData addWorkSpacesFamilyWorkSpacesWeb(){
+    public NodeData addWorkSpacesWeb(){
         return NodeData.builder()
-                .key("WorkSpaces Family WorkSpaces Web")
-                .text("WorkSpaces Family WorkSpaces Web")
+                .key("WorkSpaces Web")
+                .text("WorkSpaces Web")
                 .source("/img/AWS_icon/Resource_icon/Res_End-User-Computing/Res_Amazon-WorkSpaces-Family_Amazon-WorkSpaces-Web_48.svg")
                 .type("End-User-Computing")
                 .build();
     }
 
-    public NodeData addWorkSpacesFamilyWorkSpaces(){
+    public NodeData addWorkSpaces(){
         return NodeData.builder()
-                .key("WorkSpaces Family WorkSpaces")
-                .text("WorkSpaces Family WorkSpaces")
+                .key("WorkSpaces")
+                .text("WorkSpaces")
                 .source("/img/AWS_icon/Resource_icon/Res_End-User-Computing/Res_Amazon-WorkSpaces-Family_Amazon-WorkSpaces_48.svg")
                 .type("End-User-Computing")
                 .build();
@@ -4743,10 +4929,10 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addAmplifyAmplifyStudio(){
+    public NodeData addAmplifyStudio(){
         return NodeData.builder()
-                .key("Amplify Amplify Studio")
-                .text("Amplify Amplify Studio")
+                .key("Amplify Studio")
+                .text("Amplify Studio")
                 .source("/img/AWS_icon/Resource_icon/Res_Front-End-Web-Mobile/Res_AWS-Amplify_AWS-Amplify-Studio_48.svg")
                 .type("Front-End-Web-Mobile")
                 .build();
@@ -4770,7 +4956,7 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addManagementConsoleLight(){
+    public NodeData addManagementConsoleRes(){
         return NodeData.builder()
                 .key("Management Console")
                 .text("Management Console")
@@ -4842,7 +5028,7 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addDatabaseLight(){
+    public NodeData addDatabaseRes(){
         return NodeData.builder()
                 .key("Database")
                 .text("Database")
@@ -4887,9 +5073,9 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addFirewallLight(){
+    public NodeData addRes_Firewall(){
         return NodeData.builder()
-                .key("Firewall")
+                .key("Res_Firewall")
                 .text("Firewall")
                 .source("/img/AWS_icon/Resource_icon/Res_General-Icons/Res_48_Light/Res_Firewall_48_Light.svg")
                 .type("General-Icons")
@@ -5103,7 +5289,7 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addServerLight(){
+    public NodeData addServerRes(){
         return NodeData.builder()
                 .key("Server")
                 .text("Server")
@@ -5112,7 +5298,7 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addShieldLight(){
+    public NodeData addShieldRes(){
         return NodeData.builder()
                 .key("Shield")
                 .text("Shield")
@@ -6678,10 +6864,10 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addRoute53Route53ApplicationRecoveryController(){
+    public NodeData addRoute53ApplicationRecoveryController(){
         return NodeData.builder()
-                .key("Route 53 Route 53 Application Recovery Controller")
-                .text("Route 53 Route 53 Application Recovery Controller")
+                .key("Route 53 Application Recovery Controller")
+                .text("Route 53 Application Recovery Controller")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-Route-53_Route-53-Application-Recovery-Controller_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
@@ -6705,154 +6891,154 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addVPCCarrierGateway(){
+    public NodeData addCarrierGateway(){
         return NodeData.builder()
-                .key("VPC Carrier Gateway")
-                .text("VPC Carrier Gateway")
+                .key("Carrier Gateway")
+                .text("Carrier Gateway")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Carrier-Gateway_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCCustomerGateway(){
+    public NodeData addCustomerGateway(){
         return NodeData.builder()
-                .key("VPC Customer Gateway")
-                .text("VPC Customer Gateway")
+                .key("Customer Gateway")
+                .text("Customer Gateway")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Customer-Gateway_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCElasticNetworkAdapter(){
+    public NodeData addElasticNetworkAdapter(){
         return NodeData.builder()
-                .key("VPC Elastic Network Adapter")
-                .text("VPC Elastic Network Adapter")
+                .key("Elastic Network Adapter")
+                .text("Elastic Network Adapter")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Adapter_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCElasticNetworkInterface(){
+    public NodeData addElasticNetworkInterface(){
         return NodeData.builder()
-                .key("VPC Elastic Network Interface")
-                .text("VPC Elastic Network Interface")
+                .key("Elastic Network Interface")
+                .text("Elastic Network Interface")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Interface_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCEndpoints(){
+    public NodeData addEndpoints(){
         return NodeData.builder()
-                .key("VPC Endpoints")
-                .text("VPC Endpoints")
+                .key("Endpoints")
+                .text("Endpoints")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Endpoints_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCFlowLogs(){
+    public NodeData addFlowLogs(){
         return NodeData.builder()
-                .key("VPC Flow Logs")
-                .text("VPC Flow Logs")
+                .key("Flow Logs")
+                .text("Flow Logs")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Flow-Logs_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCInternetGateway(){
+    public NodeData addInternetGateway(){
         return NodeData.builder()
-                .key("VPC Internet Gateway")
-                .text("VPC Internet Gateway")
+                .key("Internet Gateway")
+                .text("Internet Gateway")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Internet-Gateway_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCNATGateway(){
+    public NodeData addNATGateway(){
         return NodeData.builder()
-                .key("VPC NAT Gateway")
-                .text("VPC NAT Gateway")
+                .key("NAT Gateway")
+                .text("NAT Gateway")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_NAT-Gateway_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCNetworkAccessAnalyzer(){
+    public NodeData addNetworkAccessAnalyzer(){
         return NodeData.builder()
-                .key("VPC Network Access Analyzer")
-                .text("VPC Network Access Analyzer")
+                .key("Network Access Analyzer")
+                .text("Network Access Analyzer")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Network-Access-Analyzer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCNetworkAccessControlList(){
+    public NodeData addNetworkAccessControlListNACL(){
         return NodeData.builder()
-                .key("VPC Network Access Control List")
-                .text("VPC Network Access Control List")
+                .key("Network Access Control List (NACL)")
+                .text("Network Access Control List (NACL)")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Network-Access-Control-List_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCPeeringConnection(){
+    public NodeData addPeeringConnection(){
         return NodeData.builder()
-                .key("VPC Peering Connection")
-                .text("VPC Peering Connection")
+                .key("Peering Connection")
+                .text("Peering Connection")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Peering-Connection_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCReachabilityAnalyzer(){
+    public NodeData addReachabilityAnalyzer(){
         return NodeData.builder()
-                .key("VPC Reachability Analyzer")
-                .text("VPC Reachability Analyzer")
+                .key("Reachability Analyzer")
+                .text("Reachability Analyzer")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Reachability-Analyzer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCRouter(){
+    public NodeData addRouterRes(){
         return NodeData.builder()
-                .key("VPC Router")
-                .text("VPC Router")
+                .key("Router")
+                .text("Router")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Router_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCTrafficMirroring(){
+    public NodeData addTrafficMirroring(){
         return NodeData.builder()
-                .key("VPC Traffic Mirroring")
-                .text("VPC Traffic Mirroring")
+                .key("Traffic Mirroring")
+                .text("Traffic Mirroring")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Traffic-Mirroring_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCVirtualprivatecloudVPC(){
+    public NodeData addVirtualprivatecloudVPC(){
         return NodeData.builder()
-                .key("VPC Virtual private cloud VPC")
-                .text("VPC Virtual private cloud VPC")
+                .key("Virtual private cloud VPC")
+                .text("Virtual private cloud VPC")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Virtual-private-cloud-VPC_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCVPNConnection(){
+    public NodeData addVPNConnection(){
         return NodeData.builder()
-                .key("VPC VPN Connection")
-                .text("VPC VPN Connection")
+                .key("VPN Connection")
+                .text("VPN Connection")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_VPN-Connection_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addVPCVPNGateway(){
+    public NodeData addVPNGateway(){
         return NodeData.builder()
-                .key("VPC VPN Gateway")
-                .text("VPC VPN Gateway")
+                .key("VPN Gateway")
+                .text("VPN Gateway")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_VPN-Gateway_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
@@ -6975,37 +7161,37 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addElasticLoadBalancingApplicationLoadBalancer(){
+    public NodeData addApplicationLoadBalancerALB(){
         return NodeData.builder()
-                .key("Elastic Load Balancing Application Load Balancer")
-                .text("Elastic Load Balancing Application Load Balancer")
+                .key("Application Load Balancer (ALB)")
+                .text("Application Load Balancer (ALB)")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Application-Load-Balancer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addElasticLoadBalancingClassicLoadBalancer(){
+    public NodeData addClassicLoadBalancerCLB(){
         return NodeData.builder()
-                .key("Elastic Load Balancing Classic Load Balancer")
-                .text("Elastic Load Balancing Classic Load Balancer")
+                .key("Classic Load Balancer (CLB)")
+                .text("Classic Load Balancer (CLB)")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Classic-Load-Balancer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addElasticLoadBalancingGatewayLoadBalancer(){
+    public NodeData addGatewayLoadBalancerGLB(){
         return NodeData.builder()
-                .key("Elastic Load Balancing Gateway Load Balancer")
-                .text("Elastic Load Balancing Gateway Load Balancer")
+                .key("Gateway Load Balancer (GLB)")
+                .text("Gateway Load Balancer (GLB)")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Gateway-Load-Balancer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
     }
 
-    public NodeData addElasticLoadBalancingNetworkLoadBalancer(){
+    public NodeData addNetworkLoadBalancerNLB(){
         return NodeData.builder()
-                .key("Elastic Load Balancing Network Load Balancer")
-                .text("Elastic Load Balancing Network Load Balancer")
+                .key("Network Load Balancer (NLB)")
+                .text("Network Load Balancer (NLB)")
                 .source("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Elastic-Load-Balancing_Network-Load-Balancer_48.svg")
                 .type("Networking-Content-Delivery")
                 .build();
@@ -7209,109 +7395,109 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementAddon(){
+    public NodeData addIAMAddon(){
         return NodeData.builder()
-                .key("Identity Access Management Add on")
-                .text("Identity Access Management Add on")
+                .key("IAM Add on")
+                .text("IAM Add on")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Add-on_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementSTSAlternate(){
+    public NodeData addIAMSTSAlternate(){
         return NodeData.builder()
-                .key("Identity Access Management STS Alternate")
-                .text("Identity Access Management STS Alternate")
+                .key("IAM STS Alternate")
+                .text("IAM STS Alternate")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_AWS-STS-Alternate_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementSTS(){
+    public NodeData addIAMSTS(){
         return NodeData.builder()
-                .key("Identity Access Management STS")
-                .text("Identity Access Management STS")
+                .key("IAM STS")
+                .text("IAM STS")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_AWS-STS_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementDataEncryptionKey(){
+    public NodeData addIAMDataEncryptionKey(){
         return NodeData.builder()
-                .key("Identity Access Management Data Encryption Key")
-                .text("Identity Access Management Data Encryption Key")
+                .key("IAM Data Encryption Key")
+                .text("IAM Data Encryption Key")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Data-Encryption-Key_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementEncryptedData(){
+    public NodeData addIAMEncryptedData(){
         return NodeData.builder()
-                .key("Identity Access Management Encrypted Data")
-                .text("Identity Access Management Encrypted Data")
+                .key("IAM Encrypted Data")
+                .text("IAM Encrypted Data")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Encrypted-Data_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementIAMAccessAnalyzer(){
+    public NodeData addIAMAccessAnalyzer(){
         return NodeData.builder()
-                .key("Identity Access Management IAM Access Analyzer")
-                .text("Identity Access Management IAM Access Analyzer")
+                .key("IAM Access Analyzer")
+                .text("IAM Access Analyzer")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_IAM-Access-Analyzer_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementIAMRolesAnywhere(){
+    public NodeData addIAMRolesAnywhere(){
         return NodeData.builder()
-                .key("Identity Access Management IAM Roles Anywhere")
-                .text("Identity Access Management IAM Roles Anywhere")
+                .key("IAM Roles Anywhere")
+                .text("IAM Roles Anywhere")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_IAM-Roles-Anywhere_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementLongTermSecurityCredential(){
+    public NodeData addIAMLongTermSecurityCredential(){
         return NodeData.builder()
-                .key("Identity Access Management Long Term Security Credential")
-                .text("Identity Access Management Long Term Security Credential")
+                .key("IAM Long Term Security Credential")
+                .text("IAM Long Term Security Credential")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Long-Term-Security-Credential_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementMFAToken(){
+    public NodeData addIAMMFAToken(){
         return NodeData.builder()
-                .key("Identity Access Management MFA Token")
-                .text("Identity Access Management MFA Token")
+                .key("IAM MFA Token")
+                .text("IAM MFA Token")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_MFA-Token_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementPermissions(){
+    public NodeData addIAMPermissions(){
         return NodeData.builder()
-                .key("Identity Access Management Permissions")
-                .text("Identity Access Management Permissions")
+                .key("IAM Permissions")
+                .text("IAM Permissions")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Permissions_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementRole(){
+    public NodeData addIAMRole(){
         return NodeData.builder()
-                .key("Identity Access Management Role")
-                .text("Identity Access Management Role")
+                .key("IAM Role")
+                .text("IAM Role")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Role_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
     }
 
-    public NodeData addIdentityAccessManagementTemporarySecurityCredential(){
+    public NodeData addIAMTemporarySecurityCredential(){
         return NodeData.builder()
-                .key("Identity Access Management Temporary Security Credential")
-                .text("Identity Access Management Temporary Security Credential")
+                .key("IAM Temporary Security Credential")
+                .text("IAM Temporary Security Credential")
                 .source("/img/AWS_icon/Resource_icon/Res_Security-Identity-Compliance/Res_AWS-Identity-Access-Management_Temporary-Security-Credential_48.svg")
                 .type("Security-Identity-Compliance")
                 .build();
@@ -7461,64 +7647,64 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addElasticFileSystemEFSIntelligentTiering(){
+    public NodeData addEFSIntelligentTiering(){
         return NodeData.builder()
-                .key("Elastic File System EFS Intelligent Tiering")
-                .text("Elastic File System EFS Intelligent Tiering")
+                .key("EFS Intelligent Tiering")
+                .text(" EFS Intelligent Tiering")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_EFS-Intelligent-Tiering_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addElasticFileSystemEFSOneZoneInfrequentAccess(){
+    public NodeData addEFSOneZoneInfrequentAccess(){
         return NodeData.builder()
-                .key("Elastic File System EFS One Zone Infrequent Access")
-                .text("Elastic File System EFS One Zone Infrequent Access")
+                .key(" EFS One Zone Infrequent Access")
+                .text(" EFS One Zone Infrequent Access")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_EFS-One-Zone-Infrequent-Access_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addElasticFileSystemEFSOneZone(){
+    public NodeData addEFSOneZone(){
         return NodeData.builder()
-                .key("Elastic File System EFS One Zone")
-                .text("Elastic File System EFS One Zone")
+                .key(" EFS One Zone")
+                .text(" EFS One Zone")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_EFS-One-Zone_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addElasticFileSystemEFSStandardInfrequentAccess(){
+    public NodeData addEFSStandardInfrequentAccess(){
         return NodeData.builder()
-                .key("Elastic File System EFS Standard Infrequent Access")
-                .text("Elastic File System EFS Standard Infrequent Access")
+                .key(" EFS Standard Infrequent Access")
+                .text(" EFS Standard Infrequent Access")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_EFS-Standard-Infrequent-Access_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addElasticFileSystemEFSStandard(){
+    public NodeData addEFSStandard(){
         return NodeData.builder()
-                .key("Elastic File System EFS Standard")
-                .text("Elastic File System EFS Standard")
+                .key(" EFS Standard")
+                .text(" EFS Standard")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_EFS-Standard_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addElasticFileSystemElasticThroughput(){
+    public NodeData addEFSElasticThroughput(){
         return NodeData.builder()
-                .key("Elastic File System Elastic Throughput")
-                .text("Elastic File System Elastic Throughput")
+                .key("EFS Elastic Throughput")
+                .text("EFS Elastic Throughput")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_Elastic-Throughput_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addElasticFileSystemFileSystem(){
+    public NodeData addEFSFileSystem(){
         return NodeData.builder()
-                .key("Elastic File System File System")
-                .text("Elastic File System File System")
+                .key("EFS File System")
+                .text("EFS File System")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Elastic-File-System_File-System_48.svg")
                 .type("Storage")
                 .build();
@@ -7551,217 +7737,217 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceGlacierive(){
+    public NodeData addS3Glacierive(){
         return NodeData.builder()
-                .key("Simple Storage Service Glacier ive")
-                .text("Simple Storage Service Glacier ive")
+                .key("S3 Glacier ive")
+                .text("S3 Glacier ive")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service-Glacier_Archive_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceGlacierVault(){
+    public NodeData addS3GlacierVault(){
         return NodeData.builder()
-                .key("Simple Storage Service Glacier Vault")
-                .text("Simple Storage Service Glacier Vault")
+                .key("S3 Glacier Vault")
+                .text("S3 Glacier Vault")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service-Glacier_Vault_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceBucketWithObjects(){
+    public NodeData addS3BucketWithObjects(){
         return NodeData.builder()
-                .key("Simple Storage Service Bucket With Objects")
-                .text("Simple Storage Service Bucket With Objects")
+                .key("S3 Bucket With Objects")
+                .text("S3 Bucket With Objects")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Bucket-With-Objects_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceBucket(){
+    public NodeData addS3Bucket(){
         return NodeData.builder()
-                .key("Simple Storage Service Bucket")
-                .text("Simple Storage Service Bucket")
+                .key("S3 Bucket")
+                .text("S3 Bucket")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceGeneralAccessPoints(){
+    public NodeData addS3GeneralAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service General Access Points")
-                .text("Simple Storage Service General Access Points")
+                .key("S3 General Access Points")
+                .text("S3 General Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_General-Access-Points_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceObject(){
+    public NodeData addS3Object(){
         return NodeData.builder()
-                .key("Simple Storage Service Object")
-                .text("Simple Storage Service Object")
+                .key("S3 Object")
+                .text("S3 Object")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Object_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3BatchOperations(){
+    public NodeData addS3BatchOperations(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Batch Operations")
-                .text("Simple Storage Service S3 Batch Operations")
+                .key("S3 Batch Operations")
+                .text("S3 Batch Operations")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Batch-Operations_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3GlacierDeepive(){
+    public NodeData addS3GlacierDeepive(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Glacier Deep ive")
-                .text("Simple Storage Service S3 Glacier Deep ive")
+                .key("S3 Glacier Deep ive")
+                .text("S3 Glacier Deep ive")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Glacier-Deep-Archive_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3GlacierFlexibleRetrieval(){
+    public NodeData addS3GlacierFlexibleRetrieval(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Glacier Flexible Retrieval")
-                .text("Simple Storage Service S3 Glacier Flexible Retrieval")
+                .key("S3 Glacier Flexible Retrieval")
+                .text("S3 Glacier Flexible Retrieval")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Glacier-Flexible-Retrieval_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3GlacierInstantRetrieval(){
+    public NodeData addS3GlacierInstantRetrieval(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Glacier Instant Retrieval")
-                .text("Simple Storage Service S3 Glacier Instant Retrieval")
+                .key("S3 Glacier Instant Retrieval")
+                .text("S3 Glacier Instant Retrieval")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Glacier-Instant-Retrieval_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3IntelligentTiering(){
+    public NodeData addS3IntelligentTiering(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Intelligent Tiering")
-                .text("Simple Storage Service S3 Intelligent Tiering")
+                .key("S3 Intelligent Tiering")
+                .text("S3 Intelligent Tiering")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Intelligent-Tiering_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3MultiRegionAccessPoints(){
+    public NodeData addS3MultiRegionAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Multi Region Access Points")
-                .text("Simple Storage Service S3 Multi Region Access Points")
+                .key("S3 Multi Region Access Points")
+                .text("S3 Multi Region Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Multi-Region-Access-Points_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3ObjectLambdaAccessPoints(){
+    public NodeData addS3ObjectLambdaAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Object Lambda Access Points")
-                .text("Simple Storage Service S3 Object Lambda Access Points")
+                .key("S3 Object Lambda Access Points")
+                .text("S3 Object Lambda Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Object-Lambda-Access-Points_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3ObjectLambda(){
+    public NodeData addS3ObjectLambda(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Object Lambda")
-                .text("Simple Storage Service S3 Object Lambda")
+                .key("S3 Object Lambda")
+                .text("S3 Object Lambda")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Object-Lambda_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3ObjectLock(){
+    public NodeData addS3ObjectLock(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Object Lock")
-                .text("Simple Storage Service S3 Object Lock")
+                .key("S3 Object Lock")
+                .text("S3 Object Lock")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Object-Lock_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3OnOutposts(){
+    public NodeData addS3OnOutposts(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 On Outposts")
-                .text("Simple Storage Service S3 On Outposts")
+                .key("S3 On Outposts")
+                .text("S3 On Outposts")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-On-Outposts_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3OneZoneIA(){
+    public NodeData addS3OneZoneIA(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 One Zone IA")
-                .text("Simple Storage Service S3 One Zone IA")
+                .key("S3 One Zone IA")
+                .text("S3 One Zone IA")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-One-Zone-IA_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3ReplicationTimeControl(){
+    public NodeData addS3ReplicationTimeControl(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Replication Time Control")
-                .text("Simple Storage Service S3 Replication Time Control")
+                .key("S3 Replication Time Control")
+                .text("S3 Replication Time Control")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Replication-Time-Control_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3Replication(){
+    public NodeData addS3Replication(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Replication")
-                .text("Simple Storage Service S3 Replication")
+                .key("S3 Replication")
+                .text("S3 Replication")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Replication_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3Select(){
+    public NodeData addS3Select(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Select")
-                .text("Simple Storage Service S3 Select")
+                .key("S3 Select")
+                .text("S3 Select")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Select_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3StandardIA(){
+    public NodeData addS3StandardIA(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Standard IA")
-                .text("Simple Storage Service S3 Standard IA")
+                .key("S3 Standard IA")
+                .text("S3 Standard IA")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard-IA_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3Standard(){
+    public NodeData addS3Standard(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Standard")
-                .text("Simple Storage Service S3 Standard")
+                .key("S3 Standard")
+                .text("S3 Standard")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceS3StorageLens(){
+    public NodeData addS3StorageLens(){
         return NodeData.builder()
-                .key("Simple Storage Service S3 Storage Lens")
-                .text("Simple Storage Service S3 Storage Lens")
+                .key("S3 Storage Lens")
+                .text("S3 Storage Lens")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_S3-Storage-Lens_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addSimpleStorageServiceVPCAccessPoints(){
+    public NodeData addS3VPCAccessPoints(){
         return NodeData.builder()
-                .key("Simple Storage Service VPC Access Points")
-                .text("Simple Storage Service VPC Access Points")
+                .key("S3 VPC Access Points")
+                .text("S3 VPC Access Points")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_VPC-Access-Points_48.svg")
                 .type("Storage")
                 .build();
@@ -7776,64 +7962,64 @@ public class AddResourceService {
                 .build();
     }
 
-    public NodeData addBackupBackupforCloudFormation(){
+    public NodeData addBackupforCloudFormation(){
         return NodeData.builder()
-                .key("Backup Backup for CloudFormation")
-                .text("Backup Backup for CloudFormation")
+                .key("Backup for CloudFormation")
+                .text("Backup for CloudFormation")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_AWS-Backup-for-AWS-CloudFormation_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addBackupBackupsupportforFSxforNetAppONTAP(){
+    public NodeData addBackupsupportforFSxforNetAppONTAP(){
         return NodeData.builder()
-                .key("Backup Backup support for FSx for NetApp ONTAP")
-                .text("Backup Backup support for FSx for NetApp ONTAP")
+                .key("Backup support for FSx for NetApp ONTAP")
+                .text("Backup support for FSx for NetApp ONTAP")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_AWS-Backup-support-for-Amazon-FSx-for-NetApp-ONTAP_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addBackupBackupsupportforS3(){
+    public NodeData addBackupsupportforS3(){
         return NodeData.builder()
-                .key("Backup Backup support for S3")
-                .text("Backup Backup support for S3")
+                .key("Backup support for S3")
+                .text("Backup support for S3")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_AWS-Backup-support-for-Amazon-S3_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addBackupBackupSupportforVMwareWorkloads(){
+    public NodeData addBackupSupportforVMwareWorkloads(){
         return NodeData.builder()
-                .key("Backup Backup Support for VMware Workloads")
-                .text("Backup Backup Support for VMware Workloads")
+                .key("Backup Support for VMware Workloads")
+                .text("Backup Support for VMware Workloads")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_AWS-Backup-Support-for-VMware-Workloads_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addBackupBackupPlan(){
+    public NodeData addBackupPlan(){
         return NodeData.builder()
-                .key("Backup Backup Plan")
-                .text("Backup Backup Plan")
+                .key("Backup Plan")
+                .text("Backup Plan")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_Backup-Plan_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addBackupBackupRestore(){
+    public NodeData addBackupRestore(){
         return NodeData.builder()
-                .key("Backup Backup Restore")
-                .text("Backup Backup Restore")
+                .key("Backup Restore")
+                .text("Backup Restore")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_Backup-Restore_48.svg")
                 .type("Storage")
                 .build();
     }
 
-    public NodeData addBackupBackupVault(){
+    public NodeData addBackupVault(){
         return NodeData.builder()
-                .key("Backup Backup Vault")
-                .text("Backup Backup Vault")
+                .key("Backup Vault")
+                .text("Backup Vault")
                 .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_AWS-Backup_Backup-Vault_48.svg")
                 .type("Storage")
                 .build();
@@ -8018,198 +8204,6 @@ public class AddResourceService {
                 .type("Storage")
                 .build();
     }
-
-    // Group
-    public GroupData addAWSCloudLogo(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("AWS Cloud Logo")
-                .text("AWS Cloud Logo")
-                .type("AWS_Groups")
-                .stroke("rgb(0,0,0)")
-                .build();
-    }
-
-    public GroupData addAWSCloud(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("AWS Cloud")
-                .text("AWS Cloud")
-                .type("AWS_Groups")
-                .stroke("rgb(0,0,0)")
-                .build();
-    }
-
-    public GroupData addIoTGreengrassGroup(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("IoT Greengrass")
-                .text("IoT Greengrass")
-                .type("AWS_Groups")
-                .stroke("rgb(122,161,22)")
-                .build();
-    }
-
-    public GroupData addIoTGreengrassDeployment(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("IoT Greengrass Deployment")
-                .text("IoT Greengrass Deployment")
-                .type("AWS_Groups")
-                .stroke("rgb(122,161,22)")
-                .build();
-    }
-
-    public GroupData addStepFuctionsworkflow(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Step Fuctions workflow")
-                .text("Step Fuctions workflow")
-                .type("AWS_Groups")
-                .stroke("rgb(231,21,123)")
-                .build();
-    }
-
-    public GroupData addCorporatedatacenter(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Corporate data center")
-                .text("Corporate data center")
-                .type("AWS_Groups")
-                .stroke("rgb(125,137,152)")
-                .build();
-    }
-
-    public GroupData addEC2instacecontents(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("EC2 instace contents")
-                .text("EC2 instace contents")
-                .type("AWS_Groups")
-                .stroke("rgb(237,113,0)")
-                .build();
-    }
-
-    public GroupData addElaticBeanstalkcontainer(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Elatic Beanstalk container")
-                .text("Elatic Beanstalk container")
-                .type("AWS_Groups")
-                .stroke("rgb(237,113,0)")
-                .build();
-    }
-
-    public GroupData addPrivatesubnet(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Private subnet")
-                .text("Private subnet")
-                .type("AWS_Groups")
-                .stroke("rgb(0,164,166)")
-                .build();
-    }
-
-    public GroupData addPublicsubnet(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Public subnet")
-                .text("Public subnet")
-                .type("AWS_Groups")
-                .stroke("rgb(122,161,22)")
-                .build();
-    }
-
-    public GroupData addRegion(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Region")
-                .text("Region")
-                .type("AWS_Groups")
-                .stroke("rgb(0,164,166)")
-                .build();
-    }
-
-    public GroupData addAvailabilityZone(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Availability Zone")
-                .text("Availability Zone")
-                .type("AWS_Groups")
-                .stroke("rgb(0,164,166)")
-                .build();
-    }
-
-    public GroupData addSecurityGroup(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Security Group")
-                .text("Security Group")
-                .type("AWS_Groups")
-                .stroke("rgb(221,52,76)")
-                .build();
-    }
-
-    public GroupData addServercontents(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Server contents")
-                .text("Server contents")
-                .type("AWS_Groups")
-                .stroke("rgb(125,137,152)")
-                .build();
-    }
-
-    public GroupData addSpotFleet(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Spot Fleet")
-                .text("Spot Fleet")
-                .type("AWS_Groups")
-                .stroke("rgb(237,113,0)")
-                .build();
-    }
-
-    public GroupData addAutoScalinggroup(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Auto Scaling group")
-                .text("Auto Scaling group")
-                .type("AWS_Groups")
-                .stroke("rgb(237,113,0)")
-                .build();
-    }
-
-    public GroupData addVPC(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("VPC")
-                .text("VPC")
-                .type("AWS_Groups")
-                .stroke("rgb(140,79,255)")
-                .build();
-    }
-
-    public GroupData addService(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("Service")
-                .text("Service")
-                .type("AWS_Groups")
-                .stroke("rgb(150,150,150)")
-                .build();
-    }
-
-    public GroupData addEC2Group(){
-        return GroupData.builder()
-                .isGroup(true)
-                .key("EC2Group")
-                .text("EC2Group")
-                .type("AWS_Groups")
-                .stroke("rgb(150,100,150)")
-                .build();
-    }
-
 
 
 }

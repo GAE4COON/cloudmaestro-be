@@ -1,5 +1,6 @@
 package com.gae4coon.cloudmaestro.domain.naindae.service;
 
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import io.swagger.v3.oas.models.links.Link;
 import org.springframework.stereotype.Service;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
@@ -10,23 +11,37 @@ import java.util.Map;
 
 @Service
 public class RegionService {
-    public Map<String, Object> getRegion(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
-        String num="1";
-        Map<String, Object> result = new HashMap<>();
-        List<NodeData> newNodeDataList = new ArrayList<>();
-        List<GroupData> newGroupDataList = new ArrayList<>();
-        List<LinkData> newLinkDataList = new ArrayList<>();
-        newNodeDataList = modifyNodeDataForNewRegion(nodeDataList);
-        newGroupDataList = modifyGroupDataForNewRegion(groupDataList);
-        newLinkDataList = modifyLinkDataForNewRegion(linkDataList);
-        newNodeDataList = addNode(newNodeDataList, newGroupDataList, newLinkDataList,num);
-        newLinkDataList = addLink(newNodeDataList, newGroupDataList, newLinkDataList,num);
+    public void getRegion(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList) {
+        List<String> globalRequirements = requireDiagramDTO.getRequirementData().getGlobalRequirements();
+        if(globalRequirements.contains("서버 이중화") || globalRequirements.contains("이중화")) {
+            String num = "1";
+            Map<String, Object> result = new HashMap<>();
+            List<NodeData> newNodeDataList = new ArrayList<>();
+            List<GroupData> newGroupDataList = new ArrayList<>();
+            List<LinkData> newLinkDataList = new ArrayList<>();
+            newNodeDataList = modifyNodeDataForNewRegion(nodeDataList);
+            newGroupDataList = modifyGroupDataForNewRegion(groupDataList);
+            newLinkDataList = modifyLinkDataForNewRegion(linkDataList);
+            newNodeDataList = addNode(newNodeDataList, newGroupDataList, newLinkDataList, num);
+            newLinkDataList = addLink(newNodeDataList, newGroupDataList, newLinkDataList, num);
 
-        result.put("nodes", newNodeDataList);
-        result.put("groups", newGroupDataList);
-        result.put("links", newLinkDataList);
+            result.put("nodes", newNodeDataList);
+            result.put("groups", newGroupDataList);
+            result.put("links", newLinkDataList);
 
-        return result;
+            Map<String, Object> originalResult = new HashMap<>();
+            originalResult = getOriginalRegion(nodeDataList, groupDataList, linkDataList);
+            nodeDataList = (List<NodeData>) originalResult.get("nodes");
+            linkDataList = (List<LinkData>) originalResult.get("links");
+            groupDataList = (List<GroupData>) originalResult.get("groups");
+
+            linkDataList = regionLink(nodeDataList, newNodeDataList, linkDataList);
+            nodeDataList.addAll(newNodeDataList);
+            linkDataList.addAll(newLinkDataList);
+            groupDataList.addAll(newGroupDataList);
+        }else {
+            System.out.println();
+        }
     }
 
     public Map<String, Object> getOriginalRegion(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
@@ -127,9 +142,9 @@ public class RegionService {
 
         for (String availabilityGroupKey : availabilityGroupKeys) {
             NodeData attachment = new NodeData();
-            attachment.setKey("VPC Elastic Network Interface"+num);
-            attachment.setText("VPC Elastic Network Interface");
-            attachment.setLoc("loc");
+            attachment.setKey("Elastic Network Interface"+num);
+            attachment.setText("Elastic Network Interface");
+            attachment.setLoc("loc"); //?
             attachment.setSource("/img/AWS_icon/Resource_icon/Res_Networking-Content-Delivery/Res_Amazon-VPC_Elastic-Network-Interface_48.svg");
             attachment.setType("Networking-Content-Delivery");
             attachment.setGroup(availabilityGroupKey);

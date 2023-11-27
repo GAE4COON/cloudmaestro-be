@@ -16,6 +16,7 @@ public class GroupData{
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String group;
 
+
     private String type;
     private String stroke;
 
