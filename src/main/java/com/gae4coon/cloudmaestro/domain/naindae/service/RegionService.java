@@ -116,17 +116,33 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
     public List<NodeData> modifyNodeDataForNewRegion(List<NodeData> originalNodeDataList) {
         List<NodeData> modifiedList = new ArrayList<>();
         for (NodeData node : originalNodeDataList) {
+            if (node.getKey().contains("Route 53")){
+                continue;
+            }
             NodeData newNode = new NodeData();
             newNode.setText(node.getText());
-            String[] locParts = node.getLoc().split(" ");
-            double x = Double.parseDouble(locParts[0]);
-            double y = Double.parseDouble(locParts[1]) + 1300;
-            newNode.setLoc(x + " " + y); // 수정된 좌표 설정
-            newNode.setType(node.getType());
-            newNode.setSource(node.getSource());
-            newNode.setKey("MR-"+node.getKey());
-            newNode.setGroup("MR-"+node.getGroup());
-            modifiedList.add(newNode);
+            try {
+                String location = node.getLoc();
+                if (location == null || location.isEmpty()) {
+                    throw new IllegalArgumentException("Location is null or empty for node: " + node);
+                }
+
+                String[] locParts = location.split(" ");
+                if (locParts.length != 2) {
+                    throw new IllegalArgumentException("Location format is incorrect for node: " + node);
+                }
+                double x = Double.parseDouble(locParts[0]);
+                double y = Double.parseDouble(locParts[1]) + 1300;
+                newNode.setLoc(x + " " + y); // 수정된 좌표 설정
+                newNode.setType(node.getType());
+                newNode.setSource(node.getSource());
+                newNode.setKey("MR-"+node.getKey());
+                newNode.setGroup("MR-"+node.getGroup());
+                modifiedList.add(newNode);
+            }
+            catch (IllegalArgumentException ignored) {
+            }
+
         }
         return modifiedList;
     }
