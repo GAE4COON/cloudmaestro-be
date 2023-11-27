@@ -256,7 +256,7 @@ public class AvailableService {
                 }
                 if(!includeEc2){
                     AlbNode = makeALb(alb_index,alb_node_x,alb_node_y);
-
+                    System.out.println("hello");
                     // internet gateway to ALB
                     LinkData addIntoALB = createLinkData("Internet Gateway", AlbNode.getKey(), key - 1);
                     linkDataList.add(addIntoALB);
@@ -429,11 +429,21 @@ public class AvailableService {
             }
 
         }
-        for(LinkData listdata2: linkDataList){
-            if(listdata2.getTo().equals(to)){
-                ExceptNode.add(listdata2.getFrom());
-            }
+
+            for(LinkData listdata2: linkDataList) {
+                if (to != "") {
+                    if (listdata2.getTo().equals(to)) {
+                        System.out.println("To" + listdata2.getFrom());
+                        ExceptNode.add(listdata2.getFrom());
+                    }
+                }else{
+                    if(listdata2.getTo().equals(node)){
+                        ExceptNode.add(node);
+                    }
+
+                }
         }
+
 
 
         System.out.println("ExceptNode: " + ExceptNode);
@@ -700,8 +710,15 @@ public class AvailableService {
             }
             if(node.contains("EC2")){
 
-
-                if (exceptNode2.isEmpty() && !exceptNode2.contains(node)) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
+                System.out.println("2222" + exceptNode2);
+                System.out.println("Node" + node);
+                boolean exit = true;
+                for(String except : exceptNode2){
+                    if(except.equals(node)){
+                        exit = false;
+                    }
+                }
+                if (exceptNode2.isEmpty() || exit) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
                     System.out.println("Except2Node" + exceptNode2);
                     System.out.println("Node" + node);
 
