@@ -110,6 +110,7 @@ public class RehostController {
             groupData.setKey("Service");
             groupData.setText("Service");
             groupData.setStroke("rgb(158, 224, 255)");
+
             groupDataList.add(groupData);
 
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList));

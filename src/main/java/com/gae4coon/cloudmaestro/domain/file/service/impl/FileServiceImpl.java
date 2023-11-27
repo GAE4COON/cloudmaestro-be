@@ -163,6 +163,7 @@ public class FileServiceImpl implements FileService {
             groupNode.addProperty("isGroup", true);
             groupNode.addProperty("type", "group");
             groupNode.addProperty("key", g);
+            groupNode.addProperty("stroke", "rgb(128,128,128)");
 
             nodeDataArray.add(groupNode);
         }
@@ -194,7 +195,6 @@ public class FileServiceImpl implements FileService {
 
             // "compute" 부분 변환
             Map<String, Object> compute = new HashMap<>();
-            System.out.println("key!!!!!!!!"+costMap.keySet());
             for (String key : costMap.keySet()) {
                 if (key.startsWith("EC2")) {
                     compute.put(key, costMap.get(key));
