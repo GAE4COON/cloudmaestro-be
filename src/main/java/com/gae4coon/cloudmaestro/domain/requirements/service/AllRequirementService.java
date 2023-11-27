@@ -58,6 +58,8 @@ public class AllRequirementService {
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+
+        availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         requirementService.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
@@ -74,7 +76,7 @@ public class AllRequirementService {
 
         //System.out.println("requriement data : "x + available);
         System.out.println("ReuqireDiagramDTO : " + requireDiagramDTO);
-        availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
+
 
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
