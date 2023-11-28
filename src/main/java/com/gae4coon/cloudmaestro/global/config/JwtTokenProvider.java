@@ -1,5 +1,6 @@
 package com.gae4coon.cloudmaestro.global.config;
 
+import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import com.gae4coon.cloudmaestro.domain.user.entity.principleDetails;
 import com.gae4coon.cloudmaestro.domain.user.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
@@ -59,9 +60,9 @@ public class JwtTokenProvider {
         // AccessToken 생성
         Date accessTokenExpiresIn = new Date(now + accessExpirationTime);
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(userId)
                 .claim("auth", authorities)
-                .claim("userId", userId)
+                .claim("name", authentication.getName())
                 .setExpiration(accessTokenExpiresIn)
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();
