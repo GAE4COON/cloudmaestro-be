@@ -55,7 +55,7 @@ public class RequirementService {
         private void createRds(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, GroupData region, Point2D location, List<String> subnetKeys, boolean isFirstRegion) {
                 int i = 0;
                 String vpcKey = region.getKey();
-                String azKey = region.getKey() + "Multi-AZ"; // AZ 키 생성
+                String azKey = region.getKey() + "Multi-AZ";
 
                 // AZ 및 Private Subnet 노드 생성
                 NodeData availabilityZoneNode = new NodeData();
