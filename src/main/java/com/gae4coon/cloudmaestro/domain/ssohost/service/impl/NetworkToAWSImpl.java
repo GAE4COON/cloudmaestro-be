@@ -267,7 +267,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
     }
 
     public void moveNodeToRegion(List<NodeData> nodeDataList){
-       for(NodeData nodeData : nodeDataList){
+        for(NodeData nodeData : nodeDataList){
             if(nodeData.getKey().contains("Shield")){
 //                nodeData.setGroup("Region");
             }
@@ -292,7 +292,7 @@ public class NetworkToAWSImpl implements NetworkToAWS {
             else if(nodeData.getKey().contains("NACL")){
                 nodeData.setGroup("VPC");
             }
-       }
+        }
     }
 
     public void addNat(List<NodeData> nodeDataList, List<GroupData> groupDataList) {
@@ -493,49 +493,78 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
             node_x = nat_x +430;
             node_y = nat_y -85;
+            Set<String> visitedNode = new HashSet<>();
 
+            // 연결 정보 맵 생성
+            Map<String, String> connectionMap = new HashMap<>();
+            for (LinkData link : linkDataList) {
+            connectionMap.put(link.getFrom(), link.getTo());
+            }
+            System.out.println("connectionMap" + connectionMap);
 
-            for(LinkData linkdata : linkDataList){
-                for(NodeData nodedata : nodeDataList){
-                    // Group Data
-                    List<String> visitGroup = new ArrayList<>();
+            String startNodeKey = "Internet Gateway"; // 시작점 키 설정 필요
+            Set<String> visited = new HashSet<>();
+            Queue<String> queue = new LinkedList<>();
+            queue.add(startNodeKey);
 
-                    if (linkdata.getFrom().contains("Group")) {
-                        double[] newCoordinates = processFromGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
-                        node_x = newCoordinates[0];
-                        node_y = newCoordinates[1];
-                    }
-                    if(linkdata.getTo().contains("Group")){
-                        System.out.println("GetTo"+linkdata.getTo());
-                        double[] newCoordinates = processToGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
-                        node_x = newCoordinates[0];
-                        node_y = newCoordinates[1];
-
-                    }
-                    // group에 없는 ec2일 경우
-                    if (linkdata.getFrom().contains(nodedata.getKey()) &&
-                            !Except.contains(nodedata.getKey()) &&
-                            nodedata.getGroup().contains(netName)
-                    ){
-                        System.out.println("Ec2 Comeon" + nodedata.getKey());
-                        node_x += 20;
-                        String newLoc = (node_x) + " " + (node_y);
-                        nodedata.setLoc(newLoc);
-
+            while (!queue.isEmpty()) {
+                String currentNodeKey = queue.poll();
+                System.out.println("currenNodeKey" + currentNodeKey);
+                    if (visited.contains(currentNodeKey)) {
+                        continue; // 이미 방문한 노드는 건너뛴다
                     }
 
-                }
+                    if (!visitedNode.contains(currentNodeKey)) {
+
+                        if (currentNodeKey.contains("Group")) {
+                            double[] newCoordinates = processFromGroupData(currentNodeKey, nodeDataList, groupDataList, netName, Except, node_x, node_y);
+                            node_x = newCoordinates[0];
+                            node_y = newCoordinates[1];
+                        }
+                    }
+
+                    if (!visitedNode.contains(currentNodeKey)) {
+                        for(NodeData nodedata : nodeDataList){
+                            if(nodedata.getKey().equals(currentNodeKey)){
+                                System.out.println("Ec2 Comeon" + nodedata.getKey());
+                                node_x += 20;
+                                String newLoc = (node_x) + " " + (node_y);
+                                nodedata.setLoc(newLoc);
+                            }
+                        }
+                    }
+                    String nextNodeKey = connectionMap.get(currentNodeKey);
+                    if (nextNodeKey != null && !visited.contains(nextNodeKey)) {
+                        queue.add(nextNodeKey); // 다음 노드를 큐에 추가
+                        node_x += 20; // 위치 업데이트
+                    }
+
+            }
 
 
             }
 
 
-        }
-
-
-
-
     }
+
+    public NodeData findNodeByKey(List<NodeData> nodeDataList, String key) {
+        for (NodeData node : nodeDataList) {
+            if (node.getKey().equals(key)) {
+                return node;
+            }
+        }
+        return null;
+    }
+    public  GroupData findGroupByKey(List<GroupData> groupDataList, String key) {
+        for (GroupData node : groupDataList) {
+            if (node.getGroup().equals(key)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+
     public double[]  processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double nat_x, double nat_y) {
         double x = 0.0;
         double y = 0.0;
@@ -557,25 +586,27 @@ public class NetworkToAWSImpl implements NetworkToAWS {
         return new double[]{nat_x,nat_y};
     }
 
-    private double[] processFromGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
+    private double[] processFromGroupData(String security_group, List<NodeData> nodeDataList, List<GroupData> groupDataList,String netName,List<String> Except, double node_x, double node_y) {
         // 해당 group이 prod private subnet에 포함됐는 지 확인
-        String security_group = linkdata.getFrom();
         for(GroupData group : groupDataList){
             if(group.getKey().contains(security_group) &&
                     group.getGroup().contains(netName) &&
-                    !visitGroup.contains(nodedata.getKey()) &&
                     !Except.contains(security_group)
                 // 새로운 security 요소여야 함 &&
 
             ){
-                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                if(nodedata.getGroup().contains(security_group)){
-                    visitGroup.add(nodedata.getKey());
-                    node_x += 150;
-                    String newLoc = (node_x) + " " + (node_y);
-                    nodedata.setLoc(newLoc);
+                for(NodeData nodedata: nodeDataList){
+                    if (nodedata.getGroup().equals(group)){
+                        // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
 
+                            node_x += 150;
+                            String newLoc = (node_x) + " " + (node_y);
+                            nodedata.setLoc(newLoc);
+
+
+                    }
                 }
+
 
             }
         }
@@ -612,4 +643,3 @@ public class NetworkToAWSImpl implements NetworkToAWS {
 
 
 }
-
