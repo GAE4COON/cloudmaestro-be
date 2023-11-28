@@ -20,7 +20,7 @@ public class RequirementService {
                                     processRegions(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
                             }
                     }
-            } else if (globalRequirements.contains("데이터베이스 분산") || globalRequirements.contains("이중화")) {
+            } else if (globalRequirements.contains("데이터베이스 분산 (RDS)") || globalRequirements.contains("리소스 이중화")) {
                     processRegions(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
             }
     }
@@ -55,7 +55,7 @@ public class RequirementService {
         private void createRds(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, GroupData region, Point2D location, List<String> subnetKeys, boolean isFirstRegion) {
                 int i = 0;
                 String vpcKey = region.getKey();
-                String azKey = region.getKey() + "Multi-AZ"; // AZ 키 생성
+                String azKey = region.getKey() + "Multi-AZ";
 
                 // AZ 및 Private Subnet 노드 생성
                 NodeData availabilityZoneNode = new NodeData();

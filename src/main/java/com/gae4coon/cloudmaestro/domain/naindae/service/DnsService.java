@@ -16,7 +16,7 @@ public class DnsService {
         boolean route53Exists = nodeDataList.stream()
                 .anyMatch(node -> node.getKey().contains("Route 53"));
 
-        if ((globalRequirements.contains("부하 분산") || globalRequirements.contains("DNS 서비스")) && !route53Exists ){
+        if ((globalRequirements.contains("부하 분산") || globalRequirements.contains("DNS서비스 (Route53)")) && !route53Exists ){
             Point2D location = findRouteLoc(nodeDataList);
             long regionCount = groupDataList.stream()
                     .filter(group -> group.getKey().contains("Region"))
