@@ -14,21 +14,19 @@ import java.util.Set;
 public class Cloud {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "cloudId", nullable = false, length = 256)
-
+    @Column(name = "cloud_id", nullable = false, length = 256)
     private Long cloudId;
 
     // AWS와 User는 ManyToOne 관계임을 명시
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
-
+    @JoinColumn(name = "user_id")
     private Member userId;
 
     @Column(name = "cloud_file", nullable = false, length = 256)
     private String cloudFile;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requireId")
+    @JoinColumn(name = "require_id")
     private Require requireId;
 
 

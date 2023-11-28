@@ -14,10 +14,10 @@ import java.util.Set;
 public class Require {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "requireId")
+    @Column(name = "require_id")
     private Long requireId;
 
-    @Column(name = "industrialId", nullable = false, length = 256)
+    @Column(name = "industrial_id", nullable = false, length = 256)
     private String industrialId;
 
 

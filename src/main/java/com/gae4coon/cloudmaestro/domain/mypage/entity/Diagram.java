@@ -8,24 +8,23 @@ import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)@Table(name = "diagram")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Table(name = "diagram")
 public class Diagram {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "diagramId", nullable = false, length = 50, unique = true)
+    @Column(name = "diagram_id", nullable = false, length = 50, unique = true)
     private Long diagramId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private Member userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cloudId")
+    @JoinColumn(name = "cloud_id")
     private Cloud cloudId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "networkId")
+    @JoinColumn(name = "network_id")
     private Network networkId;
-
-
 }

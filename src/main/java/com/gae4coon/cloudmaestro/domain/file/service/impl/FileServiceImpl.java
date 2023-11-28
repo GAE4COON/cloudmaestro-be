@@ -220,6 +220,14 @@ public class FileServiceImpl implements FileService {
             }
             response.put("storage", storage);
 
+            Map<String, Object> waf = new HashMap<>();
+            for (String key : costMap.keySet()) {
+                if (key.startsWith("AWS_WAF")) {
+                    waf.put(key, costMap.get(key));
+                }
+            }
+            response.put("waf", waf);
+
             return response;
 
         } catch (IOException e) {

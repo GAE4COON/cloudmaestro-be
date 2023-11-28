@@ -13,14 +13,14 @@ import java.util.Set;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)public class Network {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "networkId")
+    @Column(name = "network_id")
     private Long networkId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private Member userId;
 
-    @Column(name = "networkFile", nullable = false, length = 256)
+    @Column(name = "network_file", nullable = false, length = 256)
     private String networkFile;
 
     @OneToMany(mappedBy = "networkId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)

@@ -1,6 +1,10 @@
 package com.gae4coon.cloudmaestro.domain.file.controller;
 
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
+import com.gae4coon.cloudmaestro.domain.file.service.JWTDecodeService;
+import com.gae4coon.cloudmaestro.domain.file.service.S3Service;
+import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -9,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
+import java.security.Principal;
 
 
 @RestController
@@ -17,6 +22,9 @@ import java.io.*;
 public class FileController {
 
     private final FileService fileService;
+    private final JWTDecodeService jwtDecodeService;
+    private final NetworkService networkService;
+    private final S3Service s3Service;
 
     @PostMapping(value = "/upload")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) throws Exception {
@@ -74,6 +82,26 @@ public class FileController {
             return ResponseEntity.badRequest().body("File is empty.");
         }
         return ResponseEntity.ok(fileService.summaryFileParse(file));
+    }
+
+
+    @PostMapping("/save-diagram")
+    public ResponseEntity<?> postNetworkData(@RequestBody(required = false) String postData, Principal request) {
+
+        // 나머지 로직 처리
+//        String userId = (String) jwtDecodeService.decodeJWT(request).get("userId");
+        System.out.println(request);
+        String userId = request.getName();
+        System.out.println(userId);
+
+        // put s3
+        String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
+        s3Service.uploadS3File(fileName, postData);
+
+        // put network
+        networkService.addNetwork(userId, fileName, null);
+
+        return ResponseEntity.ok().build();
     }
 
 }
