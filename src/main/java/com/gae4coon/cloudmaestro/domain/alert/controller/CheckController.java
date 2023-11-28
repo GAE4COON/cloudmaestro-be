@@ -47,7 +47,7 @@ public class CheckController {
             return ResponseEntity.ok().body(result);
         }
     }
-    @PostMapping("/node-check")
+    @PostMapping("/group-check")
     public ResponseEntity<Object> nodeCheck(@RequestBody inputDto inputData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
