@@ -20,7 +20,7 @@ public class RequirementService {
                                     processRegions(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
                             }
                     }
-            } else if (globalRequirements.contains("데이터베이스 분산") || globalRequirements.contains("이중화")) {
+            } else if (globalRequirements.contains("데이터베이스 분산 (RDS)") || globalRequirements.contains("리소스 이중화")) {
                     processRegions(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
             }
     }

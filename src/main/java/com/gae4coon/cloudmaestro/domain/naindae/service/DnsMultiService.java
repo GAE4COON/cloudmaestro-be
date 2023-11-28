@@ -26,7 +26,7 @@ public class DnsMultiService {
         List<String> globalRequirements = requireDiagramDTO.getRequirementData().getGlobalRequirements();
 
         // globalRequirements에 특정 문자열이 포함되어 있는지 확인
-        if (globalRequirements.contains("DNS 서버 이중화") || globalRequirements.contains("이중화")) {
+        if (globalRequirements.contains("DNS서비스 이중화 (Route53)") || globalRequirements.contains("리소스 이중화")) {
             boolean route53Exists = nodeDataList.stream()
                     .anyMatch(node -> node.getKey().contains("Route 53"));
 
