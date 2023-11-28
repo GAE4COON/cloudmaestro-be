@@ -47,7 +47,7 @@ public class CheckController {
             return ResponseEntity.ok().body(result);
         }
     }
-    @PostMapping("/node-check")
+    @PostMapping("/group-check")
     public ResponseEntity<Object> nodeCheck(@RequestBody inputDto inputData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
@@ -64,7 +64,7 @@ public class CheckController {
                 List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
                 if (inputData.getCheckOption().equals("VPC")) {
-                    HashMap ResponseMap = diagramCheckService.vpcCheck(groupDataList);
+                    HashMap ResponseMap = diagramCheckService.vpcCheck(groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 } else {
                     HashMap<String, String> check = new HashMap<>();

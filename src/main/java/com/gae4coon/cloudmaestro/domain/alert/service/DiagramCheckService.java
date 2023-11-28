@@ -53,7 +53,7 @@ public class DiagramCheckService {
 
 
 
-    public HashMap<String, String> vpcCheck(List<GroupData> groupDataList) {
+    public HashMap<String, String> vpcCheck(List<GroupData> groupDataList, GroupData newData) {
         boolean flag = false;
         HashMap<String, String> check = new HashMap<>();
         List<GroupData> checkgr = new ArrayList<>();
@@ -70,9 +70,11 @@ public class DiagramCheckService {
                 //그룹 체크
                 if (group.getGroup() != null) {
                     if (group.getText().equals("VPC") && (!group.getGroup().contains("Region") && !BPgroup.contains(group.getKey()))) {
-                        flag=true;
-                        check.put("message", "VPC는 Region 그룹 안에 있어야 합니다.");
-                        break;
+                        if (group.getKey().equals(newData.getKey())) {
+                            flag = true;
+                            check.put("message", "VPC는 Region 그룹 안에 있어야 합니다.");
+                            break;
+                        }
                     }
                 }
                 //그룹에 잘 있다면? 그리고 Region 거르기
@@ -98,9 +100,11 @@ public class DiagramCheckService {
                     List<String> vpcs = entry.getValue(); // VPC 리스트
 
                     if (vpcs.size()>5){
-                        flag=true;
-                        check.put("message", "VPC는 한 Region당 5개를 초과할 수 없습니다.");
-                        break;
+                        if (vpcs.contains(newData.getKey())) {
+                            flag = true;
+                            check.put("message", "VPC는 한 Region당 5개를 초과할 수 없습니다.");
+                            break;
+                        }
                     }
                 }
             }
