@@ -54,15 +54,15 @@ public class SpringConfig {
                 .authorizeHttpRequests(auth -> {
                     try {
                         auth
-                            .requestMatchers(WHITE_LIST).permitAll()
-                            .requestMatchers("/v3/api-docs/**").permitAll()
-                            .requestMatchers("/swagger-ui/**").permitAll()
-                            .anyRequest().authenticated();
+                                .requestMatchers(WHITE_LIST).permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .anyRequest().authenticated();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }).sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .apply(new JWTConfig(tokenProvider));
+                .apply(new JWTConfig(tokenProvider));
 
 
         return http.build();

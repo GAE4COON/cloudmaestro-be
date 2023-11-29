@@ -13,6 +13,16 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class DiagramDTOService {
+    public HashMap<String, Object> DiagramDTOtoResponse(GraphLinksModel graphLinksModel){
+        Map<String, Object> dtog = dtoGenerator(graphLinksModel);
+
+        List<NodeData> nodeDataList = (List<NodeData>) dtog.get("nodeDataArray");
+        List<GroupData> groupDataList = (List<GroupData>) dtog.get("groupDataArray");
+        List<LinkData> linkDataList = (List<LinkData>) dtog.get("linkDataArray");
+
+        HashMap<String, Object> response = dtoComplete(nodeDataList, groupDataList, linkDataList);
+        return response;
+    }
     
     public Map<String, Object> dtoGenerator(GraphLinksModel graphLinksModel){
         List<NodeData> dataArray = graphLinksModel.getNodeDataArray();
