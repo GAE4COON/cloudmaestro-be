@@ -43,6 +43,7 @@ public class MyArchitectureController {
         String diagramFile = diagramRepository.findByDiagramId(diagramId).getDiagramFile();
         GraphLinksModel graphLinksModel = s3service.getS3File(diagramFile);
         HashMap<String, Object> response = diagramDTOService.DiagramDTOtoResponse(graphLinksModel);
+        System.out.println("response "+response);
         return ResponseEntity.ok(response);
     }
 }

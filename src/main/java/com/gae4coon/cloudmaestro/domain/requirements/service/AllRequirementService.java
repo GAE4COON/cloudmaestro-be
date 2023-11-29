@@ -51,6 +51,7 @@ public class AllRequirementService {
         List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
         List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
         List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+        Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
 
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
@@ -73,7 +74,7 @@ public class AllRequirementService {
         //System.out.println("requriement data : "x + available);
         System.out.println("ReuqireDiagramDTO : " + requireDiagramDTO);
 
-        HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
+        HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList, cost);
 
         return response;
     }

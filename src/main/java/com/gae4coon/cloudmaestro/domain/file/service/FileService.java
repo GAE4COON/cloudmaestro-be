@@ -2,6 +2,7 @@ package com.gae4coon.cloudmaestro.domain.file.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.google.gson.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellAddress;
@@ -176,19 +177,9 @@ public class FileService {
         return root.toString();
     }
 
-    public Map<String, Object> summaryFileParse(MultipartFile file){
-        try {
-            // Read the content of the uploaded file into a string
-            String content = new String(file.getBytes(), StandardCharsets.UTF_8);
-
-            // Parse the JSON string into a Map<String, Object>
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> jsonData = objectMapper.readValue(content, new TypeReference<Map<String, Object>>() {
-            });
-
+    public Map<String, Object> summaryFileParse(Map<String, Object> costMap){
             // 변환된 데이터를 담을 결과 맵
             Map<String, Object> response = new HashMap<>();
-            Map<String, Object> costMap = (Map<String, Object>) jsonData.get("cost");
 
             // "compute" 부분 변환
             Map<String, Object> compute = new HashMap<>();
@@ -226,11 +217,6 @@ public class FileService {
             response.put("waf", waf);
 
             return response;
-
-        } catch (IOException e) {
-            return null;
-            // Handle exceptions such as IO errors or JSON parsing errors
-        }
     }
 
 

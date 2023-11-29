@@ -19,8 +19,9 @@ public class DiagramDTOService {
         List<NodeData> nodeDataList = (List<NodeData>) dtog.get("nodeDataArray");
         List<GroupData> groupDataList = (List<GroupData>) dtog.get("groupDataArray");
         List<LinkData> linkDataList = (List<LinkData>) dtog.get("linkDataArray");
+        Map<String, Object> cost = (Map<String, Object>) dtog.get("cost");
 
-        HashMap<String, Object> response = dtoComplete(nodeDataList, groupDataList, linkDataList);
+        HashMap<String, Object> response = dtoComplete(nodeDataList, groupDataList, linkDataList, cost);
         return response;
     }
     
@@ -28,6 +29,7 @@ public class DiagramDTOService {
         List<NodeData> dataArray = graphLinksModel.getNodeDataArray();
         List<NodeData> nodeDataList = new ArrayList<>();
         List<GroupData> groupDataList = new ArrayList<>();
+        Map<String, Object> cost = graphLinksModel.getCost();
 
         List<LinkData> linkDataList = graphLinksModel.getLinkDataArray();
 
@@ -44,12 +46,13 @@ public class DiagramDTOService {
         responseBody.put("nodeDataArray", nodeDataList);
         responseBody.put("groupDataArray", groupDataList);
         responseBody.put("linkDataArray", linkDataList);
+        responseBody.put("cost", cost);
 
         return responseBody;
     }
 
     
-    public HashMap<String, Object> dtoComplete(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+    public HashMap<String, Object> dtoComplete(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, Map<String, Object> cost){
 
         List<Object> finalDataArray = new ArrayList<>();
         finalDataArray.addAll(nodeDataList);
@@ -61,6 +64,7 @@ public class DiagramDTOService {
         responseBody.put("linkKeyProperty", "key");
         responseBody.put("nodeDataArray", finalDataArray);
         responseBody.put("linkDataArray", linkDataList);
+        responseBody.put("cost", cost);
 
         HashMap<String, Object> response = new HashMap<>();
 
