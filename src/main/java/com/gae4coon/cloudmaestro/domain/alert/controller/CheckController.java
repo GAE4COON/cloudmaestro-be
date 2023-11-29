@@ -3,6 +3,7 @@ package com.gae4coon.cloudmaestro.domain.alert.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputDto;
+import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
@@ -48,7 +49,7 @@ public class CheckController {
         }
     }
     @PostMapping("/group-check")
-    public ResponseEntity<Object> nodeCheck(@RequestBody inputDto inputData) throws JsonProcessingException {
+    public ResponseEntity<Object> groupCheck(@RequestBody inputDto inputData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         System.out.println("inputData: "+inputData);
@@ -65,6 +66,44 @@ public class CheckController {
 
                 if (inputData.getCheckOption().equals("VPC")) {
                     HashMap ResponseMap = diagramCheckService.vpcCheck(groupDataList, inputData.getNewData());
+                    result.put("result", ResponseMap);
+                } else {
+                    HashMap<String, String> check = new HashMap<>();
+                    check.put("status", "success");
+                    result.put("result", check);
+                }
+            }else {
+                HashMap<String, String> check = new HashMap<>();
+                check.put("status", "success");
+                result.put("result", check);
+            }
+
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            result.put("result", "error");
+            System.out.println("Error: " + e.getMessage());
+            return ResponseEntity.ok().body(result);
+        }
+    }
+
+    @PostMapping("/node-check")
+    public ResponseEntity<Object> nodeCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
+        HashMap result = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        System.out.println("inputData: "+inputData);
+        try {
+            if (inputData.getDiagramData()!=null) {
+                GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
+                System.out.println("diagramData:" + diagramData);
+                // diagramData formatter
+                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
+
+                List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
+                List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
+                List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+
+                if (inputData.getCheckOption().equals("API Gateway")) {
+                    HashMap ResponseMap = diagramCheckService.APICheck(nodeDataList, groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 } else {
                     HashMap<String, String> check = new HashMap<>();

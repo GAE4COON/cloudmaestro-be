@@ -3,12 +3,17 @@ package com.gae4coon.cloudmaestro.domain.alert.service;
 import com.amazonaws.services.ec2.model.Vpc;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
 @Service
+@RequiredArgsConstructor
 public class DiagramCheckService {
+
+    private final AlertGroupService alertGroupService;
     public HashMap<String, String> linkCheck(LinkData linkData) {
         HashMap<String, String> check = new HashMap<>();
         if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && linkData.getFrom().contains("Firewall")) {
@@ -17,41 +22,8 @@ public class DiagramCheckService {
         } else {
             check.put("status", "success");
         }
-
         return check;
     }
-
-
-    public List<String> BPgroupSearch(List<GroupData> groupDataList) {
-        HashSet<String> BPSet = new HashSet<>();
-        for (GroupData group : groupDataList) {
-            if(group.getText().equals("Module")){
-                BPSet.add(group.getKey());
-            }
-        }
-
-        int previousSize = 0;
-        int currentSize = BPSet.size();
-
-        while (previousSize != currentSize) {
-            previousSize = currentSize;
-
-            for (GroupData groupItem : groupDataList) {
-                if (groupItem.getGroup() instanceof String) {
-                    for (String setItem : BPSet) {
-                        if (groupItem.getGroup().equals(setItem)) {
-                            BPSet.add(groupItem.getKey());
-                        }
-                    }
-                }
-            }
-            currentSize = BPSet.size();
-        }
-        return new ArrayList<>(BPSet);
-    }
-
-
-
 
     public HashMap<String, String> vpcCheck(List<GroupData> groupDataList, GroupData newData) {
         boolean flag = false;
@@ -62,7 +34,7 @@ public class DiagramCheckService {
 
         if(groupDataList != null) {
             //BP 찾기
-            List<String> BPgroup=BPgroupSearch(groupDataList);
+            List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
             System.out.println(BPgroup);
 
 
@@ -77,11 +49,10 @@ public class DiagramCheckService {
                         }
                     }
                 }
-                //그룹에 잘 있다면? 그리고 Region 거르기
-                else{
-                    if (group.getText().equals("Region")) {
-                        checkgr.add(group);
-                    }
+                //그룹이 없다면? 그리고 Region 거르기
+                if (group.getText().equals("Region"))
+                 {
+                    checkgr.add(group);
                 }
             }
             if(flag != true) {
@@ -108,7 +79,44 @@ public class DiagramCheckService {
                     }
                 }
             }
+        }
+        if (flag) {
+            check.put("status", "fail");
+        }else{
+            check.put("status", "success");
+        }
+        return check;
+    }
 
+    public HashMap<String, String> APICheck(List<NodeData> nodeDataList, List<GroupData> groupDataList, NodeData newData) {
+        boolean flag = false;
+        HashMap<String, String> check = new HashMap<>();
+        List<String> checkgr = new ArrayList<>();
+
+        List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
+        System.out.println("BPgroup"+ BPgroup);
+
+        if(groupDataList != null) {
+            if(newData.getGroup().contains("VPC")) {
+                List<String> hhgroup = alertGroupService.groupSearch2(newData.getGroup(), groupDataList);
+                System.out.println("hhgroup" + hhgroup);
+
+                for (NodeData item : nodeDataList) {
+                    if (!(item.getGroup() == null) && hhgroup.contains(item.getGroup()) && item.getText().equals("API Gateway")) {
+                        checkgr.add(item.getKey());
+                    }
+                }
+                System.out.println("checkgr" + checkgr);
+                System.out.println("NewData" + newData.getKey());
+
+                if (checkgr.size() > 1) {
+                    if (checkgr.contains(newData.getKey()) && !BPgroup.contains(newData.getGroup())) {
+                        flag = true;
+                        check.put("message", "VPC는 당 API GateWay는 한 개를 초과할 수 없습니다.");
+                        System.out.println("??check");
+                    }
+                }
+            }
         }
 
         if (flag) {
