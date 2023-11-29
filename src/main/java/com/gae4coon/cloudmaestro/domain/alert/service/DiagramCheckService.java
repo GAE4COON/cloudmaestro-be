@@ -126,4 +126,32 @@ public class DiagramCheckService {
         }
         return check;
     }
+
+    public HashMap<String, String> DBcheck(List<GroupData> groupDataList,NodeData newData) {
+        boolean flag = false;
+        HashMap<String, String> check = new HashMap<>();
+        List<String> checkgr = new ArrayList<>();
+
+        List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
+        System.out.println("BPgroup"+ BPgroup);
+
+        if(groupDataList != null) {
+            if (newData.getGroup() != null) {
+
+                List<String> hhgroup = alertGroupService.groupSearch3(newData.getKey(), groupDataList);
+                if (!hhgroup.contains("Private subnet") && !BPgroup.contains(newData.getGroup())) {
+                    flag = true;
+                    check.put("message", "인터넷에 연결할 필요가 없는 VPC내의 DB는 클러스터는 Private Subnet에 배치해야합니다.");
+                    System.out.println("??check");
+                }
+            }
+        }
+
+        if (flag) {
+            check.put("status", "fail");
+        }else{
+            check.put("status", "success");
+        }
+        return check;
+    }
 }

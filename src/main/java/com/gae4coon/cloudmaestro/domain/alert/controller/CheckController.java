@@ -110,6 +110,15 @@ public class CheckController {
                     check.put("status", "success");
                     result.put("result", check);
                 }
+
+                if (inputData.getCheckOption().equals("Database")) {
+                    HashMap ResponseMap = diagramCheckService.DBcheck(groupDataList, inputData.getNewData());
+                    result.put("result", ResponseMap);
+                } else {
+                    HashMap<String, String> check = new HashMap<>();
+                    check.put("status", "success");
+                    result.put("result", check);
+                }
             }else {
                 HashMap<String, String> check = new HashMap<>();
                 check.put("status", "success");

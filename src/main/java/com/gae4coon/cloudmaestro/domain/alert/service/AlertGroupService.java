@@ -66,4 +66,31 @@ public class AlertGroupService {
         }
         return new ArrayList<>(BPSet);
     }
+
+    public List<String> groupSearch3(String option,List<GroupData> groupDataList) { //nodegroup 분할되어 나올 때 쓸 함수
+        HashSet<String> BPSet = new HashSet<>();
+
+        BPSet.add(option);
+
+
+        int previousSize = 0;
+        int currentSize = BPSet.size();
+
+        while (previousSize != currentSize) {
+            previousSize = currentSize;
+
+            for (GroupData groupItem : groupDataList) {
+                if (groupItem.getKey() instanceof String) {
+                    for (String setItem : BPSet) {
+                        if (groupItem.getGroup() !=null && groupItem.getGroup().equals(setItem)) {
+                            BPSet.add(groupItem.getGroup());
+                            if (groupItem.getGroup().contains("Private subnet")) break;
+                        }
+                    }
+                }
+            }
+            currentSize = BPSet.size();
+        }
+        return new ArrayList<>(BPSet);
+    }
 }
