@@ -92,30 +92,36 @@ public class CloudFrontDistribution {
         }
 
         for (String internetGatewayNode : internetGatewayNodes) {
-            LinkData link = new LinkData();
-            link.setFrom(routeNode);
-            link.setTo(internetGatewayNode);
-            linkDataList.add(link);
-
-            LinkData link4 = new LinkData();
-            link4.setFrom(cdnNode);
-            link4.setTo(internetGatewayNode);
-            linkDataList.add(link4);
+            if (!linkExists(linkDataList, routeNode, internetGatewayNode)) {
+                linkDataList.add(createLink(routeNode, internetGatewayNode));
+            }
+            if (!linkExists(linkDataList, cdnNode, internetGatewayNode)) {
+                linkDataList.add(createLink(cdnNode, internetGatewayNode));
+            }
         }
 
-        LinkData link2 = new LinkData();
-        link2.setFrom(routeNode);
-        link2.setTo(cdnNode);
-        linkDataList.add(link2);
-
+        if (!linkExists(linkDataList, routeNode, cdnNode)) {
+            linkDataList.add(createLink(routeNode, cdnNode));
+        }
 
         for (String s3Node : s3Nodes) {
-            LinkData link3 = new LinkData();
-            link3.setFrom(cdnNode);
-            link3.setTo(s3Node);
-            linkDataList.add(link3);
+            if (!linkExists(linkDataList, cdnNode, s3Node)) {
+                linkDataList.add(createLink(cdnNode, s3Node));
+            }
         }
 
+    }
+
+    private boolean linkExists(List<LinkData> linkDataList, String from, String to) {
+        return linkDataList.stream()
+                .anyMatch(link -> link.getFrom().equals(from) && link.getTo().equals(to));
+    }
+
+    private LinkData createLink(String from, String to) {
+        LinkData link = new LinkData();
+        link.setFrom(from);
+        link.setTo(to);
+        return link;
     }
 
     public Point2D findRouteLoc(List<NodeData> nodeDataList) {

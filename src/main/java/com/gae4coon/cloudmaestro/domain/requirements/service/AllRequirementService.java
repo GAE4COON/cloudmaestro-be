@@ -14,6 +14,7 @@ import com.gae4coon.cloudmaestro.domain.naindae.service.RegionService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DbReplication;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DbCache;
 import com.gae4coon.cloudmaestro.domain.naindae.service.CloudFrontDistribution;
+import com.gae4coon.cloudmaestro.domain.naindae.service.DbCache;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -29,7 +30,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class AllRequirementService {
-
     private final DiagramDTOService diagramDTOService;
     private final SecurityService securityService;
     private final LoggingService loggingService;
@@ -64,8 +64,9 @@ public class AllRequirementService {
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-        //dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         cloudFrontDistribution.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 
         // Service 데이터 임시 위치 할당
