@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class CloudFrontDistribution {
     public void createNode(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList) {
         List<String> globalRequirements = requireDiagramDTO.getRequirementData().getGlobalRequirements();
-        if((globalRequirements.contains("부하 분산") || globalRequirements.contains("RDS 읽기복제 및 캐싱 (RDS)"))){
+        if((globalRequirements.contains("부하 분산") || globalRequirements.contains("정적,동적컨텐츠 분산 (CloudFront)"))){
             addNode(nodeDataList,linkDataList,groupDataList);
             addLink(nodeDataList,linkDataList,groupDataList);
         }
@@ -32,7 +32,6 @@ public class CloudFrontDistribution {
                 .filter(group -> "AWS_Groups".equals(group.getType()) && group.getKey().contains("Region") && group.getGroup()==null)
                 .collect(Collectors.toList());
 
-        System.out.println("regions data:"+regions);
         Point2D location = findRouteLoc(nodeDataList);
         String newLoc = (location.getX()-350) + " " + (location.getY()+300);
         String cdnLoc = (location.getX()-350) + " " + (location.getY()+150);
@@ -63,7 +62,7 @@ public class CloudFrontDistribution {
                 System.out.println("Region loc:"+region.getLoc());
                 NodeData s3Node = new NodeData();
                 s3Node.setKey("Simple Storage Service (S3)"+num); // NAT 키를 고유하게 만듦
-                s3Node.setText("Simple Storage Service (S3)");
+                s3Node.setText("Simple Storage Service (S3)"+num);
                 s3Node.setLoc(region.getLoc()); // route53에서 x값을 오른쪽으로 설정해줘야함 여기
                 s3Node.setSource("/img/AWS_icon/Arch_Storage/Arch_Amazon-Simple-Storage-Service_48.svg");
                 s3Node.setType("Storage");
@@ -76,15 +75,15 @@ public class CloudFrontDistribution {
     public void addLink(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
         //todo 여기서 link로
         String routeNode = "";
-        String internetGatewayNode = "";
         String cdnNode = "";
         List<String> s3Nodes = new ArrayList<>();
+        List<String> internetGatewayNodes = new ArrayList<>();
 
         for (NodeData node : nodeDataList) {
             if (node.getKey().contains("Route 53") && routeNode.isEmpty()) {
                 routeNode = node.getKey();
-            } else if (node.getKey().contains("Internet Gateway") && internetGatewayNode.isEmpty()) {
-                internetGatewayNode = node.getKey();
+            } else if (node.getKey().contains("Internet Gateway")) {
+                internetGatewayNodes.add(node.getKey());
             } else if (node.getKey().contains("CloudFront") && cdnNode.isEmpty()) {
                 cdnNode = node.getKey();
             } else if (node.getKey().contains("Simple Storage Service (S3)")) {
@@ -92,10 +91,17 @@ public class CloudFrontDistribution {
             }
         }
 
-        LinkData link = new LinkData();
-        link.setFrom(routeNode);
-        link.setTo(internetGatewayNode);
-        linkDataList.add(link);
+        for (String internetGatewayNode : internetGatewayNodes) {
+            LinkData link = new LinkData();
+            link.setFrom(routeNode);
+            link.setTo(internetGatewayNode);
+            linkDataList.add(link);
+
+            LinkData link4 = new LinkData();
+            link4.setFrom(cdnNode);
+            link4.setTo(internetGatewayNode);
+            linkDataList.add(link4);
+        }
 
         LinkData link2 = new LinkData();
         link2.setFrom(routeNode);
@@ -110,10 +116,6 @@ public class CloudFrontDistribution {
             linkDataList.add(link3);
         }
 
-        LinkData link4 = new LinkData();
-        link4.setFrom(cdnNode);
-        link4.setTo(internetGatewayNode);
-        linkDataList.add(link4);
     }
 
     public Point2D findRouteLoc(List<NodeData> nodeDataList) {
