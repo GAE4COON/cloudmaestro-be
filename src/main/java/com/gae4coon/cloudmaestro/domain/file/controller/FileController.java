@@ -1,10 +1,9 @@
 package com.gae4coon.cloudmaestro.domain.file.controller;
 
+import com.gae4coon.cloudmaestro.domain.file.dto.SaveDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.file.service.FileService;
-import com.gae4coon.cloudmaestro.domain.file.service.JWTDecodeService;
 import com.gae4coon.cloudmaestro.domain.file.service.S3Service;
 import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -22,7 +21,6 @@ import java.security.Principal;
 public class FileController {
 
     private final FileService fileService;
-    private final JWTDecodeService jwtDecodeService;
     private final NetworkService networkService;
     private final S3Service s3Service;
 
@@ -86,20 +84,16 @@ public class FileController {
 
 
     @PostMapping("/save-diagram")
-    public ResponseEntity<?> postNetworkData(@RequestBody(required = false) String postData, Principal request) {
-
-        // 나머지 로직 처리
-//        String userId = (String) jwtDecodeService.decodeJWT(request).get("userId");
-        System.out.println(request);
-        String userId = request.getName();
-        System.out.println(userId);
-
+    public ResponseEntity<?> postNetworkData(@RequestBody(required = false) SaveDiagramDTO request,  Principal principal) {
+        String diagramData = request.getDiagramData();
+        System.out.println("diagramData "+diagramData);
+        String fileName = request.getFileName();
         // put s3
-        String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
-        s3Service.uploadS3File(fileName, postData);
+//        String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
+        s3Service.uploadS3File(fileName, diagramData);
 
-        // put network
-        networkService.addNetwork(userId, fileName, null);
+        // userId, diagramFileName
+        networkService.addDiagram(principal.getName(), fileName);
 
         return ResponseEntity.ok().build();
     }

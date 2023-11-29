@@ -1,9 +1,9 @@
 package com.gae4coon.cloudmaestro.domain.mypage.service;
 
-import com.gae4coon.cloudmaestro.domain.mypage.dto.MyNetworkDTO;
+import com.gae4coon.cloudmaestro.domain.mypage.dto.MyArchitectureDTO;
 import com.gae4coon.cloudmaestro.domain.mypage.entity.Diagram;
-import com.gae4coon.cloudmaestro.domain.mypage.entity.Network;
-import com.gae4coon.cloudmaestro.domain.mypage.repository.NetworkRepository;
+import com.gae4coon.cloudmaestro.domain.mypage.entity.Require;
+import com.gae4coon.cloudmaestro.domain.mypage.repository.DiagramRepository;
 import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import com.gae4coon.cloudmaestro.domain.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,37 +19,37 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class NetworkService {
 
-    private final NetworkRepository networkRepository;
+    private final DiagramRepository diagramRepository;
     private final MemberRepository memberRepository;
 
-    public void addNetwork(String userId, String networkFile, Set<Diagram> diagrams){
+    public void addDiagram(String userId, String diagramFile){
         Member user = memberRepository.getReferenceById(userId);
-
-        Network network = Network.builder()
+        Diagram diagram = Diagram.builder()
                 .userId(user)
-                .networkFile(networkFile)
-                .diagrams(diagrams)
+                .diagramFile(diagramFile)
+                .require(null)
                 .build();
-        System.out.println(network);
-        networkRepository.save(network);
+
+        System.out.println("diagram "+diagram);
+        diagramRepository.save(diagram);
     }
 
-    public Optional<String> getNetworkFileById(String networkId) {
-        return networkRepository.findById(networkId)
-                .map(Network::getNetworkFile);
+    public Optional<String> getNetworkFileById(Long diagramId) {
+        return diagramRepository.findById(diagramId)
+                .map(Diagram::getDiagramFile);
     }
 
-    public List<MyNetworkDTO> getNetworksByUserId(String userId) {
+    public List<MyArchitectureDTO> getNetworksByUserId(String userId) {
         AtomicLong idCounter = new AtomicLong(1); // 순차 ID 생성기
 
-        List<MyNetworkDTO> networkFiles = networkRepository.findByUserId(userId).stream()
-                .map(network -> new MyNetworkDTO(
-                        idCounter.getAndIncrement(),
-                        network.getNetworkFile(),
+        List<MyArchitectureDTO> diagramFiles = diagramRepository.findByUserId(userId).stream()
+                .map(diagram -> new MyArchitectureDTO(
+                        diagram.getDiagramId(),
+                        diagram.getDiagramFile(),
                         "/assets/img/Cloud-architecture.png"
                 ))
             .collect(Collectors.toList());
-        return networkFiles;
+        return diagramFiles;
     }
 
 }

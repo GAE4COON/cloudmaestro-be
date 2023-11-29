@@ -21,15 +21,15 @@ public class Require {
     private String industrialId;
 
 
-    @OneToMany(mappedBy = "requireId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Cloud> clouds;
+    @OneToMany(mappedBy = "require", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Diagram> diagrams;
 
     // 대충 망 별 기능... 어케처리할까
 
     @Builder
-    public Require(Long requireId, String industrialId, Set<Cloud> clouds){
+    public Require(Long requireId, String industrialId, Set<Diagram> diagrams){
         this.requireId = requireId;
         this.industrialId = industrialId;
-        this.clouds = clouds;
+        this.diagrams = diagrams;
     }
 }
