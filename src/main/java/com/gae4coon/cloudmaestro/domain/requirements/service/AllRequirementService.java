@@ -8,12 +8,10 @@ import com.gae4coon.cloudmaestro.domain.naindae.service.DnsService;
 import com.gae4coon.cloudmaestro.domain.refactor.service.BackupService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
-import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
-import com.gae4coon.cloudmaestro.domain.resource.service.AddResourceService;
 import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DnsMultiService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.RegionService;
-import com.gae4coon.cloudmaestro.domain.naindae.service.RequirementService;
+import com.gae4coon.cloudmaestro.domain.naindae.service.DbReplication;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -21,7 +19,6 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Node;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,7 +35,7 @@ public class AllRequirementService {
     private final BackupService backupService;
     private final DnsMultiService dnsMultiService;
     private final RegionService regionService;
-    private final RequirementService requirementService;
+    private final DbReplication dbReplication;
     private final DnsService dnsService;
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
@@ -61,7 +58,7 @@ public class AllRequirementService {
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-        requirementService.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 

@@ -13,7 +13,7 @@ import java.util.Map;
 public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나를 생성한지 검사
     public void getRegion(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList) {
         List<String> globalRequirements = requireDiagramDTO.getRequirementData().getGlobalRequirements();
-        if(globalRequirements.contains("서버 이중화") || globalRequirements.contains("이중화")) {
+        if(globalRequirements.contains("글로벌네트워크 구축 (멀티리전)") || globalRequirements.contains("리소스 이중화")) {
             long regionCount = groupDataList.stream()
                     .filter(group -> group.getKey().contains("Region"))
                     .count();

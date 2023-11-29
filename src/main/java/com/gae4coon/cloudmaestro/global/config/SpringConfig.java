@@ -1,5 +1,4 @@
 package com.gae4coon.cloudmaestro.global.config;
-
 import com.gae4coon.cloudmaestro.global.config.exception.JwtAccessDeniedHandler;
 import com.gae4coon.cloudmaestro.global.config.exception.JwtAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +34,8 @@ public class SpringConfig {
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
 
     private static final String[] WHITE_LIST = {
-            "/users/**",
-            "/**"
+            "/api/v1/users-api/**",
+            "/api/v1/test-api/**"
     };
 
     @Bean
@@ -70,7 +69,7 @@ public class SpringConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource  corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
