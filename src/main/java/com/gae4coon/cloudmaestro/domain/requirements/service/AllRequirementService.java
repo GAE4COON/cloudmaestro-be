@@ -12,6 +12,7 @@ import com.gae4coon.cloudmaestro.domain.security.service.SecurityService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DnsMultiService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.RegionService;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DbReplication;
+import com.gae4coon.cloudmaestro.domain.naindae.service.DbCache;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -37,6 +38,8 @@ public class AllRequirementService {
     private final RegionService regionService;
     private final DbReplication dbReplication;
     private final DnsService dnsService;
+    private final DbCache dbCache;
+
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
@@ -60,6 +63,7 @@ public class AllRequirementService {
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 
         // Service 데이터 임시 위치 할당
