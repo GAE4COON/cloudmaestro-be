@@ -88,8 +88,9 @@ public class FileController {
         String diagramData = request.getDiagramData();
         System.out.println("diagramData "+diagramData);
         String fileName = request.getFileName();
+
         // put s3
-//        String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
+//      String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
         s3Service.uploadS3File(fileName, diagramData);
 
         // userId, diagramFileName
