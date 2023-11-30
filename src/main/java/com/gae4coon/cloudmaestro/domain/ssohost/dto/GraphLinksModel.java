@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class GraphLinksModel {
@@ -12,5 +13,5 @@ public class GraphLinksModel {
     private String linkKeyProperty;
     private List<NodeData> nodeDataArray;
     private List<LinkData> linkDataArray;
-    private Cost cost;
+    private Map<String, Object> cost;
 }

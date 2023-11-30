@@ -30,7 +30,7 @@ public class LoggingService {
 
     // globalRequirements list service
 
-    public HashMap<String, Object> logging(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
+    public void logging(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
         List<String> globalRequirements = requireDTO.getGlobalRequirements();
         List<ZoneDTO> Zones = requireDTO.getZones();
 
@@ -40,9 +40,8 @@ public class LoggingService {
 
         globalService(globalRequirements);
 
-        HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
-        return response;
+        return;
     }
 
     private void globalService(List<String> globalRequirements) {
