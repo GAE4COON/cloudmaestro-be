@@ -46,4 +46,10 @@ public class MyArchitectureController {
         System.out.println("response "+response);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/history/delete")
+    public ResponseEntity<?> deleteDiagramData(@RequestBody Long diagramId) {
+        diagramRepository.deleteById(diagramId);
+        return ResponseEntity.ok("success");
+    }
 }

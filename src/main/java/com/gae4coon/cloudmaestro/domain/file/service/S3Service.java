@@ -33,19 +33,28 @@ public class S3Service {
     private String bucket;
 
     public boolean uploadS3File(String fileName, String jsonContent) {
-        try (InputStream inputStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8))) {
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentType("application/json");
-            metadata.setContentLength(jsonContent.length());
-            amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
-            System.out.println(fileName + " 저장");
-            return true;
+        try {
+            // 버킷 내에 동일한 이름의 파일이 있는지 확인
+            if (amazonS3Client.doesObjectExist(bucket, fileName)) {
+                System.out.println(fileName + " 파일이 이미 존재합니다.");
+                return false;
+            }
+
+            try (InputStream inputStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8))) {
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType("application/json");
+                metadata.setContentLength(jsonContent.length());
+                amazonS3Client.putObject(new PutObjectRequest(bucket, fileName, inputStream, metadata));
+                System.out.println(fileName + " 저장");
+                return true;
+            }
         } catch (Exception e) {
             e.printStackTrace();
-            System.out.println(fileName + " 저장 실퍁");
+            System.out.println(fileName + " 저장 실패");
             return false;
         }
     }
+
 
     public GraphLinksModel getS3File(String fileName) {
         try {
