@@ -25,7 +25,7 @@ public class rdsCostService {
         String formattedCommand = String.format(commandTemplate, instanceType, dbEngine);
 
         String[] command = {
-                "/bin/bash", "-c",
+                "sh", "-c",
                 formattedCommand
         };
 
