@@ -1,10 +1,8 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.dto;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import jakarta.mail.internet.InternetAddress;
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -18,8 +16,19 @@ public class GroupData{
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private String group;
 
+
     private String type;
     private String stroke;
+    private String loc;
+    @Builder
+    GroupData(String key, String text, Boolean isGroup, String type, String stroke) {
+        this.key = key;
+        this.text = text;
+        this.isGroup = isGroup;
+        this.type = type;
+        this.stroke = stroke;
+    }
+
 
     public void addKey(String Key) {
         this.key = Key;

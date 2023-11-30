@@ -1,12 +1,17 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gae4coon.cloudmaestro.domain.file.service.S3Service;
+import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
+import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
+import com.gae4coon.cloudmaestro.domain.user.entity.Member;
+import com.gae4coon.cloudmaestro.domain.user.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,50 +27,65 @@ public class RehostController {
     private final SecurityGroupService securityGroupService;
     private final ModifyLink modifyLink;
     private final NetworkToAWS networkToAWS;
+    private final S3Service s3Service;
+    private final NetworkService networkService;
+    private final MemberRepository memberRepository;
+    private final DiagramDTOService diagramDtoService;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
 
     @PostMapping("/ssohost")
     public ResponseEntity<HashMap<String, Object>> postNetworkData(@RequestBody(required = false) String postData) {
+        System.out.println(postData);
 
+        // put s3
+        String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
+//        s3Service.uploadS3File(fileName, postData);
+
+//       임시 할당
+        Member member = Member.builder()
+                .userId(String.valueOf("1"))
+                .userPw("null")
+                .userName("null")
+                .belong("null")
+                .phoneNumber("null")
+                .email("null")
+                .role(Member.UserRole.valueOf("member"))
+                .build();
+
+//        memberRepository.save(member);
+//       임시 할당
+
+
+        // put network
+//        networkService.addNetwork(member, fileName, null);
+
+        // 파일 저장
         try {
             ObjectMapper mapper = new ObjectMapper();
             GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
 
-            if (model == null) return null;
+            Map<String, Object> responseArray = diagramDtoService.dtoGenerator(model);
+            List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
+            List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
+            List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+            Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
 
-            List<NodeData> dataArray = model.getNodeDataArray();
-            List<NodeData> nodeDataList = new ArrayList<>();
-            List<GroupData> groupDataList = new ArrayList<>();
 
-            List<LinkData> linkDataList = model.getLinkDataArray();
-
-            for (NodeData data : dataArray) {
-                if (data.getIsGroup() != null) {
-                    GroupData groupData = new GroupData(data.getKey(), data.getText(), data.getIsGroup(), data.getGroup(), data.getType(), data.getStroke());
-                    groupDataList.add(groupData);
-                } else {
-                    nodeDataList.add(data);
-                }
-            }
 
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
-            linkDataList = unique(linkDataList);
+            securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, unique(linkDataList));
+            modifyLink.excludeNode(nodeDataList, groupDataList, unique(linkDataList));
+            Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, unique(linkDataList));
 
-            securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, linkDataList);
-            linkDataList = unique(linkDataList);
-
-            modifyLink.excludeNode(nodeDataList, groupDataList, linkDataList);
-            linkDataList = unique(linkDataList);
-
-            Map<List<NodeData>, List<LinkData>> tmpData = modifyLink.deleteNode(nodeDataList, linkDataList);
             nodeDataList.clear();
             linkDataList.clear();
+
             for (Map.Entry<List<NodeData>, List<LinkData>> entry : tmpData.entrySet()) {
                 nodeDataList.addAll(entry.getKey());
                 linkDataList.addAll(entry.getValue());
             }
-            linkDataList = unique(linkDataList);
-
-
 
             // node, group, link 정보 변경 (network node to aws)
             //networkToAWS.changeAll(nodeDataList, groupDataList, linkDataList);
@@ -74,32 +94,29 @@ public class RehostController {
 
             networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
 
+            networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
+
             // Region, vpc, available zone 넣기
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
+            // 위치 정보 수정 ,,, ,하하
+            networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
 
-            System.out.println("------------final--------------");
-            System.out.println("nodeDataList " + nodeDataList);
-            System.out.println("groupDataList " + groupDataList);
-            System.out.println("linkDataList " + linkDataList);
+            // 서비스 노드 중복 잡기
+            networkToAWS.deleteServiceDuplicatedNode(nodeDataList);
 
-            Map<String, Object> responseBody = new HashMap<>();
+            System.out.println("SetRegion and VPC Data : " + nodeDataList);
 
-            List<Object> finalDataArray = new ArrayList<>();
-            finalDataArray.addAll(nodeDataList);
-            finalDataArray.addAll(groupDataList);
 
-            finalDataArray.removeIf(Objects::isNull);
+            GroupData groupData = new GroupData();
+            groupData.setKey("Service");
+            groupData.setText("Service");
+            groupData.setStroke("rgb(158, 224, 255)");
 
-            responseBody.put("class", "GraphLinksModel");
-            responseBody.put("linkKeyProperty", "key");
-            responseBody.put("nodeDataArray", finalDataArray);  // 예시
-            responseBody.put("linkDataArray", linkDataList);  // 예시
+            groupDataList.add(groupData);
 
-            HashMap<String, Object> response = new HashMap<>();
-
-            response.put("result", responseBody);
-            System.out.println("response: "+response);
+            HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList), cost);
+            System.out.println("response"+ response);
 
             return ResponseEntity.ok().body(response);
 
