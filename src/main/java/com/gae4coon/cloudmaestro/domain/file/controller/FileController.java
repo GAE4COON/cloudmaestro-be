@@ -102,12 +102,12 @@ public class FileController {
 
         // put s3
 //      String fileName = "NetworkData_" + System.currentTimeMillis() + ".json";
-        s3Service.uploadS3File(fileName, diagramData);
+        boolean success = s3Service.uploadS3File(fileName, diagramData);
 
         // userId, diagramFileName
         networkService.addDiagram(principal.getName(), fileName);
 
-        return ResponseEntity.ok().build();
+        return ResponseEntity.ok(success);
     }
 
 }

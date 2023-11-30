@@ -1,4 +1,4 @@
-package com.gae4coon.cloudmaestro.domain.resourceguide.dto;
+package com.gae4coon.cloudmaestro.domain.resourceGuide.dto;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

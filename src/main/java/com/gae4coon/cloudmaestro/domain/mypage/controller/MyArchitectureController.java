@@ -42,8 +42,15 @@ public class MyArchitectureController {
     public ResponseEntity<?> getDiagramFileByDiagramId(@RequestBody Long diagramId) {
         String diagramFile = diagramRepository.findByDiagramId(diagramId).getDiagramFile();
         GraphLinksModel graphLinksModel = s3service.getS3File(diagramFile);
-        HashMap<String, Object> response = diagramDTOService.DiagramDTOtoResponse(graphLinksModel);
-        System.out.println("response "+response);
+        HashMap<String, Object> response = new HashMap<>();
+        response.put("filename", diagramFile);
+        response.put("file", diagramDTOService.DiagramDTOtoResponse(graphLinksModel));
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/history/delete")
+    public ResponseEntity<?> deleteDiagramData(@RequestBody Long diagramId) {
+        diagramRepository.deleteById(diagramId);
+        return ResponseEntity.ok("success");
     }
 }
