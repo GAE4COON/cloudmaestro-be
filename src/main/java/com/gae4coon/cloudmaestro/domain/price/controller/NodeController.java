@@ -25,11 +25,6 @@ public class NodeController {
 
     private NodeService nodeService;
 
-    @GetMapping("/test")
-    public String testEndpoint() {
-        return "Hello World";
-    }
-
     @GetMapping("/all")
     public List<MemberDTO> getAllMembers() {
         List<MemberDTO> members = nodeService.getAllMembers();
