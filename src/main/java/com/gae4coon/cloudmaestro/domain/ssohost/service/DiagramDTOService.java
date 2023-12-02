@@ -250,7 +250,6 @@ public class DiagramDTOService {
                     }
                     if(number<tempnum) number=tempnum;
                 }
-
             }
         }
         return number; // number 반환
