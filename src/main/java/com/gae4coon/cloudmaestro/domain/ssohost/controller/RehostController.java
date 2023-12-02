@@ -1,8 +1,8 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
 import com.gae4coon.cloudmaestro.domain.file.service.S3Service;
+import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
@@ -70,6 +70,8 @@ public class RehostController {
             List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
             List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
             List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+            Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
+
 
 
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
@@ -113,7 +115,7 @@ public class RehostController {
 
             groupDataList.add(groupData);
 
-            HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList));
+            HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList), cost);
             System.out.println("response"+ response);
 
             return ResponseEntity.ok().body(response);

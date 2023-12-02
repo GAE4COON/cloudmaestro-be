@@ -54,15 +54,15 @@ public class SpringConfig {
                 .authorizeHttpRequests(auth -> {
                     try {
                         auth
-                            .requestMatchers(WHITE_LIST).permitAll()
-                            .requestMatchers("/v3/api-docs/**").permitAll()
-                            .requestMatchers("/swagger-ui/**").permitAll()
-                            .anyRequest().authenticated();
+                                .requestMatchers(WHITE_LIST).permitAll()
+                                .requestMatchers("/v3/api-docs/**").permitAll()
+                                .requestMatchers("/swagger-ui/**").permitAll()
+                                .anyRequest().authenticated();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }).sessionManagement(c -> c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                                .apply(new JWTConfig(tokenProvider));
+                .apply(new JWTConfig(tokenProvider));
 
 
         return http.build();
@@ -71,7 +71,10 @@ public class SpringConfig {
     @Bean
     public CorsConfigurationSource  corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Collections.singletonList("http://localhost:3000"));
+        configuration.setAllowedOrigins(Arrays.asList(
+                "http://localhost:3000", // 로컬 개발 환경
+                "http://ec2-43-201-44-230.ap-northeast-2.compute.amazonaws.com:3000" // 프로덕션 환경
+        ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Content-Type", "Authorization", "X-XSRF-token"));
         configuration.setAllowCredentials(false);

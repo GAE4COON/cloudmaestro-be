@@ -1,15 +1,15 @@
-package com.gae4coon.cloudmaestro.domain.resourceguide.service;
+package com.gae4coon.cloudmaestro.domain.resourceGuide.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.gae4coon.cloudmaestro.domain.resourceguide.dto.DrawResourceDto;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.dto.DrawResourceDto;
 
-import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceDto;
-import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceResponseDto;
-import com.gae4coon.cloudmaestro.domain.resourceguide.entity.ResourceEntity;
-import com.gae4coon.cloudmaestro.domain.resourceguide.repository.ResourceRepository;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.dto.ResourceDto;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.dto.ResourceResponseDto;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.entity.ResourceEntity;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.repository.ResourceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +30,16 @@ public class ResourceService {
         List<ResourceResponseDto> resourcelist = new ArrayList<>();
 
         for (String title: titleArray.getTitle()) {
-            ResourceEntity resourceEntity =resourceRepository.findByTitle(title);
+            ResourceEntity resourceEntity = null;
+            try {
+                resourceEntity = resourceRepository.findByTitle(title);
+            }catch (Exception e) {
+                System.out.println(e);
+                continue;
+            }
+            if (resourceEntity == null) {
+                continue;
+            }
             String tagString = resourceEntity.getTag();
             List<String> tags = objectMapper.readValue(tagString, new TypeReference<List<String>>() {});
 

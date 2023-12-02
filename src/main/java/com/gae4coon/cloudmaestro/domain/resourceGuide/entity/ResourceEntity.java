@@ -1,4 +1,4 @@
-package com.gae4coon.cloudmaestro.domain.resourceguide.entity;
+package com.gae4coon.cloudmaestro.domain.resourceGuide.entity;
 
 import com.vladmihalcea.hibernate.type.json.JsonType;
 import jakarta.persistence.*;

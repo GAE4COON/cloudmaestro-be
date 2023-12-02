@@ -1,12 +1,12 @@
-package com.gae4coon.cloudmaestro.domain.resourceguide.controller;
+package com.gae4coon.cloudmaestro.domain.resourceGuide.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
-import com.gae4coon.cloudmaestro.domain.resourceguide.dto.DrawResourceDto;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.dto.DrawResourceDto;
 
-import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceDto;
-import com.gae4coon.cloudmaestro.domain.resourceguide.dto.ResourceResponseDto;
-import com.gae4coon.cloudmaestro.domain.resourceguide.service.ResourceService;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.dto.ResourceDto;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.dto.ResourceResponseDto;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.service.ResourceService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.PostMapping;

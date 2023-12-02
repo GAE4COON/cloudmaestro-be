@@ -30,7 +30,7 @@ public class LoggingService {
 
     // globalRequirements list service
 
-    public HashMap<String, Object> logging(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
+    public void logging(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
         List<String> globalRequirements = requireDTO.getGlobalRequirements();
         List<ZoneDTO> Zones = requireDTO.getZones();
 
@@ -40,9 +40,8 @@ public class LoggingService {
 
         globalService(globalRequirements);
 
-        HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
-        return response;
+        return;
     }
 
     private void globalService(List<String> globalRequirements) {
@@ -54,22 +53,19 @@ public class LoggingService {
                 case "로그 수집 및 저장":
                     setLogCollectStore();
                     break;
-                case "분석 및 시각화":
-                    setLogAnalyze();
-                    break;
-                case "API 로그 수집":
+                case "cloudtrail":
                     setCloudTrail();
                     break;
-                case "리소스 및 애플리케이션 모니터링":
+                case "cloudwatch":
                     setCloudWatch();
                     break;
-                case "로그 수집/분석/시각화 통합 (OpenSearch)":
+                case "opensearch":
                     setOpenSearch();
                     break;
-                case "로그 분석 (SQL 쿼리)":
+                case "athena":
                     setAthena();
                     break;
-                case "로그 시각화":
+                case "quicksight":
                     setQuickSight();
                     break;
             }
