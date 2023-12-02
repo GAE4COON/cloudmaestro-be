@@ -22,15 +22,14 @@ public class NetworkService {
     private final DiagramRepository diagramRepository;
     private final MemberRepository memberRepository;
 
-    public void addDiagram(String userId, String diagramFile){
+    public void addDiagram(String userId, String fileName){
         Member user = memberRepository.getReferenceById(userId);
         Diagram diagram = Diagram.builder()
                 .userId(user)
-                .diagramFile(diagramFile)
+                .diagramFile(fileName)
                 .require(null)
                 .build();
 
-        System.out.println("diagram "+diagram);
         diagramRepository.save(diagram);
     }
 
@@ -40,15 +39,15 @@ public class NetworkService {
     }
 
     public List<MyArchitectureDTO> getNetworksByUserId(String userId) {
-        AtomicLong idCounter = new AtomicLong(1); // 순차 ID 생성기
 
         List<MyArchitectureDTO> diagramFiles = diagramRepository.findByUserId(userId).stream()
                 .map(diagram -> new MyArchitectureDTO(
                         diagram.getDiagramId(),
-                        diagram.getDiagramFile(),
-                        "/assets/img/Cloud-architecture.png"
+                        diagram.getDiagramFile()
                 ))
             .collect(Collectors.toList());
+
+        System.out.println("diagramFiles"+diagramFiles);
         return diagramFiles;
     }
 
