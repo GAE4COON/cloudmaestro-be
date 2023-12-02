@@ -55,6 +55,8 @@ public class SpringConfig {
                     try {
                         auth
                             .requestMatchers(WHITE_LIST).permitAll()
+                            .requestMatchers("/v3/api-docs/**").permitAll()
+                            .requestMatchers("/swagger-ui/**").permitAll()
                             .anyRequest().authenticated();
                     } catch (Exception e) {
                         e.printStackTrace();
