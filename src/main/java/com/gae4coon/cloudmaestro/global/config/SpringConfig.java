@@ -73,7 +73,8 @@ public class SpringConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:3000",
-                "http://ec2-43-201-44-230.ap-northeast-2.compute.amazonaws.com:3000"
+                "http://ec2-43-201-44-230.ap-northeast-2.compute.amazonaws.com:3000",
+                "http://ec2-3-39-133-88.ap-northeast-2.compute.amazonaws.com:3000"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Content-Type", "Authorization", "X-XSRF-token"));
