@@ -16,6 +16,7 @@ import java.util.*;
 public class NetworkToAWS {
     private final DiagramDTOService diagramDTOService;
     private final AddResourceService addResourceService;
+    private final LocationService locationService;
 
     public void deleteServiceDuplicatedNode(List<NodeData> nodeDataList, List<LinkData> linkDataList) {
         List<NodeData> serviceNodeList = new ArrayList<>();
@@ -496,154 +497,12 @@ public class NetworkToAWS {
         }
 
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
-        addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
+        locationService.addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
 
 
     }
 
 
-    public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
-
-        double nat_x = 400;
-        double nat_y = -400;
-
-        double node_x;
-        double node_y;
-
-        // Except 해야 하는 리스트
-        List<String> Except = new ArrayList<>(Arrays.asList("Internet Gateway", "Public subnet", "Private subnet"));
-
-        //NAT 정보 옮기기
-        for (String public_subnet : count_public_subnet) {
-
-
-            // Public Subnet에 있는 NAT 정하기
-            double[] updatedCoordinates = processPublicSubnet(nodeDataList, public_subnet, nat_x, nat_y);
-
-            nat_x = updatedCoordinates[0];
-            nat_y = updatedCoordinates[1];
-
-            // 해당 prod private subnet에 포함된 링크 연결된 정보를 탐색해서 그에 맞게 위치 정보넣기
-            String[] parts = public_subnet.split(" ");
-            String netName = parts[0];
-
-            node_x = nat_x + 430;
-            node_y = nat_y - 85;
-
-
-            for (LinkData linkdata : linkDataList) {
-                for (NodeData nodedata : nodeDataList) {
-                    // Group Data
-                    List<String> visitGroup = new ArrayList<>();
-
-                    if (linkdata.getFrom().contains("Group")) {
-                        double[] newCoordinates = processFromGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
-                        node_x = newCoordinates[0];
-                        node_y = newCoordinates[1];
-                    }
-                    if (linkdata.getTo().contains("Group")) {
-                        System.out.println("GetTo" + linkdata.getTo());
-                        double[] newCoordinates = processToGroupData(linkdata, nodedata, groupDataList, netName, visitGroup, Except, node_x, node_y);
-                        node_x = newCoordinates[0];
-                        node_y = newCoordinates[1];
-
-                    }
-                    // group에 없는 ec2일 경우
-                    if (linkdata.getFrom().contains(nodedata.getKey()) &&
-                            !Except.contains(nodedata.getKey()) &&
-                            nodedata.getGroup().contains(netName)
-                    ) {
-                        System.out.println("Ec2 Comeon" + nodedata.getKey());
-                        node_x += 20;
-                        String newLoc = (node_x) + " " + (node_y);
-                        nodedata.setLoc(newLoc);
-
-                    }
-
-                }
-
-
-            }
-
-
-        }
-
-
-    }
-
-    public double[] processPublicSubnet(List<NodeData> nodeDataList, String publicSubnet, double nat_x, double nat_y) {
-        double x = 0.0;
-        double y = 0.0;
-        for (NodeData nodeData : nodeDataList) {
-            if (nodeData.getGroup().contains(publicSubnet)) {
-                String location = nodeData.getLoc();
-                String[] locParts = location.split(" ");
-                System.out.println("public Subnet" + publicSubnet);
-                x = nat_x - 1;
-                y = nat_y + 260;
-                String newLoc = (x) + " " + (y);
-                System.out.println("newLoc" + newLoc);
-                nat_x -= 1;
-                nat_y += 260;
-                nodeData.setLoc(newLoc);
-                break;
-            }
-        }
-        return new double[]{nat_x, nat_y};
-    }
-
-    private double[] processFromGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
-        // 해당 group이 prod private subnet에 포함됐는 지 확인
-        String security_group = linkdata.getFrom();
-        for (GroupData group : groupDataList) {
-            if (group.getKey().contains(security_group) &&
-                    group.getGroup().contains(netName) &&
-                    !visitGroup.contains(nodedata.getKey()) &&
-                    !Except.contains(security_group)
-                // 새로운 security 요소여야 함 &&
-
-            ) {
-                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                if (nodedata.getGroup().contains(security_group)) {
-                    visitGroup.add(nodedata.getKey());
-                    node_x += 150;
-                    String newLoc = (node_x) + " " + (node_y);
-                    nodedata.setLoc(newLoc);
-
-                }
-
-            }
-        }
-        return new double[]{node_x, node_y};
-    }
-
-    private double[] processToGroupData(LinkData linkdata, NodeData nodedata, List<GroupData> groupDataList, String netName, List<String> visitGroup, List<String> Except, double node_x, double node_y) {
-
-        // 해당 group이 prod private subnet에 포함됐는 지 확인
-        String security_group = linkdata.getTo();
-        for (GroupData group : groupDataList) {
-            if (group.getKey().contains(security_group) &&
-                    group.getGroup().contains(netName) &&
-                    !visitGroup.contains(nodedata.getKey()) &&
-                    !Except.contains(security_group)// 새로운 security 요소여야 함
-
-            ) {
-                //visitGroup.add(security_group);
-                // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                if (nodedata.getGroup().contains(security_group)) {
-                    visitGroup.add(nodedata.getKey());
-                    System.out.println("group include nodedata2 : " + nodedata);
-                    node_x += 150;
-                    String newLoc = (node_x) + " " + (node_y);
-                    nodedata.setLoc(newLoc);
-
-                }
-
-            }
-        }
-        return new double[]{node_x, node_y};
-    }
 
 
 }
-
