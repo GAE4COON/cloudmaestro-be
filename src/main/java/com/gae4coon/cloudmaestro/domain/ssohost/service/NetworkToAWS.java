@@ -228,6 +228,28 @@ public class NetworkToAWS {
                 linkData.setFrom(value);
             }
         }
+        for (LinkData linkData : linkDataList) {
+            String node = linkData.getTo();
+            System.out.println("linkData" + linkData);
+            String value;
+            // server, web server
+            if (node.contains("Server")) {
+                value = node.replace("Server", "EC2");
+                linkData.setTo(value);
+            } else if (node.contains("Anti DDoS")) {
+                value = node.replace("Anti DDoS", "Shield");
+                linkData.setTo(value);
+            } else if (node.contains("IPS")) {
+                value = node.replace("IPS", "CloudTrail");
+                linkData.setTo(value);
+            } else if (node.contains("IDS")) {
+                value = node.replace("IDS", "CloudTrail");
+                linkData.setTo(value);
+            } else if (node.contains("Database")) {
+                value = node.replace("Database", "RDS");
+                linkData.setTo(value);
+            }
+        }
     }
 
 
