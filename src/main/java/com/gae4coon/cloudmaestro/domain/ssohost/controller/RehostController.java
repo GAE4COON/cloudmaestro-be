@@ -7,8 +7,6 @@ import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -26,8 +24,6 @@ public class RehostController {
     private final ModifyLink modifyLink;
     private final NetworkToAWS networkToAWS;
     private final DiagramDTOService diagramDtoService;
-
-    private static final Logger logger = LoggerFactory.getLogger(RehostController.class);
 
 
     @Value("${cloud.aws.s3.bucket}")
@@ -47,35 +43,28 @@ public class RehostController {
 
             // sg 추가 -> 관문 fw 있는 경우 nfw로 변경 후 vpc 추가
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
-            securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, unique(linkDataList));
+            System.out.println("linkData" + linkDataList);
+            securityGroupService.modifySecurityGroupLink(nodeDataList, linkDataList);
 
             // fw 건너서 link 연결
             modifyLink.excludeNode(nodeDataList, groupDataList, unique(linkDataList));
             // fw와 관련된 link 제외
             modifyLink.deleteNode(nodeDataList, unique(linkDataList));
 
-
             //node, group, link 정보 변경 (network node to aws)
             networkToAWS.changeAll2(nodeDataList, groupDataList, linkDataList);
-////
+
+            // igw, nacl 등 넣기
             networkToAWS.addNetwork(nodeDataList, groupDataList, linkDataList);
-//
-//            // Region, vpc, available zone 넣기
+
+            // Region, vpc, available zone 넣기
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
-////            // 위치 정보 수정 ,,, ,하하
+            // 위치 정보 수정 ,,, ,하하
             networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
-//
-//            // 서비스 노드 관리
-            networkToAWS.deleteServiceDuplicatedNode(nodeDataList, linkDataList);
-            logger.info("networkToAWS.deleteServiceDuplicatedNode");
 
-            GroupData groupData = new GroupData();
-            groupData.setKey("Service");
-            groupData.setText("Service");
-            groupData.setStroke("rgb(158, 224, 255)");
-
-            groupDataList.add(groupData);
+            // 전체 노드 관리
+            networkToAWS.managedAllNode(nodeDataList, groupDataList, linkDataList);
 
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList), cost);
             System.out.println("response"+ response);
@@ -84,6 +73,8 @@ public class RehostController {
 
         } catch (Exception e) {
             System.out.println("error" + e);
+            System.out.println(e.getMessage());
+            System.out.println(e.getStackTrace());
 
             return null;
         }

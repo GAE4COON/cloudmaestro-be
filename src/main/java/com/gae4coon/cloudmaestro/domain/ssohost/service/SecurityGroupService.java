@@ -20,29 +20,26 @@ public class SecurityGroupService{
         for(NodeData fw: fwNodeData) {
             String fwVPC = null;
             List<LinkData> fwLinkData = diagramDTOService.getLinkDataListByFrom(linkDataList, fw.getKey());
-            System.out.println("fwLinkData" + fwLinkData);
             GroupData sg = addResourceService.addSecurityGroup(groupDataList);
 
             for(LinkData fwLink: fwLinkData) {
-                System.out.println("fwLink" + fwLink);
-
                 // FW -> Node
                 NodeData toNode = diagramDTOService.getNodeDataByKey(nodeDataList, fwLink.getTo());
                 // server, database인 경우 Security Group 처리
-                System.out.println("toNode" + toNode);
+
                 if(toNode!=null && (toNode.getText().contains("Server") || toNode.getText().contains("Database"))) {
+                    // sg group 한번만 만들기
                     if(!diagramDTOService.isGroupDataEquals(groupDataList, sg.getKey())) {
                         sg.setGroup(toNode.getGroup());
                         groupDataList.add(sg);
                     }
-                    toNode.setGroup(sg.getKey());
+                    dfs(sg.getKey(), toNode, nodeDataList, linkDataList);
                 }
 
                 // FW -> Group
                 GroupData toGroup = diagramDTOService.getGroupDataByKey(groupDataList, fwLink.getTo());
                 // Network Firewall 처리
                 if(toGroup!=null) {
-                    System.out.println("toGroup" + toGroup);
                     if(fwVPC!=null){
                         toGroup.setGroup(fwVPC);
                         continue;
@@ -83,18 +80,44 @@ public class SecurityGroupService{
                     netFWtoendpoint.setTo(fwend.getKey());
                     linkDataList.add(netFWtoendpoint);
 
-                    System.out.println("netFWtoendpoint" + netFWtoendpoint);
-
                 }
             }
         }
     }
 
-    public void modifySecurityGroupLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+    private void dfs(String securityGroup, NodeData node, List<NodeData> nodeDataList, List<LinkData> linkDataList){
+        List<String> visited = new ArrayList<>();
+        if(node.getKey().startsWith("Firewall")) return;
+        visited.add(node.getKey());
+        node.setGroup(securityGroup);
+        System.out.println("dfs"+node.getKey());
+
+        List<LinkData> nodeLinkData = diagramDTOService.getLinkDataListByFrom(linkDataList, node.getKey());
+
+        for (LinkData link:nodeLinkData){
+            if(!visited.contains(link.getTo())){
+                dfs(securityGroup, diagramDTOService.getNodeDataByKey(nodeDataList, link.getTo()), nodeDataList, linkDataList);
+            }
+        }
+    }
+
+
+    public void modifySecurityGroupLink(List<NodeData> nodeDataList, List<LinkData> linkDataList) {
         for (NodeData nodeData : nodeDataList) {
-            if (nodeData.getGroup()!=null&&!nodeData.getGroup().contains("Security Group")) continue;
+            if (nodeData.getGroup()==null) continue;
+            if(!nodeData.getGroup().contains("Security Group")) continue;
 
             for (LinkData linkData : linkDataList) {
+                if(linkData.getFrom()==null||linkData.getTo()==null) {
+                    System.out.println("null link"+linkData);
+                    continue;
+                }
+
+                NodeData linkFrom = diagramDTOService.getNodeDataByKey(nodeDataList, linkData.getFrom());
+                NodeData linkTo = diagramDTOService.getNodeDataByKey(nodeDataList, linkData.getTo());
+                if(linkFrom==null||linkTo==null) continue;
+                if(linkFrom.getGroup()!=null&&linkTo.getGroup()!=null&&linkFrom.getGroup().equals(linkTo.getGroup())) continue;
+
                 if (linkData.getFrom()!=null && linkData.getFrom().equals(nodeData.getKey())) {
                     linkData.setFrom(nodeData.getGroup());
                 } else if (linkData.getTo()!=null && linkData.getTo().equals(nodeData.getKey())) {
@@ -103,9 +126,6 @@ public class SecurityGroupService{
                 }
             }
         }
-
-        Map<List<GroupData>, List<NodeData>> resultMap = new HashMap<>();
-        resultMap.put(groupDataList, nodeDataList);
     }
 
 
