@@ -158,7 +158,6 @@ public class SecurityService{
 
     private void setNetworkFW() {
         // network firewall있으면 endpoint만 검사
-        diagramDTOService.addServiceGroup(groupDataList);
 
         if (!diagramDTOService.isNodeDataContains(nodeDataList, "Network Firewall")) {
             // add Network Firewall into Region
