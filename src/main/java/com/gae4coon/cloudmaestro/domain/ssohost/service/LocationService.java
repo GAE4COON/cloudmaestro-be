@@ -110,7 +110,7 @@ public class LocationService {
         double x = 0.0;
         double y = 0.0;
         for (NodeData nodeData : nodeDataList) {
-            if (nodeData.getGroup().contains(publicSubnet)) {
+            if (nodeData.getGroup()!=null&&nodeData.getGroup().contains(publicSubnet)) {
                 String location = nodeData.getLoc();
                 String[] locParts = location.split(" ");
                 System.out.println("public Subnet" + publicSubnet);
@@ -144,7 +144,7 @@ public class LocationService {
                 // 새로운 security 요소여야 함 &&
             ){
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                if(nodedata.getGroup().equals(security_group)){
+                if(nodedata.getGroup()!=null&&nodedata.getGroup().equals(security_group)){
                     System.out.println("Group에 있는 NodeData" + nodedata + security_group + group_name2);node_x += 150;
                     String newLoc = (node_x) + " " + (node_y);
                     nodedata.setLoc(newLoc);
@@ -176,7 +176,7 @@ public class LocationService {
             )
                 //visitGroup.add(security_group);
                 // 포함되는 게 확인됐다면, 그룹 내의 요소들 가져오기
-                if(nodedata.getGroup().equals(security_group)){
+                if(nodedata.getGroup()!=null&&nodedata.getGroup().equals(security_group)){
                     System.out.println("group include nodedata2 : "+nodedata);
                     node_x += 150;
                     String newLoc = (node_x) + " " + (node_y);

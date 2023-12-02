@@ -20,12 +20,9 @@ public class SecurityGroupService{
         for(NodeData fw: fwNodeData) {
             String fwVPC = null;
             List<LinkData> fwLinkData = diagramDTOService.getLinkDataListByFrom(linkDataList, fw.getKey());
-            System.out.println("fwLinkData" + fwLinkData);
             GroupData sg = addResourceService.addSecurityGroup(groupDataList);
 
             for(LinkData fwLink: fwLinkData) {
-                System.out.println("fwLink" + fwLink);
-
                 // FW -> Node
                 NodeData toNode = diagramDTOService.getNodeDataByKey(nodeDataList, fwLink.getTo());
                 // server, database인 경우 Security Group 처리
@@ -43,7 +40,6 @@ public class SecurityGroupService{
                 GroupData toGroup = diagramDTOService.getGroupDataByKey(groupDataList, fwLink.getTo());
                 // Network Firewall 처리
                 if(toGroup!=null) {
-                    System.out.println("toGroup" + toGroup);
                     if(fwVPC!=null){
                         toGroup.setGroup(fwVPC);
                         continue;
@@ -84,8 +80,6 @@ public class SecurityGroupService{
                     netFWtoendpoint.setTo(fwend.getKey());
                     linkDataList.add(netFWtoendpoint);
 
-                    System.out.println("netFWtoendpoint" + netFWtoendpoint);
-
                 }
             }
         }
@@ -110,9 +104,15 @@ public class SecurityGroupService{
 
     public void modifySecurityGroupLink(List<NodeData> nodeDataList, List<LinkData> linkDataList) {
         for (NodeData nodeData : nodeDataList) {
-            if (nodeData.getGroup()!=null&&!nodeData.getGroup().contains("Security Group")) continue;
+            if (nodeData.getGroup()==null) continue;
+            if(!nodeData.getGroup().contains("Security Group")) continue;
 
             for (LinkData linkData : linkDataList) {
+                if(linkData.getFrom()==null||linkData.getTo()==null) {
+                    System.out.println("null link"+linkData);
+                    continue;
+                }
+
                 NodeData linkFrom = diagramDTOService.getNodeDataByKey(nodeDataList, linkData.getFrom());
                 NodeData linkTo = diagramDTOService.getNodeDataByKey(nodeDataList, linkData.getTo());
                 if(linkFrom==null||linkTo==null) continue;

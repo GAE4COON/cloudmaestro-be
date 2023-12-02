@@ -43,6 +43,7 @@ public class RehostController {
 
             // sg 추가 -> 관문 fw 있는 경우 nfw로 변경 후 vpc 추가
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
+            System.out.println("linkData" + linkDataList);
             securityGroupService.modifySecurityGroupLink(nodeDataList, linkDataList);
 
             // fw 건너서 link 연결
@@ -72,6 +73,8 @@ public class RehostController {
 
         } catch (Exception e) {
             System.out.println("error" + e);
+            System.out.println(e.getMessage());
+            System.out.println(e.getStackTrace());
 
             return null;
         }

@@ -186,6 +186,7 @@ public class NetworkToAWS {
 
 
                 for (NodeData node : nodeDataList) {
+                    if(node.getGroup()==null) continue;
                     if (!node.getGroup().equals(key)) continue;
                     node.setGroup(key + " Private subnet " + count);
                 }

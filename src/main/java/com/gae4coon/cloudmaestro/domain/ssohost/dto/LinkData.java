@@ -26,15 +26,17 @@ public class LinkData {
         if (this == obj) return true;
         if (obj == null || getClass() != obj.getClass()) return false;
         LinkData linkData = (LinkData) obj;
-        return from.equals(linkData.from) && to.equals(linkData.to);
+        return Objects.equals(from, linkData.from) && Objects.equals(to, linkData.to);
     }
 
     @Override
     public int hashCode() {
-        return 31 * from.hashCode() + to.hashCode();
+        int result = 1;
+        result = 31 * result + (from != null ? from.hashCode() : 0);
+        result = 31 * result + (to != null ? to.hashCode() : 0);
+        return result;
     }
 
-    // 이 메소드는 중복된 링크 데이터를 제거합니다.
     public static List<LinkData> uniqueLink(List<LinkData> linkDataList) {
         Set<LinkData> uniqueSet = new HashSet<>(linkDataList);
         return new ArrayList<>(uniqueSet);
