@@ -1,6 +1,6 @@
-package com.gae4coon.cloudmaestro.domain.resourceguide.repository;
+package com.gae4coon.cloudmaestro.domain.resourceGuide.repository;
 
-import com.gae4coon.cloudmaestro.domain.resourceguide.entity.ResourceEntity;
+import com.gae4coon.cloudmaestro.domain.resourceGuide.entity.ResourceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
