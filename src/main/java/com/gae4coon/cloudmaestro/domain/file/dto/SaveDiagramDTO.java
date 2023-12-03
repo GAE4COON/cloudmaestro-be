@@ -6,4 +6,5 @@ import lombok.Data;
 public class SaveDiagramDTO {
     private String diagramData;
     private String fileName;
+    private String fileImg;
 }
