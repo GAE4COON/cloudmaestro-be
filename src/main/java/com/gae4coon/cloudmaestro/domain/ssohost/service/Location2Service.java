@@ -11,8 +11,8 @@ public class Location2Service {
     public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
         double nat_x = 400;
         double nat_y = -400;
-        double node_x;
-        double node_y;
+        double node_x = 0;
+        double node_y = 0;
         double firewall_x = 200;
         double firewall_y = 200;
 
@@ -22,75 +22,22 @@ public class Location2Service {
         List<LinkData> visitedLinks = new ArrayList<>();
         List<LinkData> setNewLinkList = new ArrayList<>();
 
-        for(LinkData linkdata : linkDataList){
-            LinkData nextLink = findNextLink(linkdata, linkDataList, visitedLinks);
-            if (nextLink != null && !visitedLinks.contains(nextLink)) {
-                visitedLinks.add(nextLink);
-                setNewLinkList.add(nextLink);
-            }
+        // LinkData 일단 초기 정렬 ( nextLink 찾아서 nexLink 가 나오도록 정렬 해보기 )
+        linkDataList = initializeAndSortLinks(linkDataList, visitedLinks, setNewLinkList);
 
-        }
+        // VPC 찾기 & VPC_Count 찾는 거 해주기
+        List<String> count_firewall_endpoints = findFirewallEndpoints(groupDataList);
+        List<String> vpc_count = countVPCsForFirewallEndpoints(count_firewall_endpoints, groupDataList);
 
-        // vpc 찾기
-        List<String> count_firewall_endpoints = new ArrayList<>();
-        for (GroupData groupdata : groupDataList) {
-            if(groupdata.getKey().contains("Firewall Public")){
-                count_firewall_endpoints.add(groupdata.getKey());
-            }
-            System.out.println("Friewall" + groupdata);
-        }
 
-        // vpc count 하기
-        List<String> vpc_count = new ArrayList<>();
-        for (String count_firewall_endpoint : count_firewall_endpoints) {
-            for (GroupData groupData : groupDataList) {
-                if (groupData.getKey().contains(count_firewall_endpoint)) {
-                    vpc_count.add(groupData.getGroup());
-                }
-            }
-        }
+        // 해당 vpc에 해당되는 AZ 영역 찾기
+        List<String> Az_array = findAzArray(vpc_count, groupDataList);
 
-        List<String> Az_array = new ArrayList<>();
-        for (String vpc : vpc_count) {
-            // vpc 에 해당하는 public_subnet 먼저 선별
-            for (GroupData groupData : groupDataList) {
-                if (groupData.getGroup() != null &&
-                        groupData.getGroup().equals(vpc) &&
-                        groupData.getKey().contains("Availability")) {
-                    Az_array.add(groupData.getKey());
-                    break;
-                }
-            }
-        }
-
-        // Create a mapping of VPCs to associated AZs
-        Map<String, List<String>> vpcToAzMap = new HashMap<>();
+        // VPC와 AZ Map으로 대응 시키기
+        Map<String, List<String>> vpcToAzMap = createVpcToAzMap(vpc_count, Az_array, groupDataList);
 
         for (String vpc : vpc_count) {
-            // Initialize a list to store associated AZs
-            List<String> associatedAzs = new ArrayList<>();
-
-            // Iterate through AZs to find the ones associated with the current VPC
-            for (String az : Az_array) {
-                for (GroupData groupData : groupDataList) {
-                    if (groupData.getGroup() != null &&
-                            groupData.getGroup().equals(vpc) &&
-                            groupData.getKey().equals(az)) {
-                        // Add the AZ to the list of associated AZs
-                        associatedAzs.add(az);
-
-                        System.out.println("AZ for VPC " + vpc + ": " + az);
-                    }
-                }
-            }
-
-            // Add the VPC and its associated AZs to the mapping
-            vpcToAzMap.put(vpc, associatedAzs);
-        }
-
-
-        for (String vpc : vpc_count) {
-            System.out.println("VPC::: " + vpc);
+            // vpc 별 firewall 다시 설정
             for (GroupData groupdata : groupDataList) {
                 if (groupdata.getGroup() != null &&
                         groupdata.getGroup().equals(vpc) &&
@@ -105,6 +52,8 @@ public class Location2Service {
                     }
                 }
             }
+            double minNodeX = Double.MAX_VALUE; // 초기값을 가장 큰 값으로 설정
+            double maxNodeY = Double.MIN_VALUE;
             List<String> associatedAzs = vpcToAzMap.get(vpc);
                 if (associatedAzs != null) {
                     for (String az : associatedAzs) {
@@ -118,86 +67,195 @@ public class Location2Service {
                                 String public_subnet = groupdata.getKey();
                                 System.out.println("public_subnet ++ " + public_subnet);
 
-                                double[] updatedCoordinates = processPublicSubnet(nodeDataList, public_subnet, nat_x, nat_y);
-                                nat_x = updatedCoordinates[0];
-                                nat_y = updatedCoordinates[1];
-                                String[] parts = public_subnet.split(" ");
-                                String netName = parts[0];
+                                double[] coordinates = processPublicSubnetAndLinks(groupDataList, az, linkDataList, nodeDataList, nat_x, nat_y, Except, node_x, node_y, minNodeX, maxNodeY);
 
-                                node_x = nat_x + 430;
-                                node_y = nat_y - 85;
-                                List<String> visitedNode = new ArrayList<>();
-
-                                for (LinkData currentLink : setNewLinkList) {
-                                    for (NodeData nodedata : nodeDataList) {
-                                        if (currentLink.getFrom() == null) {
-                                            System.out.println("link" + currentLink);
-                                            break;
-                                        }
-
-                                        // Process private subnet links
-                                        if (currentLink.getTo().contains("Private subnet")) {
-                                            double[] newCoordinates = processFromPrivateSubnet(currentLink, nodedata, nodeDataList, linkDataList, groupDataList, netName, Except, node_x, node_y, visitedNode);
-                                            if (newCoordinates != null) {
-                                                node_x = newCoordinates[0];
-                                                node_y = newCoordinates[1];
-                                            }
-                                        }
-                                        if (currentLink.getFrom().contains("Group")) {
-                                            double[] newCoordinates = processFromGroupData(currentLink, nodedata, groupDataList, netName, Except, node_x, node_y,visitedNode);
-                                            node_x = newCoordinates[0];
-                                            node_y = newCoordinates[1];
-                                        }
-                                        if (currentLink.getTo().contains("Group")) {
-                                            double[] newCoordinates = processToGroupData(currentLink, nodedata, groupDataList, netName, Except, node_x, node_y,visitedNode);
-                                            node_x = newCoordinates[0];
-                                            node_y = newCoordinates[1];
-                                        }
-                                        String group_name2 = "";
-                                        if (currentLink.getFrom().contains(nodedata.getKey()) &&
-                                                !Except.contains(nodedata.getKey())) {
-                                            //System.out.println("currentLink" + currentLink);
-                                            if(nodedata.getGroup() != null){
-                                                String[] group_name = nodedata.getGroup().split(" ");
-                                                group_name2 = group_name[0];
-                                            }
-                                            if(group_name2.equals(netName)){
-                                                node_x += 20;
-                                                String newLoc = (node_x) + " " + (node_y);
-                                                nodedata.setLoc(newLoc);
-                                                visitedNode.add(currentLink.getFrom());
-                                            }
-
-                                        }
-                                        if (currentLink.getTo().contains(nodedata.getKey()) &&
-                                                !Except.contains(nodedata.getKey())) {
-                                            if(nodedata.getGroup() != null){
-                                                String[] group_name = nodedata.getGroup().split(" ");
-                                                group_name2 = group_name[0];
-                                            }
-                                            if(group_name2.equals(netName)){
-                                                node_x += 20;
-                                                String newLoc = (node_x) + " " + (node_y);
-                                                nodedata.setLoc(newLoc);
-                                                visitedNode.add(currentLink.getTo());
-                                            }
-
-                                        }
-                                    }
-
-
-                                }
-
-
+                                nat_x = coordinates[0];
+                                nat_y = coordinates[1];
+                                node_x = coordinates[2];
+                                node_y = coordinates[3];
+                                minNodeX = coordinates[4];
+                                maxNodeY = coordinates[5];
                             }
-
                         }
                     }
                 }
-        }
-        // 마지막 전처리
-        // private subnet에 아무것도 포함되지 않은 노드가 있다면 없애버리자
 
+            firewall_x = minNodeX - 600;
+            firewall_y = maxNodeY + 400;
+            nat_x = firewall_x + 200;
+            nat_y = firewall_y + 200;
+
+        }
+
+    }
+    public double[] processPublicSubnetAndLinks(List<GroupData> groupDataList, String az, List<LinkData> linkDataList, List<NodeData> nodeDataList, double nat_x, double nat_y, List<String> Except, double node_x, double node_y, double minNodeX, double maxNodeY) {
+        double[] coordinates = new double[6];
+
+        for (GroupData groupdata : groupDataList) {
+            if (groupdata.getGroup() != null &&
+                    groupdata.getGroup().equals(az) &&
+                    groupdata.getKey().contains("Public subnet")
+            ) {
+                String public_subnet = groupdata.getKey();
+                System.out.println("public_subnet ++ " + public_subnet);
+
+                double[] updatedCoordinates = processPublicSubnet(nodeDataList, public_subnet, nat_x, nat_y);
+                nat_x = updatedCoordinates[0];
+                nat_y = updatedCoordinates[1];
+                String[] parts = public_subnet.split(" ");
+                String netName = parts[0];
+
+                node_x = nat_x + 430;
+                node_y = nat_y - 85;
+                List<String> visitedNode = new ArrayList<>();
+
+                for (LinkData currentLink : linkDataList) {
+                    for (NodeData nodedata : nodeDataList) {
+                        if (currentLink.getFrom() == null) {
+                            System.out.println("link" + currentLink);
+                            break;
+                        }
+
+                        // Process private subnet links
+                        if (currentLink.getTo().contains("Private subnet")) {
+                            double[] newCoordinates = processFromPrivateSubnet(currentLink, nodedata, nodeDataList, linkDataList, groupDataList, netName, Except, node_x, node_y, visitedNode);
+                            if (newCoordinates != null) {
+                                node_x = newCoordinates[0];
+                                node_y = newCoordinates[1];
+                            }
+                        }
+                        if (currentLink.getFrom().contains("Group")) {
+                            double[] newCoordinates = processFromGroupData(currentLink, nodedata, groupDataList, netName, Except, node_x, node_y, visitedNode);
+                            node_x = newCoordinates[0];
+                            node_y = newCoordinates[1];
+                        }
+                        if (currentLink.getTo().contains("Group")) {
+                            double[] newCoordinates = processToGroupData(currentLink, nodedata, groupDataList, netName, Except, node_x, node_y, visitedNode);
+                            node_x = newCoordinates[0];
+                            node_y = newCoordinates[1];
+                        }
+                        String group_name2 = "";
+                        if (currentLink.getFrom().contains(nodedata.getKey()) &&
+                                !Except.contains(nodedata.getKey())) {
+                            //System.out.println("currentLink" + currentLink);
+                            if(nodedata.getGroup() != null){
+                                String[] group_name = nodedata.getGroup().split(" ");
+                                group_name2 = group_name[0];
+                            }
+                            if(group_name2.equals(netName)){
+                                node_x += 20;
+                                String newLoc = (node_x) + " " + (node_y);
+                                nodedata.setLoc(newLoc);
+                                visitedNode.add(currentLink.getFrom());
+                            }
+
+                        }
+                        if (currentLink.getTo().contains(nodedata.getKey()) &&
+                                !Except.contains(nodedata.getKey())) {
+                            if(nodedata.getGroup() != null){
+                                String[] group_name = nodedata.getGroup().split(" ");
+                                group_name2 = group_name[0];
+                            }
+                            if(group_name2.equals(netName)){
+                                node_x += 20;
+                                String newLoc = (node_x) + " " + (node_y);
+                                nodedata.setLoc(newLoc);
+                                visitedNode.add(currentLink.getTo());
+                            }
+
+                        }
+                        minNodeX = Math.min(minNodeX, node_x);
+                        maxNodeY = Math.max(maxNodeY, node_y);
+                    }
+                }
+            }
+        }
+
+        // 반환할 좌표 배열 설정
+        coordinates[0] = nat_x;
+        coordinates[1] = nat_y;
+        coordinates[2] = node_x;
+        coordinates[3] = node_y;
+        coordinates[4] = minNodeX;
+        coordinates[5] = maxNodeY;
+
+        return coordinates;
+    }
+
+
+    public Map<String, List<String>> createVpcToAzMap(List<String> vpc_count, List<String> Az_array, List<GroupData> groupDataList) {
+        Map<String, List<String>> vpcToAzMap = new HashMap<>();
+
+        for (String vpc : vpc_count) {
+            // Initialize a list to store associated AZs
+            List<String> associatedAzs = new ArrayList<>();
+
+            // Iterate through AZs to find the ones associated with the current VPC
+            for (String az : Az_array) {
+                for (GroupData groupData : groupDataList) {
+                    if (groupData.getGroup() != null &&
+                            groupData.getGroup().equals(vpc) &&
+                            groupData.getKey().equals(az)) {
+                        // Add the AZ to the list of associated AZs
+                        associatedAzs.add(az);
+                        System.out.println("AZ for VPC " + vpc + ": " + az);
+                    }
+                }
+            }
+
+            // Add the VPC and its associated AZs to the mapping
+            vpcToAzMap.put(vpc, associatedAzs);
+        }
+
+        return vpcToAzMap;
+    }
+    public List<String> findFirewallEndpoints(List<GroupData> groupDataList) {
+        List<String> count_firewall_endpoints = new ArrayList<>();
+        for (GroupData groupdata : groupDataList) {
+            if(groupdata.getKey().contains("Firewall Public")){
+                count_firewall_endpoints.add(groupdata.getKey());
+            }
+            System.out.println("Firewall: " + groupdata);
+        }
+        return count_firewall_endpoints;
+    }
+
+    public List<String> findAzArray(List<String> vpc_count, List<GroupData> groupDataList) {
+        List<String> Az_array = new ArrayList<>();
+        for (String vpc : vpc_count) {
+            // vpc에 해당하는 public_subnet 먼저 선별
+            for (GroupData groupData : groupDataList) {
+                if (groupData.getGroup() != null &&
+                        groupData.getGroup().equals(vpc) &&
+                        groupData.getKey().contains("Availability")) {
+                    Az_array.add(groupData.getKey());
+                    break;
+                }
+            }
+        }
+        return Az_array;
+    }
+    public List<String> countVPCsForFirewallEndpoints(List<String> count_firewall_endpoints, List<GroupData> groupDataList) {
+        List<String> vpc_count = new ArrayList<>();
+        for (String count_firewall_endpoint : count_firewall_endpoints) {
+            for (GroupData groupData : groupDataList) {
+                if (groupData.getKey().contains(count_firewall_endpoint)) {
+                    vpc_count.add(groupData.getGroup());
+                }
+            }
+        }
+        return vpc_count;
+    }
+
+    public List<LinkData> initializeAndSortLinks(List<LinkData> linkDataList, List<LinkData> visitedLinks, List<LinkData> setNewLinkList) {
+        for (LinkData linkdata : linkDataList) {
+            LinkData nextLink = findNextLink(linkdata, linkDataList, visitedLinks);
+            if (nextLink != null && !visitedLinks.contains(nextLink)) {
+                visitedLinks.add(nextLink);
+                setNewLinkList.add(nextLink);
+            }
+        }
+        return setNewLinkList; // setNewLinkList 반환
     }
 
     public double[] processFromPrivateSubnet(LinkData currentLink, NodeData nodedata, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, String netName, List<String> Except, double node_x, double node_y, List<String> visitedNode) {
