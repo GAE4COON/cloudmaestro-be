@@ -14,7 +14,7 @@ public class Location2Service {
         double node_x = 0;
         double node_y = 0;
         double firewall_x = 200;
-        double firewall_y = 200;
+        double firewall_y = 300;
 
         List<String> Except = new ArrayList<>(Arrays.asList("Internet Gateway", "Public subnet", "Private subnet", "NAT Gateway"));
 
@@ -57,17 +57,15 @@ public class Location2Service {
             List<String> associatedAzs = vpcToAzMap.get(vpc);
                 if (associatedAzs != null) {
                     for (String az : associatedAzs) {
-                        System.out.println("VPC: " + vpc);
-                        System.out.println("Associated AZ: " + az);
+                        System.out.println("AvailableZone" + az);
+                        Set<String> processedPublicSubnets = new HashSet<>();
                         for (GroupData groupdata : groupDataList) {
                             if (groupdata.getGroup() != null &&
                                     groupdata.getGroup().equals(az) &&
                                     groupdata.getKey().contains("Public subnet")
                             ) {
-                                String public_subnet = groupdata.getKey();
-                                System.out.println("public_subnet ++ " + public_subnet);
 
-                                double[] coordinates = processPublicSubnetAndLinks(groupDataList, az, linkDataList, nodeDataList, nat_x, nat_y, Except, node_x, node_y, minNodeX, maxNodeY);
+                                double[] coordinates = processPublicSubnetAndLinks(groupDataList, az, linkDataList, nodeDataList, nat_x, nat_y, Except, node_x, node_y, minNodeX, maxNodeY,processedPublicSubnets);
 
                                 nat_x = coordinates[0];
                                 nat_y = coordinates[1];
@@ -77,18 +75,19 @@ public class Location2Service {
                                 maxNodeY = coordinates[5];
                             }
                         }
+
                     }
                 }
 
             firewall_x = minNodeX - 600;
             firewall_y = maxNodeY + 400;
             nat_x = firewall_x + 200;
-            nat_y = firewall_y + 200;
+            nat_y = firewall_y;
 
         }
 
     }
-    public double[] processPublicSubnetAndLinks(List<GroupData> groupDataList, String az, List<LinkData> linkDataList, List<NodeData> nodeDataList, double nat_x, double nat_y, List<String> Except, double node_x, double node_y, double minNodeX, double maxNodeY) {
+    public double[] processPublicSubnetAndLinks(List<GroupData> groupDataList, String az, List<LinkData> linkDataList, List<NodeData> nodeDataList, double nat_x, double nat_y, List<String> Except, double node_x, double node_y, double minNodeX, double maxNodeY, Set<String> processedPublicSubnets) {
         double[] coordinates = new double[6];
 
         for (GroupData groupdata : groupDataList) {
@@ -97,7 +96,12 @@ public class Location2Service {
                     groupdata.getKey().contains("Public subnet")
             ) {
                 String public_subnet = groupdata.getKey();
-                System.out.println("public_subnet ++ " + public_subnet);
+
+                if (processedPublicSubnets.contains(public_subnet)) {
+                    continue;
+                }
+
+                processedPublicSubnets.add(public_subnet);
 
                 double[] updatedCoordinates = processPublicSubnet(nodeDataList, public_subnet, nat_x, nat_y);
                 nat_x = updatedCoordinates[0];
@@ -112,7 +116,6 @@ public class Location2Service {
                 for (LinkData currentLink : linkDataList) {
                     for (NodeData nodedata : nodeDataList) {
                         if (currentLink.getFrom() == null) {
-                            System.out.println("link" + currentLink);
                             break;
                         }
 
@@ -198,7 +201,6 @@ public class Location2Service {
                             groupData.getKey().equals(az)) {
                         // Add the AZ to the list of associated AZs
                         associatedAzs.add(az);
-                        System.out.println("AZ for VPC " + vpc + ": " + az);
                     }
                 }
             }
