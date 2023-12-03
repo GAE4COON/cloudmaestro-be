@@ -76,7 +76,8 @@ public class SpringConfig {
                 "http://ec2-3-39-133-88.ap-northeast-2.compute.amazonaws.com:3000",
                 "http://cloudmaestro.site:3000",
                 "http://cloudmaestro.site:80",
-                "http://cloudmaestro.site"
+                "http://cloudmaestro.site",
+                "https://cloudmaestro.site"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Content-Type", "Authorization", "X-XSRF-token"));
