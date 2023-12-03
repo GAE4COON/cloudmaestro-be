@@ -59,15 +59,14 @@ public class AllRequirementService {
 
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
-        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
-
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         cloudFrontDistribution.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
 
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 

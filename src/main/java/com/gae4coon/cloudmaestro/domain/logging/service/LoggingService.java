@@ -95,7 +95,7 @@ public class LoggingService {
             NodeData cloudWatch = addResourceService.addCloudWatch(nodeDataList);
             cloudWatch.setKey(cloudWatch.getKey()+diagramDTOService.getNodeNumber(nodeDataList, cloudWatch.getText()));
             cloudWatch.setGroup("Region");
-            cloudWatch.setLoc("600, -600");
+            cloudWatch.setLoc("600 -600");
             nodeDataList.add(cloudWatch);
             cloudWatchList.add(cloudWatch);
         }
@@ -122,7 +122,7 @@ public class LoggingService {
             System.out.println("new");
             NodeData s3 = addResourceService.addSimpleStorageServiceS3(nodeDataList);
             s3.setGroup("Region");
-            s3.setLoc("600, -750");
+            s3.setLoc("600 -750");
             nodeDataList.add(s3);
             cloudTrails3List.add(s3);
         }
@@ -190,13 +190,13 @@ public class LoggingService {
         NodeData cloudWatch = addResourceService.addCloudWatch();
         cloudWatch.setKey(cloudWatch.getKey()+diagramDTOService.getNodeNumber(nodeDataList, cloudWatch.getText()));
         cloudWatch.setGroup("Region");
-        cloudWatch.setLoc("600, -600");
+        cloudWatch.setLoc("600 -600");
         nodeDataList.add(cloudWatch);
 
         NodeData s3 = addResourceService.addSimpleStorageServiceS3();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
-        s3.setLoc("450, -600");
+        s3.setLoc("450 -600");
         nodeDataList.add(s3);
 
         LinkData link = LinkData.builder()

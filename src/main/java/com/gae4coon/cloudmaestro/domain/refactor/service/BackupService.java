@@ -99,24 +99,37 @@ public class BackupService {
         double maxX = Double.MIN_VALUE;
 
         for (NodeData item: nodeDataList) {
-            if(regionTemp.contains(item.getGroup())){
-                String location = item.getLoc();
-                String[] locParts = location.split(" ");
+            if(regionTemp.contains(item.getGroup())) {
+                if (item.getLoc() != null) {
+                    String location = item.getLoc();
 
-                double x = Double.parseDouble(locParts[0]);
-                double y = Double.parseDouble(locParts[1]);
+                    System.out.println("location: " + item.getKey() + ", " + location);
+                    System.out.println("minY, maxY, maxX: " + minY + ", " + maxY+ ", " +maxX);
+                    String[] locParts = location.split(" ");
 
-                if (y > maxY) {
-                    maxY = y;
-                }
-                if (y < minY) {
-                    minY = y;
-                }
-                if (x > maxX) {
-                    maxX = x;
+                    try {
+                        double x = Double.parseDouble(locParts[0]);
+                        double y = Double.parseDouble(locParts[1]);
+
+                        if (x < -100000 || x > 100000) continue;
+
+                        if (y > maxY) {
+                            maxY = y;
+                        }
+                        if (y < minY) {
+                            minY = y;
+                        }
+                        if (x > maxX) {
+                            maxX = x;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid location format for NodeData with key: " + item.getKey());
+                        continue; // Skip this iteration if parsing fails
+                    }
                 }
             }
         }
+
 
         return new Point2D.Double(maxX, (maxY+minY)/2);
     }
@@ -221,7 +234,7 @@ public class BackupService {
 
         Point2D location = selectLocation(nodeDataList,groupDataList,regionList);
 
-        System.out.println("Location: "+location.getX()+", "+location.getY());
+        System.out.println("Location: "+location.getX()+" "+location.getY());
 
         NodeData newNode=new NodeData();
         newNode.setKey("Backup " + number);
