@@ -8,8 +8,9 @@ import lombok.*;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
 @Table(name = "diagram")
-
 public class Diagram{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -27,13 +28,4 @@ public class Diagram{
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "require_id")
     private Require require;
-
-    @Builder
-    public Diagram(Long diagramId, Member userId, String diagramFile, Require require){
-        this.diagramId = diagramId;
-        this.userId = userId;
-        this.diagramFile = diagramFile;
-        this.require = require;
-    }
-
 }

@@ -7,6 +7,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.math3.analysis.function.Add;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Node;
 
 import javax.swing.*;
 import java.util.*;
@@ -16,43 +17,108 @@ import java.util.*;
 public class NetworkToAWS {
     private final DiagramDTOService diagramDTOService;
     private final AddResourceService addResourceService;
-    private final LocationService locationService;
     private final Location2Service locationService2;
 
-    public void deleteServiceDuplicatedNode(List<NodeData> nodeDataList, List<LinkData> linkDataList) {
-        List<NodeData> serviceNodeList = new ArrayList<>();
-        List<NodeData> removeNode = new ArrayList<>();
-        Set<String> seenTexts = new HashSet<>();
+    public void managedAllNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+        // 서비스 노드 관리 (lift & shift 시 변경되는 노드들 (ips, ids, anti ddos..)
+        managedReplaceNode(nodeDataList, groupDataList, linkDataList);
 
-        System.out.println("duplicate nodeDataList" + nodeDataList);
-        for (NodeData node : nodeDataList) {
-            System.out.println(node.getGroup());
-            if (node.getGroup().equals("Service")) {
-                System.out.println("node" + node);
-                removeNode.add(node);
-                if (seenTexts.add(node.getSource())) {
-                    serviceNodeList.add(node);
+        // nodeData에 없는 link정보 삭제
+        diagramDTOService.removeNullLink(nodeDataList, groupDataList, linkDataList);
+    }
+
+    public void managedReplaceNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+        groupDataList.add(addResourceService.addService());
+
+        List<NodeData> replaceNodeList = new ArrayList<>();
+        replaceNodeList.addAll(diagramDTOService.getNodeListByText(nodeDataList, "IPS"));
+        replaceNodeList.addAll(diagramDTOService.getNodeListByText(nodeDataList, "IDS"));
+        replaceNodeList.addAll(diagramDTOService.getNodeListByText(nodeDataList, "Anti DDoS"));
+
+        for (NodeData nodeData: replaceNodeList){
+            String node = nodeData.getKey();
+
+            if (node.contains("Anti DDoS")) {
+                if(diagramDTOService.isNodeDataContains(nodeDataList, "Shield")){
+                    nodeDataList.remove(nodeData);
+                    continue;
+                }
+
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("Anti DDoS", "Shield");
+                nodeData.setKey(nodeKey);
+                nodeData.setText("Shield");
+                nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
+                nodeData.setType("Security-Identity-Compliance");
+                nodeData.setGroup("Service");
+            }
+            if (node.contains("IPS")) {
+
+                if(diagramDTOService.isNodeDataContains(nodeDataList, "Network Firewall")){
+                    nodeDataList.remove(nodeData);
+                    continue;
+                }
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("IPS", "Network Firewall");
+                nodeData.setKey(nodeKey);
+                nodeData.setText("Network Firewall");
+                nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Network-Firewall_48.svg");
+                nodeData.setType("Security-Identity-Compliance");
+                nodeData.setGroup("Region");
+                nodeData.setLoc("0 -300");
+
+                // endpoint 생성
+                List<GroupData> vpcGroupList = diagramDTOService.getGroupListByText(groupDataList, "VPC");
+                System.out.println("vpclist "+ vpcGroupList);
+
+                for(GroupData vpcGroup: vpcGroupList){
+                    GroupData fps = addResourceService.addPublicsubnet();
+                    fps.setKey("Firewall Public Subnet"+diagramDTOService.getGroupNumber(groupDataList, "Firewall Public Subnet"));
+                    fps.setText("Firewall Public Subnet");
+                    fps.setGroup(vpcGroup.getKey());
+                    groupDataList.add(fps);
+
+                    NodeData fpend = addResourceService.addNetworkFirewallEndpoints(nodeDataList);
+                    fpend.setGroup(fps.getKey());
+                    fpend.setLoc("200 -200");
+                    nodeDataList.add(fpend);
+
+                    LinkData link = new LinkData();
+                    link.setFrom(nodeKey);
+                    link.setTo(fpend.getKey());
+                    linkDataList.add(link);
                 }
 
             }
-        }
-
-        for (NodeData node : removeNode) {
-            nodeDataList.remove(node);
-            LinkData slink = diagramDTOService.getLinkDataByFrom(linkDataList, node.getKey());
-            if (slink != null) {
-                linkDataList.remove(slink);
+            if (node.contains("IDS")) {
+                if (diagramDTOService.isNodeDataContains(nodeDataList, "CloudTrail")){
+                    nodeDataList.remove(nodeData);
+                    continue;
+                }
+                String nodeKey = nodeData.getKey();
+                nodeKey = nodeKey.replace("IDS", "CloudTrail");
+                nodeData.setKey(nodeKey);
+                nodeData.setText("CloudTrail");
+                nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
+                nodeData.setType("Management-Governance");
+                nodeData.setGroup("Service");
             }
-            slink = diagramDTOService.getLinkDataByTo(linkDataList, node.getKey());
-            if (slink != null) {
-                linkDataList.remove(slink);
-            }
         }
-        nodeDataList.addAll(serviceNodeList);
+        serviceLocation(nodeDataList);
 
     }
 
-    public void changeNodeSource(List<NodeData> nodeDataList) {
+    public void serviceLocation(List<NodeData> nodeDataList){
+        List<NodeData> serviceNodeDataList = diagramDTOService.getNodeListByGroup(nodeDataList, "Service");
+        int x = 0;
+        for (NodeData nodeData: serviceNodeDataList){
+            nodeData.setLoc(x+" -700");
+            x+=70;
+        }
+
+    }
+
+    public void changeNodeSource(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
 
         for (NodeData nodeData : nodeDataList) {
             String node = nodeData.getKey();
@@ -64,34 +130,6 @@ public class NetworkToAWS {
                 nodeData.setText("EC2");
                 nodeData.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
                 nodeData.setType("Compute");
-            } else if (node.contains("Anti DDoS")) {
-                String nodeKey = nodeData.getKey();
-                nodeKey = nodeKey.replace("Anti DDoS", "Shield");
-                nodeData.setKey(nodeKey);
-                nodeData.setText("Shield");
-                nodeData.setSource("/img/AWS_icon/Arch_Security-Identity-Compliance/Arch_AWS-Shield_48.svg");
-                nodeData.setType("Security-Identity-Compliance");
-                nodeData.setGroup("Service");
-            } else if (node.contains("IPS")) {
-
-                String nodeKey = nodeData.getKey();
-                nodeKey = nodeKey.replace("IPS", "CloudTrail");
-                nodeData.setKey(nodeKey);
-                nodeData.setText("CloudTrail");
-                nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
-                nodeData.setType("Management-Governance");
-                nodeData.setGroup("Service");
-
-            } else if (node.contains("IDS")) {
-
-                String nodeKey = nodeData.getKey();
-                nodeKey = nodeKey.replace("IDS", "CloudTrail");
-                nodeData.setKey(nodeKey);
-                nodeData.setText("CloudTrail");
-                nodeData.setSource("/img/AWS_icon/Arch_Management-Governance/Arch_AWS-CloudTrail_48.svg");
-                nodeData.setType("Management-Governance");
-                nodeData.setGroup("Service");
-
             } else if (node.contains("Database")) {
                 String nodeKey = nodeData.getKey();
                 nodeKey = nodeKey.replace("Database", "RDS");
@@ -102,49 +140,9 @@ public class NetworkToAWS {
             }
 
         }
-        return;
     }
 
 
-//    public void changeGroupSource(List<NodeData> nodeDataList, List<GroupData> groupDataList) {
-//        Set<String> groupKey = new HashSet<>();
-//
-//        for(GroupData groupData:groupDataList){
-//            String group = groupData.getKey();
-//            groupKey.add(group);
-//        }
-//        int count = 1;
-//
-//        for(String key:groupKey){
-//            if(key.contains("Security Group")||key.contains("VPC")||key.contains("Firewall Subnet")) continue;
-//            for(GroupData groupData:groupDataList) {
-//                if(!groupData.getKey().equals(key)) continue;
-//                if(groupData.getGroup().contains("VPC")) continue;
-//
-//                groupData.setKey(key+" Virtual private cloud (VPC) " + count);
-//                groupData.setText(key+" Virtual private cloud (VPC) " + count);
-//                groupData.setStroke("rgb(140,79,255)");
-//
-//                for(NodeData node: nodeDataList) {
-//                    if (!node.getGroup().equals(key)) continue;
-//                    node.setGroup(key + " Virtual private cloud (VPC) " + count);
-//                }
-//                for(GroupData group: groupDataList) {
-//                    if(group.getGroup()==null) continue;
-//                    if (!group.getGroup().equals(key)) continue;
-//                    group.setGroup(key + " Virtual private cloud (VPC) " + count);
-//                }
-//            }
-//            GroupData vpc = addResourceService.addVPC();
-//            vpc.setKey(key+" Virtual private cloud (VPC) " + count);
-//            vpc.setText("VPC");
-//
-//            count++;
-//        }
-//
-//        Map<List<NodeData>, List<GroupData>> result = new HashMap<>();
-//        result.put(nodeDataList, groupDataList);
-//    }
 
 
     public void changeGroupSource2(List<NodeData> nodeDataList, List<GroupData> groupDataList) {
@@ -188,6 +186,7 @@ public class NetworkToAWS {
 
 
                 for (NodeData node : nodeDataList) {
+                    if(node.getGroup()==null) continue;
                     if (!node.getGroup().equals(key)) continue;
                     node.setGroup(key + " Private subnet " + count);
                 }
@@ -216,18 +215,22 @@ public class NetworkToAWS {
             if (node.contains("Server")) {
                 value = node.replace("Server", "EC2");
                 linkData.setFrom(value);
-            } else if (node.contains("Anti DDoS")) {
-                value = node.replace("Anti DDoS", "Shield");
-                linkData.setFrom(value);
-            } else if (node.contains("IPS")) {
-                value = node.replace("IPS", "CloudTrail");
-                linkData.setFrom(value);
-            } else if (node.contains("IDS")) {
-                value = node.replace("IDS", "CloudTrail");
-                linkData.setFrom(value);
             } else if (node.contains("Database")) {
                 value = node.replace("Database", "RDS");
                 linkData.setFrom(value);
+            }
+        }
+        for (LinkData linkData : linkDataList) {
+            String node = linkData.getTo();
+            System.out.println("linkData" + linkData);
+            String value;
+            // server, web server
+            if (node.contains("Server")) {
+                value = node.replace("Server", "EC2");
+                linkData.setTo(value);
+            }else if (node.contains("Database")) {
+                value = node.replace("Database", "RDS");
+                linkData.setTo(value);
             }
         }
     }
@@ -431,7 +434,7 @@ public class NetworkToAWS {
     public void changeAll2(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
 //        diagramDTOService.addServiceGroup(groupDataList);
 
-        changeNodeSource(nodeDataList);
+        changeNodeSource(nodeDataList, groupDataList, linkDataList);
         changeLinkSource(linkDataList);
         changeGroupSource2(nodeDataList, groupDataList);
     }

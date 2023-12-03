@@ -47,7 +47,7 @@ public class RehostController {
 
             // sg 추가 -> 관문 fw 있는 경우 nfw로 변경 후 vpc 추가
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
-            securityGroupService.modifySecurityGroupLink(nodeDataList, groupDataList, unique(linkDataList));
+            securityGroupService.modifySecurityGroupLink(nodeDataList, unique(linkDataList));
 
             // fw 건너서 link 연결
             modifyLink.excludeNode(nodeDataList, groupDataList, unique(linkDataList));
@@ -65,11 +65,7 @@ public class RehostController {
 
 ////            // 위치 정보 수정 ,,, ,하하
             networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
-
-
-//            // 서비스 노드 관리
-            networkToAWS.deleteServiceDuplicatedNode(nodeDataList, linkDataList);
-            logger.info("networkToAWS.deleteServiceDuplicatedNode");
+//
 
             GroupData groupData = new GroupData();
             groupData.setKey("Service");

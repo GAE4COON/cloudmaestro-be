@@ -4,6 +4,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import io.swagger.v3.oas.models.links.Link;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Node;
 
 import javax.swing.*;
 import java.util.*;
@@ -186,7 +187,13 @@ public class DiagramDTOService {
         return null;
     }
 
-
+    public List<NodeData> getNodeListByGroup(List<NodeData> nodeDataList, String group){
+        List<NodeData> nodeList = new ArrayList<>();
+        for (NodeData node : nodeDataList) {
+            if(node.getGroup()!=null && node.getGroup().equals(group)) nodeList.add(node);
+        }
+        return nodeList;
+    }
 
     public List<NodeData> getNodeListByText(List<NodeData> nodeDataList, String text){
         List<NodeData> nodeList = new ArrayList<>();
@@ -243,23 +250,20 @@ public class DiagramDTOService {
                     }
                     if(number<tempnum) number=tempnum;
                 }
-
             }
         }
         return number; // number 반환
     }
 
-    public List<LinkData> uniqueLink(List<LinkData> linkDataList) {
-        Set<LinkData> linkDataSet = new HashSet<>();
-        for (LinkData link1 : linkDataList) {
-            linkDataSet.add(link1);
+    public void removeNullLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+        List<LinkData> newLinkDataList = new ArrayList<>(linkDataList);
+        for(LinkData linkData : newLinkDataList) {
+            if ((getNodeDataByKey(nodeDataList, linkData.getFrom()) == null && getGroupDataByKey(groupDataList, linkData.getFrom()) == null)
+                || (getNodeDataByKey(nodeDataList, linkData.getTo()) == null && getGroupDataByKey(groupDataList, linkData.getTo()) == null)) {
+                System.out.println("remove link" + linkData);
+                linkDataList.remove(linkData);
+            }
         }
-
-        List<LinkData> setlist = new ArrayList<>();
-        for (LinkData l : linkDataSet) {
-            setlist.add(l);
-        }
-        return setlist;
     }
 
 }
