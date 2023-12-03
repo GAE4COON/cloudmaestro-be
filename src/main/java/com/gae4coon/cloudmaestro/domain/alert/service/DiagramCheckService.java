@@ -138,8 +138,17 @@ public class DiagramCheckService {
         if(groupDataList != null) {
             if (newData.getGroup() != null) {
 
-                List<String> hhgroup = alertGroupService.groupSearch3(newData.getKey(), groupDataList);
-                if (!hhgroup.contains("Private subnet") && !BPgroup.contains(newData.getGroup())) {
+                List<String> hhgroup = alertGroupService.groupSearch3(newData, groupDataList);
+
+                boolean containsPrivateSubnet = false;
+                for(String group : hhgroup) {
+                    if(group.contains("Private subnet")) {
+                        containsPrivateSubnet = true;
+                        break;
+                    }
+                }
+                System.out.println("hhgroup"+hhgroup);
+                if (!containsPrivateSubnet && !BPgroup.contains(newData.getGroup())) {
                     flag = true;
                     check.put("message", "인터넷에 연결할 필요가 없는 VPC내의 DB는 클러스터는 Private Subnet에 배치해야합니다.");
                     System.out.println("??check");

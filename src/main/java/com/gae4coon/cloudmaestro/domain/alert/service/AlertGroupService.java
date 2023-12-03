@@ -1,6 +1,7 @@
 package com.gae4coon.cloudmaestro.domain.alert.service;
 
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -67,29 +68,37 @@ public class AlertGroupService {
         return new ArrayList<>(BPSet);
     }
 
-    public List<String> groupSearch3(String option,List<GroupData> groupDataList) { //nodegroup 분할되어 나올 때 쓸 함수
+    public List<String> groupSearch3(NodeData option, List<GroupData> groupDataList) { //nodegroup 분할되어 나올 때 쓸 함수
         HashSet<String> BPSet = new HashSet<>();
+        boolean flag = false;
+        if (option.getGroup()!=null) {
+            BPSet.add(option.getGroup());
+            System.out.println("===================================================================");
 
-        BPSet.add(option);
 
+            int previousSize = 0;
+            int currentSize = BPSet.size();
 
-        int previousSize = 0;
-        int currentSize = BPSet.size();
+            while (previousSize != currentSize) {
+                if(flag==true) break;
+                previousSize = currentSize;
 
-        while (previousSize != currentSize) {
-            previousSize = currentSize;
-
-            for (GroupData groupItem : groupDataList) {
-                if (groupItem.getKey() instanceof String) {
-                    for (String setItem : BPSet) {
-                        if (groupItem.getGroup() !=null && groupItem.getGroup().equals(setItem)) {
-                            BPSet.add(groupItem.getGroup());
-                            if (groupItem.getGroup().contains("Private subnet")) break;
+                for (GroupData groupItem : groupDataList) {
+                    if(flag==true) break;
+                    if (groupItem.getKey() instanceof String) {
+                        for (String setItem : BPSet) {
+                            if (groupItem.getGroup() != null && groupItem.getKey().equals(setItem)) {
+                                BPSet.add(groupItem.getGroup());
+                                if (groupItem.getGroup().contains("Private subnet")) {
+                                    flag = true;
+                                    break;
+                                }
+                            }
                         }
                     }
                 }
+                currentSize = BPSet.size();
             }
-            currentSize = BPSet.size();
         }
         return new ArrayList<>(BPSet);
     }
