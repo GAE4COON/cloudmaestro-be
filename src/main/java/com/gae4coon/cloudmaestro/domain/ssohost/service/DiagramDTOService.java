@@ -4,6 +4,7 @@ import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import io.swagger.v3.oas.models.links.Link;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Node;
 
 import javax.swing.*;
 import java.util.*;
@@ -13,11 +14,23 @@ import java.util.regex.Pattern;
 @Service
 @RequiredArgsConstructor
 public class DiagramDTOService {
+    public HashMap<String, Object> DiagramDTOtoResponse(GraphLinksModel graphLinksModel){
+        Map<String, Object> dtog = dtoGenerator(graphLinksModel);
+
+        List<NodeData> nodeDataList = (List<NodeData>) dtog.get("nodeDataArray");
+        List<GroupData> groupDataList = (List<GroupData>) dtog.get("groupDataArray");
+        List<LinkData> linkDataList = (List<LinkData>) dtog.get("linkDataArray");
+        Map<String, Object> cost = (Map<String, Object>) dtog.get("cost");
+
+        HashMap<String, Object> response = dtoComplete(nodeDataList, groupDataList, linkDataList, cost);
+        return response;
+    }
     
     public Map<String, Object> dtoGenerator(GraphLinksModel graphLinksModel){
         List<NodeData> dataArray = graphLinksModel.getNodeDataArray();
         List<NodeData> nodeDataList = new ArrayList<>();
         List<GroupData> groupDataList = new ArrayList<>();
+        Map<String, Object> cost = graphLinksModel.getCost();
 
         List<LinkData> linkDataList = graphLinksModel.getLinkDataArray();
 
@@ -34,12 +47,13 @@ public class DiagramDTOService {
         responseBody.put("nodeDataArray", nodeDataList);
         responseBody.put("groupDataArray", groupDataList);
         responseBody.put("linkDataArray", linkDataList);
+        responseBody.put("cost", cost);
 
         return responseBody;
     }
 
     
-    public HashMap<String, Object> dtoComplete(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
+    public HashMap<String, Object> dtoComplete(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, Map<String, Object> cost){
 
         List<Object> finalDataArray = new ArrayList<>();
         finalDataArray.addAll(nodeDataList);
@@ -51,6 +65,7 @@ public class DiagramDTOService {
         responseBody.put("linkKeyProperty", "key");
         responseBody.put("nodeDataArray", finalDataArray);
         responseBody.put("linkDataArray", linkDataList);
+        responseBody.put("cost", cost);
 
         HashMap<String, Object> response = new HashMap<>();
 
@@ -101,6 +116,16 @@ public class DiagramDTOService {
         return nestedGroup;
     }
 
+    public List<GroupData> getNestedGroupDataList(List<GroupData> groupDataList, String groupName){
+        List<GroupData> nestedGroup = new ArrayList<>();
+        for (GroupData groupData: groupDataList){
+            if (groupData.getGroup()!=null && groupData.getGroup().equals(groupName)){
+                nestedGroup.add(groupData);
+            }
+        }
+        return nestedGroup;
+    }
+
     public Set<String> getNestedGroupListByLabel(List<GroupData> groupDataList, String groupLabel){
         Set<String> nestedGroup = new HashSet<>();
         for (GroupData groupData: groupDataList){
@@ -130,7 +155,6 @@ public class DiagramDTOService {
             if(link.getFrom().equals(from))
                 linklist.add(link);
         }
-
         return linklist;
     }
     public boolean isLink(List<LinkData> LinkDataList, String from, String to){
@@ -163,7 +187,13 @@ public class DiagramDTOService {
         return null;
     }
 
-
+    public List<NodeData> getNodeListByGroup(List<NodeData> nodeDataList, String group){
+        List<NodeData> nodeList = new ArrayList<>();
+        for (NodeData node : nodeDataList) {
+            if(node.getGroup()!=null && node.getGroup().equals(group)) nodeList.add(node);
+        }
+        return nodeList;
+    }
 
     public List<NodeData> getNodeListByText(List<NodeData> nodeDataList, String text){
         List<NodeData> nodeList = new ArrayList<>();
@@ -202,6 +232,8 @@ public class DiagramDTOService {
         }
         return number; // number 반환
     }
+
+
     public int getGroupNumber(List<GroupData> groupDataList, String text){
         int number=0;
 
@@ -218,23 +250,20 @@ public class DiagramDTOService {
                     }
                     if(number<tempnum) number=tempnum;
                 }
-
             }
         }
         return number; // number 반환
     }
 
-    public List<LinkData> uniqueLink(List<LinkData> linkDataList) {
-        Set<LinkData> linkDataSet = new HashSet<>();
-        for (LinkData link1 : linkDataList) {
-            linkDataSet.add(link1);
+    public void removeNullLink(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+        List<LinkData> newLinkDataList = new ArrayList<>(linkDataList);
+        for(LinkData linkData : newLinkDataList) {
+            if ((getNodeDataByKey(nodeDataList, linkData.getFrom()) == null && getGroupDataByKey(groupDataList, linkData.getFrom()) == null)
+                || (getNodeDataByKey(nodeDataList, linkData.getTo()) == null && getGroupDataByKey(groupDataList, linkData.getTo()) == null)) {
+                System.out.println("remove link" + linkData);
+                linkDataList.remove(linkData);
+            }
         }
-
-        List<LinkData> setlist = new ArrayList<>();
-        for (LinkData l : linkDataSet) {
-            setlist.add(l);
-        }
-        return setlist;
     }
 
 }

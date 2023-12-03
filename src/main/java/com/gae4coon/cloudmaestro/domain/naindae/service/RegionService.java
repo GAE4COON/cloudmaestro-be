@@ -155,8 +155,16 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
             newGroup.setText(group.getText());
             newGroup.setType(group.getType());
             newGroup.setKey("MR-"+group.getKey());
-            newGroup.setGroup("MR-"+group.getGroup());
+            if (group.getGroup() != null) {
+                newGroup.setGroup("MR-"+group.getGroup());
+            }
             newGroup.setStroke(group.getStroke());
+            if(group.getLoc()!=null){
+                String[] locParts = group.getLoc().split(" ");
+                double x = Double.parseDouble(locParts[0]);
+                double y = Double.parseDouble(locParts[1]) + 1300;
+                newGroup.setLoc(x + " " + y); // 수정된 좌표 설정
+            }
             modifiedList.add(newGroup);
         }
         return modifiedList;

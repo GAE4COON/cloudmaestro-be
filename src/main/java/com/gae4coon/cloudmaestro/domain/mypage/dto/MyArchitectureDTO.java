@@ -9,9 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyNetworkDTO {
+public class MyArchitectureDTO{
     private Long key;
     private String title;
-    private String imgSrc;
-
 }

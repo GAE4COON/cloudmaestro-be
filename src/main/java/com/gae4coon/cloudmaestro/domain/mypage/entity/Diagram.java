@@ -1,31 +1,31 @@
 package com.gae4coon.cloudmaestro.domain.mypage.entity;
 
-import com.gae4coon.cloudmaestro.domain.user.entity.Member;
-import jakarta.persistence.Entity;
 
+import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)@Table(name = "diagram")
-public class Diagram {
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Builder
+@AllArgsConstructor
+@Table(name = "diagram")
+public class Diagram{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "diagramId", nullable = false, length = 50, unique = true)
+    @Column(name = "diagram_id", nullable = false, length = 256)
     private Long diagramId;
 
+    // AWS와 User는 ManyToOne 관계임을 명시
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userId")
+    @JoinColumn(name = "user_id")
     private Member userId;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "cloudId")
-    private Cloud cloudId;
+    @Column(name = "diagram_file", nullable = false, length = 256)
+    private String diagramFile;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "networkId")
-    private Network networkId;
-
-
+    @JoinColumn(name = "require_id")
+    private Require require;
 }

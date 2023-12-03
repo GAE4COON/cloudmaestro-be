@@ -26,7 +26,7 @@ public class SecurityService{
 
     // globalRequirements list service
 
-    public HashMap<String, Object> security(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
+    public void security(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
         List<String> globalRequirements = requireDTO.getGlobalRequirements();
         List<ZoneDTO> Zones = requireDTO.getZones();
 
@@ -37,9 +37,9 @@ public class SecurityService{
         globalService(globalRequirements);
         zoneService(Zones);
 
-        HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
+//        HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList);
 
-        return response;
+        return;
     }
 
 
@@ -158,7 +158,6 @@ public class SecurityService{
 
     private void setNetworkFW() {
         // network firewall있으면 endpoint만 검사
-        diagramDTOService.addServiceGroup(groupDataList);
 
         if (!diagramDTOService.isNodeDataContains(nodeDataList, "Network Firewall")) {
             // add Network Firewall into Region
