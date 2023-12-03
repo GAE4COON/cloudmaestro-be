@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -71,8 +72,12 @@ public class SpringConfig {
     public CorsConfigurationSource  corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:3000", // 로컬 개발 환경
-                "http://ec2-43-201-44-230.ap-northeast-2.compute.amazonaws.com:3000" // 프로덕션 환경
+                "http://localhost:3000",
+                "http://ec2-3-39-133-88.ap-northeast-2.compute.amazonaws.com:3000",
+                "http://cloudmaestro.site:3000",
+                "http://cloudmaestro.site:80",
+                "http://cloudmaestro.site",
+                "https://cloudmaestro.site"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Content-Type", "Authorization", "X-XSRF-token"));
