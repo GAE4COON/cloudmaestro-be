@@ -65,7 +65,8 @@ public class RehostController {
 
 ////            // 위치 정보 수정 ,,, ,하하
             networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
-//
+
+
 //            // 서비스 노드 관리
             networkToAWS.deleteServiceDuplicatedNode(nodeDataList, linkDataList);
             logger.info("networkToAWS.deleteServiceDuplicatedNode");
