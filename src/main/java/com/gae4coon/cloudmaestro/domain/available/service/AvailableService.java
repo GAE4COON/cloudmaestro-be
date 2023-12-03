@@ -81,9 +81,9 @@ public class AvailableService {
 
 
     public void madeAvaliableZone(String publicSubnetName, String privateSubnetName, List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList ,int key) {
-        GroupData publicSubnetNode = createGroupData(publicSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(122,161,22)",null);
+        GroupData publicSubnetNode = createGroupData(publicSubnetName, "AWS_Groups", "Availability Zonea", null, "rgb(122,161,22)",null);
         groupDataList.add(publicSubnetNode);
-        GroupData privateSubnetNode = createGroupData(privateSubnetName, "AWS_Groups", "Availability Zone2", null, "rgb(0,164,166)",null);
+        GroupData privateSubnetNode = createGroupData(privateSubnetName, "AWS_Groups", "Availability Zonea", null, "rgb(0,164,166)",null);
         groupDataList.add(privateSubnetNode);
 
         // link 정보 연결하기
@@ -521,7 +521,7 @@ public class AvailableService {
 
     public GroupData makeAz(List<GroupData> groupDataList) {
         GroupData Azdata = new GroupData();
-        Azdata.setKey("Availability Zone2");
+        Azdata.setKey("Availability Zone" + "a");
         Azdata.setText("Availability Zone");
         Azdata.setIsGroup(true);
         Azdata.setGroup("VPC");

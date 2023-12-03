@@ -17,7 +17,7 @@ import java.util.*;
 public class NetworkToAWS {
     private final DiagramDTOService diagramDTOService;
     private final AddResourceService addResourceService;
-    private final LocationService locationService;
+    private final Location2Service locationService2;
 
     public void managedAllNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
         // 서비스 노드 관리 (lift & shift 시 변경되는 노드들 (ips, ids, anti ddos..)
@@ -458,10 +458,15 @@ public class NetworkToAWS {
 
         // Group 정보에서 public subnet이 몇 개인지 확인
         List<String> count_public_subnets = new ArrayList<>();
+        List<String> count_firewall_endpoints = new ArrayList<>();
         for (GroupData groupdata : groupDataList) {
             if (groupdata.getKey().contains("Public subnet")) {
                 count_public_subnets.add(groupdata.getKey());
             }
+            if(groupdata.getKey().contains("Firewall Public")){
+                count_firewall_endpoints.add(groupdata.getKey());
+            }
+            System.out.println("Friewall" + groupdata);
         }
 
         // LinkData Public Subnet 별로 순서 정하기
@@ -479,7 +484,7 @@ public class NetworkToAWS {
         }
 
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
-        locationService.addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
+        locationService2.addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
 
 
     }
