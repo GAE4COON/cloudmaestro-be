@@ -24,8 +24,4 @@ public class Diagram{
 
     @Column(name = "diagram_file", nullable = false, length = 256)
     private String diagramFile;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "require_id")
-    private Require require;
 }
