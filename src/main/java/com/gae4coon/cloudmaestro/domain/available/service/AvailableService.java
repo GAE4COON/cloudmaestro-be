@@ -128,7 +128,7 @@ public class AvailableService {
         key -= 1;
         NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,key,vpc);
         nat_node_x += 10; nat_node_y += 400;
-        // nat 기준으로 node data 설정
+        // nat 기준으로 node data 설정_
         node_x = nat_node_x + 430; node_y = nat_node_y - 460;
     }
 
@@ -142,6 +142,7 @@ public class AvailableService {
                 from = group_name[0];
                 if(from.equals(zone_name) && linkdata.getFrom().contains("Public")){
                     originalpublicsubnetname = linkdata.getFrom();
+
                 }
             }
             if(linkdata.getTo() != null){
@@ -149,6 +150,7 @@ public class AvailableService {
                 to = group_name[0];
                 if(to.equals(zone_name) && linkdata.getTo().contains("Private")){
                     originalprivatesubnetname = linkdata.getTo();
+                    //System.out.println("Private Subnet Name" + originalprivatesubnetname);
                 }
             }
 
@@ -602,7 +604,7 @@ public class AvailableService {
 
     }
 
-    public double[] findNodeWithHighestYCoordinate(List<NodeData> nodeDataList, List<GroupData> groupDataList, String originalprivatesubnetname, String az , String vpc) {
+    public double[] findNodeWithHighestYCoordinate(List<NodeData> nodeDataList, List<GroupData> groupDataList, String originalPrivateSubnetName, String az , String vpc) {
 
 
         // string originalprivatesubnetname
@@ -611,19 +613,25 @@ public class AvailableService {
         double highestX = Double.NEGATIVE_INFINITY;
         double lowestY = Double.MAX_VALUE; // 초기값을 가장 큰 값으로 설정
 
-        // 같은 AZ에 속해 있는 것 중 제일 x축 제일 높은 거 가져오기
-        for (NodeData nodedata : nodeDataList) {
-            if (nodedata.getGroup().contains(originalprivatesubnetname)) {
-                String location = nodedata.getLoc();
-                String[] locParts = location.split(" ");
 
-                double x = Double.parseDouble(locParts[0]);
-                if (x > highestX) {
-                    highestX = x;
+        // First iteration - directly over nodeDataList
+        for (NodeData nodeData : nodeDataList) {
+            if (nodeData.getGroup().contains(originalPrivateSubnetName)) {
+                highestX = updateHighestX(nodeData, highestX);
+            }
+        }
+
+        // Second iteration - now iterating over groupDataList
+        for (GroupData groupData : groupDataList) {
+            if (    groupData.getGroup() != null &&
+                    groupData.getGroup().contains(originalPrivateSubnetName)) {
+                String securityGroup = groupData.getKey();
+                for (NodeData nodeData : nodeDataList) {
+                    if (nodeData.getGroup().equals(securityGroup)) {
+                        highestX = updateHighestX(nodeData, highestX);
+                    }
                 }
             }
-
-
         }
 
         NodeData lowestYNode = null;
@@ -645,6 +653,19 @@ public class AvailableService {
 
         System.out.println("highestXNode" + highestXNode);
         return new double[]{highestX, lowestY};
+    }
+    private double updateHighestX(NodeData nodeData, double currentHighestX) {
+        try {
+            String location = nodeData.getLoc();
+            String[] locParts = location.split(" ");
+            double x = Double.parseDouble(locParts[0]);
+            if (x > currentHighestX) {
+                return x;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid location format for node: " + nodeData);
+        }
+        return currentHighestX;
     }
 
     public NodeData makeALb(int index, double node_x, double node_y){
