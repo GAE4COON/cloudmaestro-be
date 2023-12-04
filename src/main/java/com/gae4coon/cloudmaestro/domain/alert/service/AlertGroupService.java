@@ -42,11 +42,11 @@ public class AlertGroupService {
         return new ArrayList<>(BPSet);
     }
 
-    public List<String> groupSearch2(String option,List<GroupData> groupDataList) { //nodegroup 분할되어 나올 때 쓸 함수
+    public List<String> groupSearch2(String option, List<GroupData> groupDataList) {
         HashSet<String> BPSet = new HashSet<>();
+        HashSet<String> tempSet = new HashSet<>();
 
         BPSet.add(option);
-
 
         int previousSize = 0;
         int currentSize = BPSet.size();
@@ -58,15 +58,20 @@ public class AlertGroupService {
                 if (groupItem.getGroup() instanceof String) {
                     for (String setItem : BPSet) {
                         if (groupItem.getGroup().equals(setItem)) {
-                            BPSet.add(groupItem.getKey());
+                            tempSet.add(groupItem.getKey());
                         }
                     }
                 }
             }
+
+            BPSet.addAll(tempSet); // 여기에서 tempSet의 모든 항목을 BPSet에 추가합니다.
+            tempSet.clear(); // tempSet을 비웁니다.
+
             currentSize = BPSet.size();
         }
         return new ArrayList<>(BPSet);
     }
+
 
     public List<String> groupSearch3(NodeData option, List<GroupData> groupDataList) { //nodegroup 분할되어 나올 때 쓸 함수
         HashSet<String> BPSet = new HashSet<>();

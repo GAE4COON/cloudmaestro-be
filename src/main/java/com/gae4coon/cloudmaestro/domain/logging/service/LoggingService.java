@@ -44,21 +44,25 @@ public class LoggingService {
         return;
     }
 
+    public void logging2(RequireDTO requireDTO,List<NodeData> originNodeDataList, List<GroupData> originGroupDataList, List<LinkData> originLinkDataList) {
+        List<String> globalRequirements = requireDTO.getGlobalRequirements();
+        List<ZoneDTO> Zones = requireDTO.getZones();
+
+        this.nodeDataList = originNodeDataList;
+        this.groupDataList = originGroupDataList;
+        this.linkDataList = originLinkDataList;
+
+        globalService2(globalRequirements);
+
+
+        return;
+    }
+
     private void globalService(List<String> globalRequirements) {
         for (var global : globalRequirements) {
             switch (global) {
                 case "로깅":
-                    setLogging();
-                    break;
-                case "로그 수집 및 저장":
-                    setLogCollectStore();
-                    break;
-                case "cloudtrail":
-                    setCloudTrail();
-                    break;
-                case "cloudwatch":
-                    setCloudWatch();
-                    break;
+                        setLogging1();
                 case "opensearch":
                     setOpenSearch();
                     break;
@@ -72,9 +76,31 @@ public class LoggingService {
         }
     }
 
-    private void setLogging(){
-        setLogCollectStore();
+    private void globalService2(List<String> globalRequirements) {
+        for (var global : globalRequirements) {
+            switch (global) {
+                case "로깅":
+                    setLogging2();
+                    break;
+                case "로그 수집 및 저장":
+                    setLogCollectStore();
+                    break;
+                case "cloudtrail":
+                    setCloudTrail();
+                    break;
+                case "cloudwatch":
+                    setCloudWatch();
+                    break;
+            }
+        }
+    }
+
+    private void setLogging1(){
         setLogAnalyze();
+
+    }
+    private void setLogging2(){
+        setLogCollectStore();
     }
 
     private void setLogCollectStore() {
@@ -120,7 +146,7 @@ public class LoggingService {
         // 연결된 s3 없으면 생성
         if(cloudTrails3List.isEmpty()){
             System.out.println("new");
-            NodeData s3 = addResourceService.addSimpleStorageServiceS3(nodeDataList);
+            NodeData s3 = addResourceService.addS3Bucket(nodeDataList);
             s3.setGroup("Region");
             s3.setLoc("600 -750");
             nodeDataList.add(s3);
@@ -173,7 +199,7 @@ public class LoggingService {
         cloudTrail.setLoc("400 -600");
         nodeDataList.add(cloudTrail);
 
-        NodeData s3 = addResourceService.addSimpleStorageServiceS3();
+        NodeData s3 = addResourceService.addS3Bucket();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
         s3.setLoc("400 -750");
@@ -193,7 +219,7 @@ public class LoggingService {
         cloudWatch.setLoc("600 -600");
         nodeDataList.add(cloudWatch);
 
-        NodeData s3 = addResourceService.addSimpleStorageServiceS3();
+        NodeData s3 = addResourceService.addS3Bucket();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
         s3.setLoc("450 -600");
@@ -253,7 +279,7 @@ public class LoggingService {
         athena.setLoc("700 -700");
         nodeDataList.add(athena);
 
-        NodeData s3 = addResourceService.addSimpleStorageServiceS3();
+        NodeData s3 = addResourceService.addS3Bucket();
         s3.setKey(s3.getKey()+diagramDTOService.getNodeNumber(nodeDataList, s3.getText()));
         s3.setGroup("Region");
         s3.setLoc("700 -900");
