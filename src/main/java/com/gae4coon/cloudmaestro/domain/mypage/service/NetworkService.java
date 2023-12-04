@@ -27,7 +27,6 @@ public class NetworkService {
         Diagram diagram = Diagram.builder()
                 .userId(user)
                 .diagramFile(fileName)
-                .require(null)
                 .build();
 
         diagramRepository.save(diagram);

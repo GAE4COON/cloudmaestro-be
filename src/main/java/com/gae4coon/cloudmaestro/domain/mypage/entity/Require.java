@@ -5,10 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Getter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "requirement")
 public class Require {
@@ -17,19 +20,8 @@ public class Require {
     @Column(name = "require_id")
     private Long requireId;
 
-    @Column(name = "industrial_id", nullable = false, length = 256)
-    private String industrialId;
+    private String industrial;
+    private boolean backup;
+    private String fileName;
 
-
-    @OneToMany(mappedBy = "require", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private Set<Diagram> diagrams;
-
-    // 대충 망 별 기능... 어케처리할까
-
-    @Builder
-    public Require(Long requireId, String industrialId, Set<Diagram> diagrams){
-        this.requireId = requireId;
-        this.industrialId = industrialId;
-        this.diagrams = diagrams;
-    }
 }
