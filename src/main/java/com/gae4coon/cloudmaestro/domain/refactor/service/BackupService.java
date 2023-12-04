@@ -4,22 +4,28 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.gae4coon.cloudmaestro.domain.alert.service.AlertGroupService;
 import com.gae4coon.cloudmaestro.domain.refactor.entity.BpModule;
 import com.gae4coon.cloudmaestro.domain.refactor.repository.ModuleRepository;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.ZoneDTO;
+import com.gae4coon.cloudmaestro.domain.resource.service.AddResourceService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.swing.plaf.synth.Region;
+
 @Service
 @RequiredArgsConstructor
 public class BackupService {
 
     private final BPService bpService;
+    private final AddResourceService addResourceService;
+    private final AlertGroupService alertGroupService;
 
     public Map<String, Object> requirementParsing(RequireDiagramDTO requireDiagramDTO, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList){
 
@@ -99,24 +105,41 @@ public class BackupService {
         double maxX = Double.MIN_VALUE;
 
         for (NodeData item: nodeDataList) {
-            if(regionTemp.contains(item.getGroup())){
-                String location = item.getLoc();
-                String[] locParts = location.split(" ");
+            if(regionTemp.contains(item.getGroup())) {
+                if (item.getLoc() != null) {
+                    String location = item.getLoc();
 
-                double x = Double.parseDouble(locParts[0]);
-                double y = Double.parseDouble(locParts[1]);
+                    if (location.equals("loc")) {
+                        continue;
+                    }
 
-                if (y > maxY) {
-                    maxY = y;
-                }
-                if (y < minY) {
-                    minY = y;
-                }
-                if (x > maxX) {
-                    maxX = x;
+                    System.out.println("location: " + item.getKey() + ", " + location);
+                    System.out.println("minY, maxY, maxX: " + minY + ", " + maxY+ ", " +maxX);
+                    String[] locParts = location.split(" ");
+
+                    try {
+                        double x = Double.parseDouble(locParts[0]);
+                        double y = Double.parseDouble(locParts[1]);
+
+                        if (x < -100000 || x > 100000) continue;
+
+                        if (y > maxY) {
+                            maxY = y;
+                        }
+                        if (y < minY) {
+                            minY = y;
+                        }
+                        if (x > maxX) {
+                            maxX = x;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid location format for NodeData with key: " + item.getKey()+", "+item.getLoc());
+                        continue; // Skip this iteration if parsing fails
+                    }
                 }
             }
         }
+
 
         return new Point2D.Double(maxX, (maxY+minY)/2);
     }
@@ -172,8 +195,50 @@ public class BackupService {
         });
     }
 
+    public Point2D selectLocation2(List<NodeData> nodeDataList){
+        double maxY = Double.MIN_VALUE;
+        double minY = Double.MAX_VALUE;
+
+        for (NodeData item: nodeDataList) {
+            if (item.getLoc() != null && !item.getLoc().equals("loc")) {
+                String location = item.getLoc();
+
+                if (location.equals("loc")) {
+                    continue;
+                }
+
+                String[] locParts = location.split(" ");
+                try {
+                    double x = Double.parseDouble(locParts[0]);
+                    double y = Double.parseDouble(locParts[1]);
+
+                    if (x < -100000 || x > 100000) continue;
+
+                    if (y > maxY) {
+                        maxY = y;
+                    }
+                    if (y < minY) {
+                        minY = y;
+                    }
+
+                } catch (NumberFormatException e) {
+                    System.err.println("Invalid location format for NodeData with key: " + item.getKey()+" "+item.getLoc());
+                    System.out.println();
+                    continue; // Skip this iteration if parsing fails
+                }
+            }
+        }
+
+
+//        return new Point2D.Double(maxX, (maxY+minY)/2);
+        return new Point2D.Double(minY, maxY);
+    }
+
+
 
     public void centralBackup (List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList){
+
+        boolean regioncheck = false;
 
         List<GroupData> regionList = new ArrayList<>();
         for (GroupData grd:groupDataList) {
@@ -185,7 +250,9 @@ public class BackupService {
         if(regionList.size()<2 && regionList.size()>0){
             GroupData newGroup = addRegionGroup(groupDataList);
             regionList.add(newGroup);
-        };
+        }else{
+            regioncheck = true;
+        }
 
 
         if(regionList.size()==0){
@@ -221,32 +288,44 @@ public class BackupService {
 
         Point2D location = selectLocation(nodeDataList,groupDataList,regionList);
 
-        System.out.println("Location: "+location.getX()+", "+location.getY());
+        System.out.println("Location: "+location.getX()+" "+location.getY());
 
-        NodeData newNode=new NodeData();
-        newNode.setKey("Backup " + number);
-        newNode.setType("Storage");
-        newNode.setText("Backup "+number);
-        newNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
-        newNode.setLoc(""+(location.getX()+300)+" "+location.getY());
-        newNode.setGroup(""+regionList.get(0).getKey());
+        NodeData backup1= addResourceService.addBackup();
+        NodeData backup2= addResourceService.addBackup();
 
-        NodeData backupNode=new NodeData();
-        backupNode.setKey("Backup " + (number+1));
-        backupNode.setType("Storage");
-        backupNode.setText("Backup "+(number+1));
-        backupNode.setSource("/img/AWS_icon/Arch_Storage/Arch_AWS-Backup_48.svg");
-        backupNode.setLoc(""+(location.getX()+600)+" "+location.getY());
-        backupNode.setGroup(""+regionList.get(1).getKey());
+        backup1.setKey("Backup " + number);
+        backup1.setGroup(""+regionList.get(0).getKey());
+        backup1.setLoc(""+(location.getX()+300)+" "+location.getY());
 
+        backup2.setKey("Backup " + (number + 1));
+        backup2.setGroup("" + regionList.get(1).getKey());
+
+        String region2 = "" + regionList.get(1).getKey();
+
+        List<String> region2Group =alertGroupService.groupSearch2(region2, groupDataList);
+
+        if (regioncheck) {
+            List<NodeData> region2Node = new ArrayList<>();
+            for (NodeData node: nodeDataList) {
+                if(region2Group.contains(node.getGroup())){
+                    region2Node.add(node);
+                }
+            }
+
+            Point2D regionLoc = selectLocation2(region2Node);
+
+            backup2.setLoc("" + (location.getX() + 300) + " " + ((regionLoc.getY()-(regionLoc.getX()-location.getY()))+900));
+        }else {
+            backup2.setLoc("" + (location.getX() + 600) + " " + location.getY());
+        }
         LinkData newlink = new LinkData();
         newlink.setFrom("Backup " + (number+1));
         newlink.setTo("Backup " + number);
         newlink.setKey(1);
 
 
-        nodeDataList.add(backupNode);
-        nodeDataList.add(newNode);
+        nodeDataList.add(backup1);
+        nodeDataList.add(backup2);
         linkDataList.add(newlink);
 
     }
@@ -293,14 +372,20 @@ public class BackupService {
             }
         }
 
-        NodeData newNode=new NodeData();
-        newNode.setKey("S3" + number);
-        newNode.setType("Storage");
-        newNode.setText("S3"+number);
-        newNode.setSource("/img/AWS_icon/Arch_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg");
-        newNode.setLoc(""+(location.getX()+600)+" "+(location.getY()+200));
+        NodeData S3= addResourceService.addSimpleStorageServiceS3();
 
-        nodeDataList.add(newNode);
+        S3.setKey("S3" + number);
+        S3.setGroup("AWS Cloud");
+        S3.setLoc(""+(location.getX()+600)+" "+(location.getY()+200));
+
+//        NodeData newNode=new NodeData();
+//        newNode.setKey("S3" + number);
+//        newNode.setType("Storage");
+//        newNode.setText("S3"+number);
+//        newNode.setSource("/img/AWS_icon/Arch_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg");
+//        newNode.setLoc(""+(location.getX()+600)+" "+(location.getY()+200));
+
+        nodeDataList.add(S3);
     }
 
 }

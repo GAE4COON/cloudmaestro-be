@@ -4,10 +4,9 @@ import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDiagramDTO;
 import io.swagger.v3.oas.models.links.Link;
 import org.springframework.stereotype.Service;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.awt.geom.Point2D;
+import java.util.*;
 
 @Service
 public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나를 생성한지 검사
@@ -113,8 +112,48 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
         return linkDataList;
     }
 
+    public Point2D selectLocation(List<NodeData> nodeDataList){
+        double maxY = Double.MIN_VALUE;
+        double minY = Double.MAX_VALUE;
+
+        for (NodeData item: nodeDataList) {
+                if (item.getLoc() != null) {
+                    String location = item.getLoc();
+
+                    String[] locParts = location.split(" ");
+
+                    try {
+                        double x = Double.parseDouble(locParts[0]);
+                        double y = Double.parseDouble(locParts[1]);
+
+                        if (x < -100000 || x > 100000) continue;
+
+                        if (y > maxY) {
+                            maxY = y;
+                        }
+                        if (y < minY) {
+                            minY = y;
+                        }
+
+                    } catch (NumberFormatException e) {
+                        System.err.println("Invalid location format for NodeData with key: " + item.getKey());
+                        continue; // Skip this iteration if parsing fails
+                    }
+                }
+        }
+
+
+//        return new Point2D.Double(maxX, (maxY+minY)/2);
+        return new Point2D.Double(minY, maxY);
+    }
+
     public List<NodeData> modifyNodeDataForNewRegion(List<NodeData> originalNodeDataList) {
         List<NodeData> modifiedList = new ArrayList<>();
+        Point2D Yloc = selectLocation(originalNodeDataList);
+        double plusLoc;
+        plusLoc = Yloc.getY()-Yloc.getX();
+
+
         for (NodeData node : originalNodeDataList) {
             if (node.getKey().contains("Route 53")){
                 continue;
@@ -132,7 +171,7 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
                     throw new IllegalArgumentException("Location format is incorrect for node: " + node);
                 }
                 double x = Double.parseDouble(locParts[0]);
-                double y = Double.parseDouble(locParts[1]) + 1300;
+                double y = Double.parseDouble(locParts[1]) + plusLoc + 900;
                 newNode.setLoc(x + " " + y); // 수정된 좌표 설정
                 newNode.setType(node.getType());
                 newNode.setSource(node.getSource());
@@ -150,13 +189,19 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
     public List<GroupData> modifyGroupDataForNewRegion(List<GroupData> originalGroupDataList) {
         List<GroupData> modifiedList = new ArrayList<>();
         for (GroupData group : originalGroupDataList) {
+            if (group.getKey().contains("AWS Cloud")) continue;
             GroupData newGroup = new GroupData();
             newGroup.setIsGroup(group.getIsGroup());
             newGroup.setText(group.getText());
             newGroup.setType(group.getType());
             newGroup.setKey("MR-"+group.getKey());
             if (group.getGroup() != null) {
-                newGroup.setGroup("MR-"+group.getGroup());
+                if (group.getGroup().contains("AWS Cloud")){
+                    newGroup.setGroup(group.getGroup());
+                }
+                else {
+                    newGroup.setGroup("MR-" + group.getGroup());
+                }
             }
             newGroup.setStroke(group.getStroke());
             if(group.getLoc()!=null){

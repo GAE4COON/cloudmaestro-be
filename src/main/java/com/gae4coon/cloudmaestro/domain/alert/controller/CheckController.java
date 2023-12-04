@@ -56,7 +56,7 @@ public class CheckController {
         try {
             if (inputData.getDiagramData()!=null) {
                 GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
-                System.out.println("diagramData:" + diagramData);
+//                System.out.println("diagramData:" + diagramData);
                 // diagramData formatter
                 Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
 
@@ -94,7 +94,7 @@ public class CheckController {
         try {
             if (inputData.getDiagramData()!=null) {
                 GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
-                System.out.println("diagramData:" + diagramData);
+//                System.out.println("diagramData:" + diagramData);
                 // diagramData formatter
                 Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
 
@@ -104,6 +104,15 @@ public class CheckController {
 
                 if (inputData.getCheckOption().equals("API Gateway")) {
                     HashMap ResponseMap = diagramCheckService.APICheck(nodeDataList, groupDataList, inputData.getNewData());
+                    result.put("result", ResponseMap);
+                } else {
+                    HashMap<String, String> check = new HashMap<>();
+                    check.put("status", "success");
+                    result.put("result", check);
+                }
+
+                if (inputData.getCheckOption().equals("Database")) {
+                    HashMap ResponseMap = diagramCheckService.DBcheck(groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 } else {
                     HashMap<String, String> check = new HashMap<>();

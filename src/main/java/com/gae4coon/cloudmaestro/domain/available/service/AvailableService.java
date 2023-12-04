@@ -17,7 +17,8 @@ public class AvailableService {
     public double alb_node_x; public double alb_node_y; public double node_x; public double node_y;
     public String originalpublicsubnetname = ""; public String originalprivatesubnetname = ""; public int Auto_index = 0;
 
-    public double nat_node_x; public double nat_node_y;
+    public double nat_node_x;
+    public double nat_node_y;
     public void availalbeService(RequireDiagramDTO requireDiagramDTO, List<NodeData>nodeDataList, List<GroupData> groupDataList, List<LinkData>linkDataList) {
 
             if (   !requireDiagramDTO.getRequirementData().getZones().isEmpty()

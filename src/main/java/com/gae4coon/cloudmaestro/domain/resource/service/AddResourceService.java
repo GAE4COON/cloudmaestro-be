@@ -3009,6 +3009,15 @@ public class AddResourceService {
                 .build();
     }
 
+    public NodeData addS3(List<NodeData> nodeDataList){
+        return NodeData.builder()
+                .key("S3")
+                .text("S3")
+                .source("/img/AWS_icon/Arch_Storage/Res_Amazon-Simple-Storage-Service_S3-Standard_48.svg")
+                .type("Storage")
+                .build();
+    }
+
     public NodeData addElasticBlockStore(){
         return NodeData.builder()
                 .key("Elastic Block Store")
@@ -7816,6 +7825,15 @@ public class AddResourceService {
     }
 
     public NodeData addS3Bucket(){
+        return NodeData.builder()
+                .key("S3 Bucket")
+                .text("S3 Bucket")
+                .source("/img/AWS_icon/Resource_icon/Res_Storage/Res_Amazon-Simple-Storage-Service_Bucket_48.svg")
+                .type("Storage")
+                .build();
+    }
+
+    public NodeData addS3Bucket(List<NodeData> nodeDataList){
         return NodeData.builder()
                 .key("S3 Bucket")
                 .text("S3 Bucket")

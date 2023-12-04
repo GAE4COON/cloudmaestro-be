@@ -25,7 +25,6 @@ public class NodeController {
 
     private NodeService nodeService;
 
-
     @GetMapping("/all")
     public List<MemberDTO> getAllMembers() {
         List<MemberDTO> members = nodeService.getAllMembers();
