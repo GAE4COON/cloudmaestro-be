@@ -171,7 +171,7 @@ public class AvailableService {
         nat_node_y = coordinates[1];
 
         alb_node_x += 200; alb_node_y += 100;
-        nat_node_x += 400; nat_node_y += 100;
+        nat_node_x += 600; nat_node_y += 100;
 
         int key = -10;
 
