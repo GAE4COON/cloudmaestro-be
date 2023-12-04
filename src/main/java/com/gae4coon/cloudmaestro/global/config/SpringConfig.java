@@ -72,8 +72,7 @@ public class SpringConfig {
     public CorsConfigurationSource  corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
-                "https://localhost",
-                "http://localhost",
+                "https://localhost:3000",
                 "http://localhost:3000",
                 "http://cloudmaestro.site",
                 "https://cloudmaestro.site"
