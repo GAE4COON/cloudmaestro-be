@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
 import com.gae4coon.cloudmaestro.domain.logging.service.LoggingService;
+import com.gae4coon.cloudmaestro.domain.mypage.entity.Require;
+import com.gae4coon.cloudmaestro.domain.mypage.repository.RequireRepository;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DnsService;
 import com.gae4coon.cloudmaestro.domain.refactor.service.BackupService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
@@ -41,6 +43,17 @@ public class AllRequirementService {
     private final DnsService dnsService;
     private final DbCache dbCache;
     private final CloudFrontDistribution cloudFrontDistribution;
+    private final RequireRepository requireRepository;
+
+    public void addRequirement(String fileName, RequireDTO requireDTO){
+        Require require = Require.builder()
+                .industrial(requireDTO.getIndustrial())
+                .backup(!requireDTO.getBackup().isEmpty())
+                .fileName(fileName)
+                .build();
+
+        requireRepository.save(require);
+    }
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
