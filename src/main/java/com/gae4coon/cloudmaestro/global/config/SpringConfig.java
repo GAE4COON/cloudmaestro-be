@@ -74,6 +74,7 @@ public class SpringConfig {
         configuration.setAllowedOrigins(Arrays.asList(
                 "https://localhost",
                 "http://localhost",
+                "http://localhost:3000",
                 "http://cloudmaestro.site",
                 "https://cloudmaestro.site"
         ));
