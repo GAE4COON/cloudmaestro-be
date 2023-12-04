@@ -44,7 +44,7 @@ public class Location2Service {
                         groupdata.getKey().contains("Firewall Public")) {
                     String firewallSubnet = groupdata.getKey();
                     for (NodeData firewallnode : nodeDataList) {
-                        if (firewallnode.getGroup().equals(firewallSubnet)) {
+                        if (firewallnode.getGroup()!=null&&firewallnode.getGroup().equals(firewallSubnet)) {
                             System.out.println("firewallNode: " + firewallnode);
                             String newLoc = (firewall_x) + " " + (firewall_y);
                             firewallnode.setLoc(newLoc);
@@ -241,7 +241,7 @@ public class Location2Service {
         List<String> vpc_count = new ArrayList<>();
         for (String count_firewall_endpoint : count_firewall_endpoints) {
             for (GroupData groupData : groupDataList) {
-                if (groupData.getKey().contains(count_firewall_endpoint)) {
+                if (groupData.getGroup()!=null&&groupData.getKey().contains(count_firewall_endpoint)) {
                     vpc_count.add(groupData.getGroup());
                 }
             }
