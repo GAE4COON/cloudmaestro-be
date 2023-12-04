@@ -30,7 +30,6 @@ public class AvailableService {
 
                     for (int i = 0; i < zoneRequirements.size(); i++) {
                             String zone_name = zoneRequirements.get(i).getName();
-                            System.out.println("ZoneRequire" + zoneRequirements);
                             madeSubnetName(linkDataList, zone_name);
 
                             String publicSubnetName = originalpublicsubnetname + "_copy";
@@ -54,9 +53,6 @@ public class AvailableService {
                                     break;
                                 }
                             }
-                            System.out.println("originalprivatesubnetname" + originalprivatesubnetname);
-                            System.out.println("az , vpc" + az + vpc);
-
                             // 위치 정보가 왼쪽으로 제일 긴 X의 node를 선택 한다.
                             double[] nat = defaulSetting(nodeDataList, linkDataList, groupDataList, nat_node_x, nat_node_y, originalprivatesubnetname,az,vpc,originalpublicsubnetname);
                             nat_node_x = nat[0];
@@ -649,9 +645,6 @@ public class AvailableService {
 
 
         }
-
-
-        System.out.println("highestXNode" + highestXNode);
         return new double[]{highestX, lowestY};
     }
     private double updateHighestX(NodeData nodeData, double currentHighestX) {
