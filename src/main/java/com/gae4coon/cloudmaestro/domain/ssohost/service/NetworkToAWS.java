@@ -453,7 +453,6 @@ public class NetworkToAWS {
         addInternet(nodeDataList, groupDataList, linkDataList);
     }
 
-
     public void setNodeLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
 
         // Group 정보에서 public subnet이 몇 개인지 확인
@@ -485,11 +484,5 @@ public class NetworkToAWS {
 
         // public subnet을 일단 internet gateway를 기반으로 위치 정하기
         locationService2.addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
-
-
     }
-
-
-
-
 }
