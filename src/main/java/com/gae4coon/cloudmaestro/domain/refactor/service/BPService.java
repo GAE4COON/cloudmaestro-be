@@ -26,6 +26,7 @@ public class BPService {
     private final ModuleRepository moduleRepository;
     public void bpsearch(String id, List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, int cnt){
         BpModule bp = moduleRepository.findBpModuleById(id);
+        System.out.println("??? BP");
         if (nodeDataList == null) {
             nodeDataList = new ArrayList<>();
         }
@@ -45,13 +46,20 @@ public class BPService {
             System.out.println("nodeDataList is null");
             return;
         }
+        try {
 
         for (NodeData node:nodeDataList) {
             String location =node.getLoc();
+            if (location.equals("loc")) {
+                continue;
+            }
             String[] locParts = location.split(" ");
+
 
             double x = Double.parseDouble(locParts[0]);
             double y = Double.parseDouble(locParts[1]);
+
+            if (x < -100000 || x > 100000) continue;
 
             if (x > maxX) {
                 maxX = x;
@@ -63,7 +71,7 @@ public class BPService {
 
         //maxY+=200;
         maxX+=700;
-        try {
+
 
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(bp.getJsonData(), GraphLinksModel.class);
@@ -104,35 +112,32 @@ public class BPService {
             groupDataList.add(group);
         }
 
-        for (NodeData node:BPnodeDataList) {
-            String location =node.getLoc();
-            String[] locParts = location.split(" ");
-            double x = Double.parseDouble(locParts[0]);
-            double y = Double.parseDouble(locParts[1]);
+            for (NodeData node:BPnodeDataList) {
+                String location =node.getLoc();
+                String[] locParts = location.split(" ");
+                double x = Double.parseDouble(locParts[0]);
+                double y = Double.parseDouble(locParts[1]);
 
-            for (LinkData link:BPlinkDataList){
-                if(link.getTo().equals(node.getKey())){
-                    link.setTo(link.getTo()+" BP"+cnt);
+                for (LinkData link:BPlinkDataList){
+                    if(link.getTo().equals(node.getKey())){
+                        link.setTo(link.getTo()+" BP"+cnt);
+                    }
+                    if(link.getFrom().equals(node.getKey())){
+                        link.setFrom(link.getFrom()+" BP"+cnt);
+                    }
                 }
-                if(link.getFrom().equals(node.getKey())){
-                    link.setFrom(link.getFrom()+" BP"+cnt);
-                }
+
+                node.setLoc(""+(x+maxX)+" "+y);
+                node.setKey(node.getKey()+" BP"+cnt);
+                nodeDataList.add(node);
             }
 
-            node.setLoc(""+(x+maxX)+" "+y);
-            node.setKey(node.getKey()+" BP"+cnt);
-            nodeDataList.add(node);
-
-        }
-
-        for (LinkData link: BPlinkDataList) {
-            linkDataList.add(link);
-        }
-
-
-
-
-        } catch (Exception e) {
+            for (LinkData link: BPlinkDataList) {
+                linkDataList.add(link);
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid location format for NodeData with key: " + e);
+        }catch (Exception e) {
             System.out.println("Bp error: " + e);
         }
 

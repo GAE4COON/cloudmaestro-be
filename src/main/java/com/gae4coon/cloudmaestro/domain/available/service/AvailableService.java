@@ -21,44 +21,68 @@ public class AvailableService {
     public double nat_node_y;
     public void availalbeService(RequireDiagramDTO requireDiagramDTO, List<NodeData>nodeDataList, List<GroupData> groupDataList, List<LinkData>linkDataList) {
 
-            if (    ! requireDiagramDTO.getRequirementData().getZones().isEmpty()
+            if (   !requireDiagramDTO.getRequirementData().getZones().isEmpty()
             ) {
                 if (    requireDiagramDTO.getRequirementData().getZones().get(0).getAvailableNode().size() > 0 ||
                         requireDiagramDTO.getRequirementData().getZones().get(0).getServerNode().size() > 0) {
                     List<ZoneDTO> zoneRequirements = requireDiagramDTO.getRequirementData().getZones();
 
-                    // 위치 정보가 제일 높은 Y의 Node를 선택을 함
-                    defaulSetting(nodeDataList, linkDataList, groupDataList, nat_node_x, nat_node_y);
                     int key = -10;
 
                     for (int i = 0; i < zoneRequirements.size(); i++) {
-                        String zone_name = zoneRequirements.get(i).getName();
-                        madeSubnetName(linkDataList, zone_name);
+                            String zone_name = zoneRequirements.get(i).getName();
+                            madeSubnetName(linkDataList, zone_name);
 
-                        String publicSubnetName = originalpublicsubnetname + 2;
-                        String privateSubnetName = originalprivatesubnetname + 2;
+                            String publicSubnetName = originalpublicsubnetname + "_copy";
+                            String privateSubnetName = originalprivatesubnetname + "_copy";
 
-                        // Availalbe Zone 생성
-                        madeAvaliableZone(publicSubnetName, privateSubnetName, nodeDataList, linkDataList,groupDataList ,key);
+                            String az ="";
+                            for(GroupData groupData: groupDataList){
+                                if(groupData.getGroup() != null &&
+                                        groupData.getKey().equals(originalprivatesubnetname)){
+                                    az = groupData.getGroup();
+                                    break;
+                                }
+                            }
 
-                        // Available Node 정렬하기
-                        List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
+                            // Available Zone
+                            String vpc = "";
+                            for(GroupData groupdata : groupDataList){
+                                if(     groupdata.getGroup() != null &&
+                                        groupdata.getKey().equals(az)){
+                                    vpc = groupdata.getGroup();
+                                    break;
+                                }
+                            }
+                            // 위치 정보가 왼쪽으로 제일 긴 X의 node를 선택 한다.
+                            double[] nat = defaulSetting(nodeDataList, linkDataList, groupDataList, nat_node_x, nat_node_y, originalprivatesubnetname,az,vpc,originalpublicsubnetname);
+                            nat_node_x = nat[0];
+                            nat_node_y = nat[1];
 
-                        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
-                        List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
+                            // 새로운 AZ 생성
+                            madeAvaliableZone(publicSubnetName, privateSubnetName, nodeDataList, linkDataList,groupDataList ,key, az, vpc,nat_node_x, nat_node_y);
 
-                        List<String> serverNodes = zoneRequirements.get(i).getServerNode();
-                        List<LinkData> deleteLink = new ArrayList<>();
 
-                        if (zoneRequirements.get(i).getServerNode().size() > 0) {
-                            ServerNode(serverNodes, linkDataList, groupDataList, nodeDataList, node_x, node_y, key, privateSubnetName, originalprivatesubnetname, deleteLink);
-                        }
-                        if (availalbeNodes.size() > 0) {
-                            // ALB node 생성 및 node 연결
-                            ServerandAvailable(linkDataList, groupDataList, nodeDataList, availableNodes, node_x, node_y, key, privateSubnetName);
-                        }
-                        // 마지막에 linked list data 정리 ..
-                        DeleteLinkedList(nodeDataList, linkDataList, deleteLink);
+                            // Available Node 정렬하기
+                            List<String> availableNodes = zoneRequirements.get(i).getAvailableNode();
+
+                            linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
+                            List<String> availalbeNodes = LinkDataSort(linkDataList, availableNodes);
+
+                            List<String> serverNodes = zoneRequirements.get(i).getServerNode();
+                            List<LinkData> deleteLink = new ArrayList<>();
+
+                            if (zoneRequirements.get(i).getServerNode().size() > 0) {
+                                ServerNode(serverNodes, linkDataList, groupDataList, nodeDataList,
+                                        node_x, node_y, key, privateSubnetName, originalprivatesubnetname, deleteLink,vpc,az);
+                            }
+                            if (availalbeNodes.size() > 0) {
+                                // ALB node 생성 및 node 연결
+                                ServerandAvailable(linkDataList, groupDataList, nodeDataList,
+                                        availableNodes, node_x, node_y, key, privateSubnetName);
+                            }
+                            // 마지막에 linked list data 정리 ..
+                            DeleteLinkedList(nodeDataList, linkDataList, deleteLink);
 
                     }
                 }
@@ -81,11 +105,14 @@ public class AvailableService {
     }
 
 
-    public void madeAvaliableZone(String publicSubnetName, String privateSubnetName, List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList ,int key) {
-        GroupData publicSubnetNode = createGroupData(publicSubnetName, "AWS_Groups", "Availability Zonea", null, "rgb(122,161,22)",null);
+    public void madeAvaliableZone(String publicSubnetName, String privateSubnetName, List<NodeData> nodeDataList, List<LinkData> linkDataList,List<GroupData> groupDataList ,int key, String az, String vpc, double nat_node_x, double nat_node_y) {
+        GroupData publicSubnetNode = createGroupData(publicSubnetName, "group", az + "a", "rgb(122,161,22)",null);
         groupDataList.add(publicSubnetNode);
-        GroupData privateSubnetNode = createGroupData(privateSubnetName, "AWS_Groups", "Availability Zonea", null, "rgb(0,164,166)",null);
+        GroupData privateSubnetNode = createGroupData(privateSubnetName, "group",  az + "a",  "rgb(0,164,166)",null);
         groupDataList.add(privateSubnetNode);
+
+        GroupData availableNode = createGroupData(az+"a", "AWS_Groups",vpc,"rgb(0,164,166)",null);
+        groupDataList.add(availableNode);
 
         // link 정보 연결하기
         LinkData pubToPriv = createLinkData(publicSubnetName, privateSubnetName, key - 1);
@@ -96,49 +123,64 @@ public class AvailableService {
         linkDataList.add(intToPub);
 
         key -= 1;
-        NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,key);
+        NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,key,vpc);
         nat_node_x += 10; nat_node_y += 400;
-        // nat 기준으로 node data 설정
+        // nat 기준으로 node data 설정_
         node_x = nat_node_x + 430; node_y = nat_node_y - 460;
     }
 
 
     public void madeSubnetName(List<LinkData> linkDataList,String zone_name) {
+        String from =  "";
+        String to = "";
         for(LinkData linkdata : linkDataList){
-            if(linkdata.getFrom().contains(zone_name) && linkdata.getFrom().contains("Public")){
-                originalpublicsubnetname = linkdata.getFrom();
+            if(linkdata.getFrom() != null){
+                String[] group_name = linkdata.getFrom().split(" ");
+                from = group_name[0];
+                if(from.equals(zone_name) && linkdata.getFrom().contains("Public")){
+                    originalpublicsubnetname = linkdata.getFrom();
+
+                }
             }
-            if(linkdata.getTo().contains(zone_name) && linkdata.getTo().contains("Private")){
-                originalprivatesubnetname = linkdata.getTo();
+            if(linkdata.getTo() != null){
+                String[] group_name = linkdata.getTo().split(" ");
+                to = group_name[0];
+                if(to.equals(zone_name) && linkdata.getTo().contains("Private")){
+                    originalprivatesubnetname = linkdata.getTo();
+                    //System.out.println("Private Subnet Name" + originalprivatesubnetname);
+                }
             }
+
+
         }
     }
 
-    public void defaulSetting(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, double natNodeX, double natNodeY) {
+    public double [] defaulSetting(List<NodeData> nodeDataList, List<LinkData> linkDataList, List<GroupData> groupDataList, double nat_node_x, double nat_node_y, String originalprivatesubnetname, String az, String vpc,String originalpublicsubnetname) {
+
         NodeData highestNode = null;
-        highestNode = findNodeWithHighestYCoordinate(nodeDataList);
 
-        String location = highestNode.getLoc();
-        // alb node 위치 설정
-        String[] locParts = location.split(" ");
-        alb_node_x = Double.parseDouble(locParts[0]);
-        alb_node_y = Double.parseDouble(locParts[1]);
+        double[] coordinates = findNodeWithHighestYCoordinate(nodeDataList,groupDataList, originalprivatesubnetname ,az, vpc);
+
+
+        alb_node_x = coordinates[0];
+        alb_node_y = coordinates[1];
+
         // nat_node 위치 설정
-        nat_node_x = Double.parseDouble(locParts[0]);
-        nat_node_y = Double.parseDouble(locParts[1]);
+        nat_node_x = coordinates[0];
+        nat_node_y = coordinates[1];
 
-        alb_node_x += 460; alb_node_y += 220;
-        nat_node_x += 10; nat_node_y += 600;
+        alb_node_x += 200; alb_node_y += 100;
+        nat_node_x += 600; nat_node_y += 100;
 
         int key = -10;
 
-        // AZ 존은 하나 생성
-        GroupData Azdata = makeAz(groupDataList);
+//        // AZ 존은 하나 생성
+//        GroupData Azdata = makeAz(groupDataList, az, vpc);
 
         // linkdata from, to 를 기준으로 zoneRequirement를 정렬시키기
 
         linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
-
+        return new double[]{nat_node_x, nat_node_y};
     }
 
     public List<LinkData> ServerandAvailable(List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, List<String> availableNodes, double nodeX, double nodeY, int key, String privateSubnetName)
@@ -409,17 +451,17 @@ public class AvailableService {
 
         }
 
-            for(LinkData listdata2: linkDataList) {
-                if (to != "") {
-                    if (listdata2.getTo().equals(to)) {
-                        ExceptNode.add(listdata2.getFrom());
-                    }
-                }else{
-                    if(listdata2.getTo().equals(node)){
-                        ExceptNode.add(node);
-                    }
-
+        for(LinkData listdata2: linkDataList) {
+            if (to != "") {
+                if (listdata2.getTo().equals(to)) {
+                    ExceptNode.add(listdata2.getFrom());
                 }
+            }else{
+                if(listdata2.getTo().equals(node)){
+                    ExceptNode.add(node);
+                }
+
+            }
         }
 
         return ExceptNode;
@@ -520,12 +562,12 @@ public class AvailableService {
 
     }
 
-    public GroupData makeAz(List<GroupData> groupDataList) {
+    public GroupData makeAz(List<GroupData> groupDataList, String az, String vpc) {
         GroupData Azdata = new GroupData();
-        Azdata.setKey("Availability Zone" + "a");
+        Azdata.setKey(az + "a");
         Azdata.setText("Availability Zone");
         Azdata.setIsGroup(true);
-        Azdata.setGroup("VPC");
+        Azdata.setGroup(vpc);
         Azdata.setType("AWS_Groups");
         Azdata.setStroke("rgb(0,164,166)");
 
@@ -533,7 +575,7 @@ public class AvailableService {
         return Azdata;
     }
 
-    public NodeData makeNat(List<LinkData> linkDataList, List<NodeData> nodeDataList, String publicSubnetName, double natNodeX, double natNodeY, int index) {
+    public NodeData makeNat(List<LinkData> linkDataList, List<NodeData> nodeDataList, String publicSubnetName, double natNodeX, double natNodeY, int index, String vpc) {
         int nat_sum = 1;
         for(LinkData linkdata : linkDataList){
             if(linkdata.getFrom().contains("Public Subnet"))
@@ -559,25 +601,65 @@ public class AvailableService {
 
     }
 
-    public NodeData findNodeWithHighestYCoordinate(List<NodeData> nodeDataList) {
-        NodeData highestYNode = null;
-        double highestY = Double.NEGATIVE_INFINITY;
+    public double[] findNodeWithHighestYCoordinate(List<NodeData> nodeDataList, List<GroupData> groupDataList, String originalPrivateSubnetName, String az , String vpc) {
 
-        for (NodeData nodedata : nodeDataList) {
 
-            if(nodedata.getKey().contains("NAT")){
-                String location = nodedata.getLoc();
-                String[] locParts = location.split(" ");
+        // string originalprivatesubnetname
+        NodeData highestXNode = null;
 
-                double y = Double.parseDouble(locParts[1]);
-                if (y > highestY) {
-                    highestY = y;
-                    highestYNode = nodedata;
+        double highestX = Double.NEGATIVE_INFINITY;
+        double lowestY = Double.MAX_VALUE; // 초기값을 가장 큰 값으로 설정
+
+
+        // First iteration - directly over nodeDataList
+        for (NodeData nodeData : nodeDataList) {
+            if (nodeData.getGroup().contains(originalPrivateSubnetName)) {
+                highestX = updateHighestX(nodeData, highestX);
+            }
+        }
+
+        // Second iteration - now iterating over groupDataList
+        for (GroupData groupData : groupDataList) {
+            if (    groupData.getGroup() != null &&
+                    groupData.getGroup().contains(originalPrivateSubnetName)) {
+                String securityGroup = groupData.getKey();
+                for (NodeData nodeData : nodeDataList) {
+                    if (nodeData.getGroup().equals(securityGroup)) {
+                        highestX = updateHighestX(nodeData, highestX);
+                    }
                 }
             }
         }
 
-        return highestYNode;
+        NodeData lowestYNode = null;
+
+        for (NodeData nodedata : nodeDataList) {
+            if (nodedata.getGroup().contains(originalprivatesubnetname)) {
+                String location = nodedata.getLoc();
+                String[] locParts = location.split(" ");
+
+                double y = Double.parseDouble(locParts[1]);
+                if (y < lowestY) {
+                    lowestY = y;
+                }
+            }
+
+
+        }
+        return new double[]{highestX, lowestY};
+    }
+    private double updateHighestX(NodeData nodeData, double currentHighestX) {
+        try {
+            String location = nodeData.getLoc();
+            String[] locParts = location.split(" ");
+            double x = Double.parseDouble(locParts[0]);
+            if (x > currentHighestX) {
+                return x;
+            }
+        } catch (NumberFormatException e) {
+            System.out.println("Invalid location format for node: " + nodeData);
+        }
+        return currentHighestX;
     }
 
     public NodeData makeALb(int index, double node_x, double node_y){
@@ -594,7 +676,7 @@ public class AvailableService {
 
     }
 
-    public GroupData createGroupData(String name, String type, String group, String source, String stroke, String newLoc) {
+    public GroupData createGroupData(String name, String type, String group, String stroke, String newLoc) {
         GroupData node = new GroupData();
         node.setKey(name);
         node.setText(name);
@@ -626,7 +708,11 @@ public class AvailableService {
         return group;
     }
 
-    public void ServerNode(List<String> serverNode, List<LinkData> linkDataList, List<GroupData> groupDataList, List<NodeData> nodeDataList, double node_x, double node_y, int key, String privateSubnetName, String originalprivatesubnetname, List<LinkData> deleteLink) {
+    public void ServerNode(List<String> serverNode, List<LinkData> linkDataList, List<GroupData> groupDataList,
+                           List<NodeData> nodeDataList, double node_x,
+                           double node_y, int key, String privateSubnetName,
+                           String originalprivatesubnetname, List<LinkData> deleteLink, String vpc, String az) {
+
 
         int text_index;
         List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화

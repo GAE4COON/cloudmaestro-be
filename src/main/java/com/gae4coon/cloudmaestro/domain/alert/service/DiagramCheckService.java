@@ -137,8 +137,8 @@ public class DiagramCheckService {
 
         if(groupDataList != null) {
             if (newData.getGroup() != null) {
-
                 List<String> hhgroup = alertGroupService.groupSearch3(newData, groupDataList);
+
 
                 boolean containsPrivateSubnet = false;
                 for(String group : hhgroup) {

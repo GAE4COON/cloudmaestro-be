@@ -56,7 +56,7 @@ public class CheckController {
         try {
             if (inputData.getDiagramData()!=null) {
                 GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
-                System.out.println("diagramData:" + diagramData);
+//                System.out.println("diagramData:" + diagramData);
                 // diagramData formatter
                 Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
 
@@ -94,7 +94,7 @@ public class CheckController {
         try {
             if (inputData.getDiagramData()!=null) {
                 GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
-                System.out.println("diagramData:" + diagramData);
+//                System.out.println("diagramData:" + diagramData);
                 // diagramData formatter
                 Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
 

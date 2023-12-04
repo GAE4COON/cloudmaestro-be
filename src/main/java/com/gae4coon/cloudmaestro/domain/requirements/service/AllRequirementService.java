@@ -46,8 +46,8 @@ public class AllRequirementService {
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
         RequireDTO requirementData = requireDiagramDTO.getRequirementData();
 
-        System.out.println("requirement: " + requirementData);
-        System.out.println("diagramData:"+diagramData);
+//        System.out.println("requirement: " + requirementData);
+//        System.out.println("diagramData:"+diagramData);
 
         // diagramData formatter
         Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
