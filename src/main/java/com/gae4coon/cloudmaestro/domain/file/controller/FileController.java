@@ -65,5 +65,19 @@ public class FileController {
 
         return ResponseEntity.ok("true");
     }
+    // update diagram data and db
+    @PostMapping("/update-diagram")
+    public ResponseEntity<?> updateNetworkData(@RequestBody(required = false) SaveDiagramDTO request,  Principal principal) {
+        String diagramData = request.getDiagramData();
+        String fileImg = request.getFileImg();
+
+        String fileName = request.getFileName()+"_"+principal.getName();
+
+        // put s3
+        boolean isUnique = s3Service.updateS3File(fileName, diagramData, fileImg);
+        if(!isUnique) return ResponseEntity.ok("false");
+
+        return ResponseEntity.ok("true");
+    }
 
 }
