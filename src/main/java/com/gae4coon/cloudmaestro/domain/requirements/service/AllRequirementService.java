@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.available.service.AvailableService;
 import com.gae4coon.cloudmaestro.domain.logging.service.LoggingService;
+import com.gae4coon.cloudmaestro.domain.mypage.entity.Require;
+import com.gae4coon.cloudmaestro.domain.mypage.repository.RequireRepository;
 import com.gae4coon.cloudmaestro.domain.naindae.service.DnsService;
 import com.gae4coon.cloudmaestro.domain.refactor.service.BackupService;
 import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
@@ -41,13 +43,24 @@ public class AllRequirementService {
     private final DnsService dnsService;
     private final DbCache dbCache;
     private final CloudFrontDistribution cloudFrontDistribution;
+    private final RequireRepository requireRepository;
+
+    public void addRequirement(String fileName, RequireDTO requireDTO){
+        Require require = Require.builder()
+                .industrial(requireDTO.getIndustrial())
+                .backup(!requireDTO.getBackup().isEmpty())
+                .fileName(fileName)
+                .build();
+
+        requireRepository.save(require);
+    }
     public HashMap<String, Object> requirement(RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         GraphLinksModel diagramData = mapper.readValue(requireDiagramDTO.getDiagramData(), GraphLinksModel.class);
         RequireDTO requirementData = requireDiagramDTO.getRequirementData();
 
-        System.out.println("requirement: " + requirementData);
-        System.out.println("diagramData:"+diagramData);
+//        System.out.println("requirement: " + requirementData);
+//        System.out.println("diagramData:"+diagramData);
 
         // diagramData formatter
         Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
@@ -57,17 +70,19 @@ public class AllRequirementService {
         List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
         Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
 
-        securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
-        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
-
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         cloudFrontDistribution.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
+        loggingService.logging2(requirementData, nodeDataList, groupDataList, linkDataList);
+        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+
+
 
         //HashMap<String, Object> available = availableService.availalbeService(requirementData.getZones(),nodeDataList,groupDataList,linkDataList);
 

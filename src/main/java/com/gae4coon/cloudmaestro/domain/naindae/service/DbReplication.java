@@ -86,7 +86,7 @@ public class DbReplication {
                         rdsNode.setText("RDS");
                         rdsNode.setLoc(newLoc);
                         rdsNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
-                        rdsNode.setType("Arch_Database");
+                        rdsNode.setType("Database");
                         rdsNode.setGroup(newPrivateSubnet.getKey());
                         nodeDataList.add(rdsNode);
 
