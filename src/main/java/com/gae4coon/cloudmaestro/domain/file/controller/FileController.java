@@ -65,7 +65,7 @@ public class FileController {
 
         return ResponseEntity.ok("true");
     }
-    // update diagram data and db
+
     @PostMapping("/update-diagram")
     public ResponseEntity<?> updateNetworkData(@RequestBody(required = false) SaveDiagramDTO request,  Principal principal) {
         String diagramData = request.getDiagramData();
