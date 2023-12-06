@@ -615,6 +615,13 @@ public class AvailableService {
         for (NodeData nodeData : nodeDataList) {
             if (nodeData.getGroup().contains(originalPrivateSubnetName)) {
                 highestX = updateHighestX(nodeData, highestX);
+                String location = nodeData.getLoc();
+                String[] locParts = location.split(" ");
+                double y = Double.parseDouble(locParts[1]);
+
+                if (y < lowestY) {
+                    lowestY = y;
+                }
             }
         }
 
@@ -626,6 +633,13 @@ public class AvailableService {
                 for (NodeData nodeData : nodeDataList) {
                     if (nodeData.getGroup().equals(securityGroup)) {
                         highestX = updateHighestX(nodeData, highestX);
+                        String location = nodeData.getLoc();
+                        String[] locParts = location.split(" ");
+                        double y = Double.parseDouble(locParts[1]);
+
+                        if (y < lowestY) {
+                            lowestY = y;
+                        }
                     }
                 }
             }
@@ -643,9 +657,9 @@ public class AvailableService {
                     lowestY = y;
                 }
             }
-
-
         }
+
+        System.out.println("y :::: " + lowestY);
         return new double[]{highestX, lowestY};
     }
     private double updateHighestX(NodeData nodeData, double currentHighestX) {
