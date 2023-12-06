@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -16,10 +18,18 @@ public class DiagramCheckService {
     private final AlertGroupService alertGroupService;
     public HashMap<String, String> linkCheck(LinkData linkData) {
         HashMap<String, String> check = new HashMap<>();
-        if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && linkData.getFrom().contains("Firewall")) {
-            check.put("status", "fail");
-            check.put("message", "Firewall 다음에는 IPS, IDS가 올 수 없습니다.");
-        } else {
+        Pattern pattern = Pattern.compile("^Firewall(\\d*)");
+        Matcher matcher = pattern.matcher(linkData.getFrom());
+        if (matcher.find()) {
+            System.out.println(matcher.group(0));
+            if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && matcher.group(0).equals("Firewall")) {
+                check.put("status", "fail");
+                check.put("message", "Firewall 다음에는 IPS, IDS가 올 수 없습니다.");
+            } else {
+                check.put("status", "success");
+            }
+            return check;
+        }else {
             check.put("status", "success");
         }
         return check;
@@ -35,7 +45,7 @@ public class DiagramCheckService {
         if(groupDataList != null) {
             //BP 찾기
             List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
-            System.out.println(BPgroup);
+//            System.out.println("vpcCheck BPgroup: "+BPgroup);
 
 
             for (GroupData group : groupDataList) {
@@ -59,10 +69,11 @@ public class DiagramCheckService {
                 for (GroupData region : checkgr) {
                     List<String> vpcKeys = new ArrayList<>();
                     for (GroupData group : groupDataList) {
-                        if (region.getKey().equals(group.getGroup())) {
+                        if (region.getKey().equals(group.getGroup()) && group.getText().equals("VPC") ) {
                             vpcKeys.add(group.getKey());
                         }
                     }
+//                    System.out.println("vpcCheck vpcKeys: "+vpcKeys);
                     regionVPC.put(region.getKey(), vpcKeys);
                 }
 
@@ -73,7 +84,7 @@ public class DiagramCheckService {
                     if (vpcs.size()>5){
                         if (vpcs.contains(newData.getKey())) {
                             flag = true;
-                            check.put("message", "VPC는 한 Region당 5개를 초과할 수 없습니다.");
+                            check.put("message", "VPC는 한 Region당 최대 5개까지 가능합니다.");
                             break;
                         }
                     }
@@ -94,20 +105,20 @@ public class DiagramCheckService {
         List<String> checkgr = new ArrayList<>();
 
         List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
-        System.out.println("BPgroup"+ BPgroup);
+        System.out.println("APICheck BPgroup"+ BPgroup);
 
         if(groupDataList != null) {
             if(newData.getGroup().contains("VPC")) {
                 List<String> hhgroup = alertGroupService.groupSearch2(newData.getGroup(), groupDataList);
-                System.out.println("hhgroup" + hhgroup);
+                System.out.println("APICheck hhgroup" + hhgroup);
 
                 for (NodeData item : nodeDataList) {
                     if (!(item.getGroup() == null) && hhgroup.contains(item.getGroup()) && item.getText().equals("API Gateway")) {
                         checkgr.add(item.getKey());
                     }
                 }
-                System.out.println("checkgr" + checkgr);
-                System.out.println("NewData" + newData.getKey());
+                System.out.println("APICheck checkgr" + checkgr);
+                System.out.println("APICheck NewData" + newData.getKey());
 
                 if (checkgr.size() > 1) {
                     if (checkgr.contains(newData.getKey()) && !BPgroup.contains(newData.getGroup())) {
@@ -124,6 +135,8 @@ public class DiagramCheckService {
         }else{
             check.put("status", "success");
         }
+
+        System.out.println("check: " +check);
         return check;
     }
 
