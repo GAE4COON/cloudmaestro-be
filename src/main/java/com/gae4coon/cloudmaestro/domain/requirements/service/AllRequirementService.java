@@ -95,7 +95,7 @@ public class AllRequirementService {
 
 
         //System.out.println("requriement data : "x + available);
-        System.out.println("ReuqireDiagramDTO : " + requireDiagramDTO);
+//        System.out.println("ReuqireDiagramDTO : " + requireDiagramDTO);
 
         HashMap<String, Object> response = diagramDTOService.dtoComplete(nodeDataList, groupDataList, linkDataList, cost);
 
