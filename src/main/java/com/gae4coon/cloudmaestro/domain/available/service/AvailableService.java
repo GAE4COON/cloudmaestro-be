@@ -658,8 +658,6 @@ public class AvailableService {
                 }
             }
         }
-
-        System.out.println("y :::: " + lowestY);
         return new double[]{highestX, lowestY};
     }
     private double updateHighestX(NodeData nodeData, double currentHighestX) {
