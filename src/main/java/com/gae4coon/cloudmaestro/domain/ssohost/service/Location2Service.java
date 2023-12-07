@@ -212,18 +212,20 @@ public class Location2Service {
         return vpcToAzMap;
     }
     public List<String> findFirewallEndpoints(List<GroupData> groupDataList) {
+
         List<String> count_firewall_endpoints = new ArrayList<>();
         for (GroupData groupdata : groupDataList) {
-            if(groupdata.getKey().contains("Firewall Public")){
+            if(groupdata.getText().contains("Firewall Public Subnet")){
                 count_firewall_endpoints.add(groupdata.getKey());
             }
             System.out.println("Firewall: " + groupdata);
         }
+        System.out.println("count_firewall_endpoints ::::::: " + count_firewall_endpoints);
         return count_firewall_endpoints;
     }
 
     public List<String> findAzArray(List<String> vpc_count, List<GroupData> groupDataList) {
-        List<String> Az_array = new ArrayList<>();
+         List<String> Az_array = new ArrayList<>();
         for (String vpc : vpc_count) {
             // vpc에 해당하는 public_subnet 먼저 선별
             for (GroupData groupData : groupDataList) {
@@ -237,8 +239,11 @@ public class Location2Service {
         }
         return Az_array;
     }
+
     public List<String> countVPCsForFirewallEndpoints(List<String> count_firewall_endpoints, List<GroupData> groupDataList) {
         List<String> vpc_count = new ArrayList<>();
+
+
         for (String count_firewall_endpoint : count_firewall_endpoints) {
             for (GroupData groupData : groupDataList) {
                 if (groupData.getGroup()!=null&&groupData.getKey().contains(count_firewall_endpoint)) {

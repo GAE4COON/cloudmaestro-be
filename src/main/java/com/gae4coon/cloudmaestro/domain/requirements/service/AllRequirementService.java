@@ -72,15 +72,15 @@ public class AllRequirementService {
 
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
-//        dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-//        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-//        dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-//        dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-//        dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-//        cloudFrontDistribution.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
-//        securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
-//        loggingService.logging2(requirementData, nodeDataList, groupDataList, linkDataList);
-//        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dbReplication.getRequirementAvailable(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dnsService.createDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        dbCache.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        cloudFrontDistribution.createNode(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
+        loggingService.logging2(requirementData, nodeDataList, groupDataList, linkDataList);
+        backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
 
 
 

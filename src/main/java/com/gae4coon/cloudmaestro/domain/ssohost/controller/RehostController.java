@@ -60,11 +60,12 @@ public class RehostController {
             // Region, vpc, available zone 넣기
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
 
+            // 전체 노드 관리
+            networkToAWS.managedAllNode(nodeDataList, groupDataList, linkDataList);
+
             // 위치 정보 수정 ,,, ,하하
             networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
 
-            // 전체 노드 관리
-            networkToAWS.managedAllNode(nodeDataList, groupDataList, linkDataList);
 
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList), cost);
             System.out.println("response"+ response);
