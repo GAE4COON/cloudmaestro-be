@@ -1,8 +1,12 @@
 package com.gae4coon.cloudmaestro.domain.mypage.controller;
 
 import com.gae4coon.cloudmaestro.domain.file.service.S3Service;
+import com.gae4coon.cloudmaestro.domain.mypage.dto.FileNameDTO;
 import com.gae4coon.cloudmaestro.domain.mypage.dto.MyArchitectureDTO;
+import com.gae4coon.cloudmaestro.domain.mypage.entity.Diagram;
+import com.gae4coon.cloudmaestro.domain.mypage.entity.Require;
 import com.gae4coon.cloudmaestro.domain.mypage.repository.DiagramRepository;
+import com.gae4coon.cloudmaestro.domain.mypage.repository.RequireRepository;
 import com.gae4coon.cloudmaestro.domain.mypage.service.NetworkService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
@@ -23,6 +27,7 @@ public class MyArchitectureController {
     private final DiagramRepository diagramRepository;
     private final DiagramDTOService diagramDTOService;
     private final S3Service s3service;
+    private final RequireRepository requireRepository;;
 
     @PostMapping("/history/list")
     public ResponseEntity<List<MyArchitectureDTO>> getDiagramFileListByUserId(Principal principal) {
@@ -55,5 +60,17 @@ public class MyArchitectureController {
 
         diagramRepository.deleteById(diagramId);
         return ResponseEntity.ok("success");
+    }
+
+    @PostMapping("/securitylist")
+    public ResponseEntity<?> getSecurityList(@RequestBody FileNameDTO fileNameDTO) {
+        String fileName = fileNameDTO.getFileName();
+        Require require = requireRepository.findByFileName(fileName);
+        Map<String, Object> response = new HashMap<>();
+        response.put("industrial", require.getIndustrial());
+        response.put("backup", require.isBackup());
+        System.out.println(response);
+        return ResponseEntity.ok(response);
+
     }
 }

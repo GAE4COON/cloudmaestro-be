@@ -87,8 +87,8 @@ public class ServerNode {
                 exceptNode.add(nodedata);
             }
         }
-        System.out.println("NodeName : " + node);
-        System.out.println("ExceptNode : " + exceptNode);
+//        System.out.println("NodeName : " + node);
+//        System.out.println("ExceptNode : " + exceptNode);
 
         if(exceptNode.size() >=2){
             for (int i = 1; i < exceptNode.size(); i++) {

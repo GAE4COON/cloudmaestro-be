@@ -31,7 +31,7 @@ public class CheckController {
     private final DiagramDTOService diagramDTOService;
 
     @PostMapping("/alert-check")
-    public ResponseEntity<HashMap<String, Object>> alertCheck(@RequestBody LinkData postData) {
+    public ResponseEntity<?> alertCheck(@RequestBody LinkData postData) {
 //        if(bindingResult.hasErrors()){
 //            return new ResponseEntity(HttpStatus.BAD_REQUEST);
 //        }
@@ -49,10 +49,10 @@ public class CheckController {
         }
     }
     @PostMapping("/group-check")
-    public ResponseEntity<Object> groupCheck(@RequestBody inputDto inputData) throws JsonProcessingException {
+    public ResponseEntity<?> groupCheck(@RequestBody inputDto inputData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
-        System.out.println("inputData: "+inputData);
+//        System.out.println("inputData: "+inputData);
         try {
             if (inputData.getDiagramData()!=null) {
                 GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
@@ -87,7 +87,7 @@ public class CheckController {
     }
 
     @PostMapping("/node-check")
-    public ResponseEntity<Object> nodeCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
+    public ResponseEntity<?> nodeCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
         System.out.println("inputData: "+inputData);
@@ -105,13 +105,8 @@ public class CheckController {
                 if (inputData.getCheckOption().equals("API Gateway")) {
                     HashMap ResponseMap = diagramCheckService.APICheck(nodeDataList, groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
-                } else {
-                    HashMap<String, String> check = new HashMap<>();
-                    check.put("status", "success");
-                    result.put("result", check);
                 }
-
-                if (inputData.getCheckOption().equals("Database")) {
+                else if (inputData.getCheckOption().equals("Database")) {
                     HashMap ResponseMap = diagramCheckService.DBcheck(groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 } else {
