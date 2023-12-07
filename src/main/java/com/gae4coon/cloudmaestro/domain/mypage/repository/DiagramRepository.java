@@ -13,4 +13,6 @@ public interface DiagramRepository extends JpaRepository<Diagram, Long> {
 
     @Query("SELECT n FROM Diagram n WHERE n.userId.userId = :userId")
     List<Diagram> findByUserId(@Param("userId") String userId);
+
+    Diagram findByDiagramFile(String fileName);
 }
