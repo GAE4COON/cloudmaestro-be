@@ -6,7 +6,6 @@ import com.gae4coon.cloudmaestro.domain.alert.dto.inputDto;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
 import com.gae4coon.cloudmaestro.domain.alert.service.AlertDevService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
-import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -19,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/alert-api")
@@ -162,5 +159,56 @@ public class CheckController {
     }
 
 
+
+    @PostMapping("/guide-alert")
+    public HashMap logAnalysis(@RequestBody List<LinkData> linkData){
+        HashMap result = new HashMap<>();
+        for (LinkData link : linkData) {
+            if (link.getFrom().contains("Athena")) {
+                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
+                    System.out.println("success");
+                    result.put("result","true");
+                    return ResponseEntity.ok().body(result).getBody();
+
+                }
+            }
+            if (link.getFrom().contains("OpenSearch")) {
+                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
+                    result.put("result","true");
+                    return ResponseEntity.ok().body(result).getBody();
+                }
+            }
+            if (link.getFrom().contains("QuickSight")) {
+                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
+                    result.put("result","true");
+                    return ResponseEntity.ok().body(result).getBody();
+                }
+            }
+        }
+        result.put("result","false");
+
+        return ResponseEntity.ok().body(result).getBody();
+    }
+
+    private boolean checkForS3(String currentTo, List<LinkData> linkData, Set<String> visited) {
+        if (visited.contains(currentTo)) {
+            return false;
+        }
+
+        if (currentTo.contains("S3")) {
+            return true;
+        }
+
+        for (LinkData nextLink : linkData) {
+            if (nextLink.getFrom().contains(currentTo)) {
+                visited.add(currentTo);
+                if (checkForS3(nextLink.getTo(), linkData, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 
 }
