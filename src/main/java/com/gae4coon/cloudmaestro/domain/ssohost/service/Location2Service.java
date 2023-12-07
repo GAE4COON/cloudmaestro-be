@@ -9,12 +9,14 @@ import java.util.*;
 @Service
 public class Location2Service {
     public void addPublicLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList, List<String> count_public_subnet) {
+
+
         double nat_x = 400;
         double nat_y = -400;
         double node_x = 0;
         double node_y = 0;
         double firewall_x = 200;
-        double firewall_y = 300;
+        double firewall_y = -10;
 
         List<String> Except = new ArrayList<>(Arrays.asList("Internet Gateway", "Public subnet", "Private subnet", "NAT Gateway"));
 
@@ -45,7 +47,6 @@ public class Location2Service {
                     String firewallSubnet = groupdata.getKey();
                     for (NodeData firewallnode : nodeDataList) {
                         if (firewallnode.getGroup()!=null&&firewallnode.getGroup().equals(firewallSubnet)) {
-                            System.out.println("firewallNode: " + firewallnode);
                             String newLoc = (firewall_x) + " " + (firewall_y);
                             firewallnode.setLoc(newLoc);
                         }
@@ -82,7 +83,7 @@ public class Location2Service {
             firewall_x = minNodeX - 600;
             firewall_y = maxNodeY + 400;
             nat_x = firewall_x + 200;
-            nat_y = firewall_y;
+            nat_y = firewall_y - 20;
 
         }
 
@@ -119,14 +120,7 @@ public class Location2Service {
                             break;
                         }
 
-                        // Process private subnet links
-                        if (currentLink.getTo().contains("Private subnet")) {
-                            double[] newCoordinates = processFromPrivateSubnet(currentLink, nodedata, nodeDataList, linkDataList, groupDataList, netName, Except, node_x, node_y, visitedNode);
-                            if (newCoordinates != null) {
-                                node_x = newCoordinates[0];
-                                node_y = newCoordinates[1];
-                            }
-                        }
+
                         if (currentLink.getFrom().contains("Group")) {
                             double[] newCoordinates = processFromGroupData(currentLink, nodedata, groupDataList, netName, Except, node_x, node_y, visitedNode);
                             node_x = newCoordinates[0];
@@ -166,6 +160,14 @@ public class Location2Service {
                                 visitedNode.add(currentLink.getTo());
                             }
 
+                        }
+                        // Process private subnet links ( NodeData인데 Link 정보가 없는 경우 )
+                        if (currentLink.getTo().contains("Private subnet")) {
+                            double[] newCoordinates = processFromPrivateSubnet(currentLink, nodedata, nodeDataList, linkDataList, groupDataList, netName, Except, node_x, node_y, visitedNode);
+                            if (newCoordinates != null) {
+                                node_x = newCoordinates[0];
+                                node_y = newCoordinates[1];
+                            }
                         }
                         minNodeX = Math.min(minNodeX, node_x);
                         maxNodeY = Math.max(maxNodeY, node_y);
@@ -218,10 +220,9 @@ public class Location2Service {
             if(groupdata.getText().contains("Firewall Public Subnet")){
                 count_firewall_endpoints.add(groupdata.getKey());
             }
-            System.out.println("Firewall: " + groupdata);
+
         }
-        System.out.println("count_firewall_endpoints ::::::: " + count_firewall_endpoints);
-        return count_firewall_endpoints;
+           return count_firewall_endpoints;
     }
 
     public List<String> findAzArray(List<String> vpc_count, List<GroupData> groupDataList) {
@@ -382,5 +383,36 @@ public class Location2Service {
 
         }
         return currentLink; // No next link found
+    }
+
+    public void setNodeLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
+
+        // Group 정보에서 public subnet이 몇 개인지 확인
+        List<String> count_public_subnets = new ArrayList<>();
+        List<String> count_firewall_endpoints = new ArrayList<>();
+        for (GroupData groupdata : groupDataList) {
+            if (groupdata.getKey().contains("Public subnet")) {
+                count_public_subnets.add(groupdata.getKey());
+            }
+            if(groupdata.getKey().contains("Firewall Public")){
+                count_firewall_endpoints.add(groupdata.getKey());
+            }
+        }
+
+        // LinkData Public Subnet 별로 순서 정하기
+
+        // LinkData 정렬
+        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
+
+        Iterator<LinkData> iterator = linkDataList.iterator();
+        while (iterator.hasNext()) {
+            LinkData linkData = iterator.next();
+            if (linkData.getFrom().contains("Shield")) {
+                iterator.remove();
+            }
+        }
+
+        // public subnet을 일단 internet gateway를 기반으로 위치 정하기
+        addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
     }
 }

@@ -22,7 +22,7 @@ public class NetworkToAWS {
     public void managedAllNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
         // 서비스 노드 관리 (lift & shift 시 변경되는 노드들 (ips, ids, anti ddos..)
         managedReplaceNode(nodeDataList, groupDataList, linkDataList);
-
+        locationService2.setNodeLocation(nodeDataList, groupDataList,linkDataList);
         // nodeData에 없는 link정보 삭제
         diagramDTOService.removeNullLink(nodeDataList, groupDataList, linkDataList);
     }
@@ -447,34 +447,6 @@ public class NetworkToAWS {
         addInternet(nodeDataList, groupDataList, linkDataList);
     }
 
-    public void setNodeLocation(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList) {
 
-        // Group 정보에서 public subnet이 몇 개인지 확인
-        List<String> count_public_subnets = new ArrayList<>();
-        List<String> count_firewall_endpoints = new ArrayList<>();
-        for (GroupData groupdata : groupDataList) {
-            if (groupdata.getKey().contains("Public subnet")) {
-                count_public_subnets.add(groupdata.getKey());
-            }
-            if(groupdata.getKey().contains("Firewall Public")){
-                count_firewall_endpoints.add(groupdata.getKey());
-            }
-        }
 
-        // LinkData Public Subnet 별로 순서 정하기
-
-        // LinkData 정렬
-        linkDataList.sort(Comparator.comparing(LinkData::getFrom).thenComparing(LinkData::getTo));
-
-        Iterator<LinkData> iterator = linkDataList.iterator();
-        while (iterator.hasNext()) {
-            LinkData linkData = iterator.next();
-            if (linkData.getFrom().contains("Shield")) {
-                iterator.remove();
-            }
-        }
-
-        // public subnet을 일단 internet gateway를 기반으로 위치 정하기
-        locationService2.addPublicLocation(nodeDataList, groupDataList, linkDataList, count_public_subnets);
-    }
 }
