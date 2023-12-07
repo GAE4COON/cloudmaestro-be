@@ -2,10 +2,7 @@ package com.gae4coon.cloudmaestro.domain.ssohost.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.ModifyLink;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.NetworkToAWS;
-import com.gae4coon.cloudmaestro.domain.ssohost.service.SecurityGroupService;
+import com.gae4coon.cloudmaestro.domain.ssohost.service.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +21,6 @@ public class RehostController {
     private final ModifyLink modifyLink;
     private final NetworkToAWS networkToAWS;
     private final DiagramDTOService diagramDtoService;
-
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -59,12 +55,14 @@ public class RehostController {
 
             // Region, vpc, available zone 넣기
             networkToAWS.setRegionAndVpcData(nodeDataList, groupDataList, linkDataList);
+            // 전체 노드 관리 & location 위치 정보
+            networkToAWS.managedAllNode(nodeDataList, groupDataList, linkDataList);
 
             // 위치 정보 수정 ,,, ,하하
-            networkToAWS.setNodeLocation(nodeDataList, groupDataList,linkDataList);
 
-            // 전체 노드 관리
-            networkToAWS.managedAllNode(nodeDataList, groupDataList, linkDataList);
+
+            //setNoLinkLocation.noLinkGroup(nodeDataList, groupDataList,linkDataList);
+
 
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList), cost);
             System.out.println("response"+ response);
