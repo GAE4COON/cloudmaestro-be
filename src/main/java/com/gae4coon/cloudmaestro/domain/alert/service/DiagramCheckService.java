@@ -22,7 +22,7 @@ public class DiagramCheckService {
         Matcher matcher = pattern.matcher(linkData.getFrom());
         if (matcher.find()) {
             System.out.println(matcher.group(0));
-            if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && matcher.group(0).equals("Firewall")) {
+            if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && matcher.group(0).contains("Firewall")) {
                 check.put("status", "fail");
                 check.put("message", "Firewall 다음에는 IPS, IDS가 올 수 없습니다.");
             } else {

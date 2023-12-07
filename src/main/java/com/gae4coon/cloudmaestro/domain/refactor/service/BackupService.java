@@ -318,6 +318,9 @@ public class BackupService {
         }else {
             backup2.setLoc("" + (location.getX() + 600) + " " + location.getY());
         }
+
+        backup2.setGroup("AWS Cloud");
+
         LinkData newlink = new LinkData();
         newlink.setFrom("Backup " + (number+1));
         newlink.setTo("Backup " + number);
