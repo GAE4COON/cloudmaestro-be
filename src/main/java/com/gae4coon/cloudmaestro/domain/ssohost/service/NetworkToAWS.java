@@ -69,8 +69,6 @@ public class NetworkToAWS {
 
                 // endpoint 생성
                 List<GroupData> vpcGroupList = diagramDTOService.getGroupListByText(groupDataList, "VPC");
-                System.out.println("vpclist "+ vpcGroupList);
-
                 for(GroupData vpcGroup: vpcGroupList){
                     GroupData fps = addResourceService.addPublicsubnet();
                     fps.setKey("Firewall Public Subnet"+diagramDTOService.getGroupNumber(groupDataList, "Firewall Public Subnet"));
@@ -209,7 +207,6 @@ public class NetworkToAWS {
     public void changeLinkSource(List<LinkData> linkDataList) {
         for (LinkData linkData : linkDataList) {
             String node = linkData.getFrom();
-            System.out.println("linkData" + linkData);
             String value;
             // server, web server
             if (node.contains("Server")) {
@@ -222,7 +219,6 @@ public class NetworkToAWS {
         }
         for (LinkData linkData : linkDataList) {
             String node = linkData.getTo();
-            System.out.println("linkData" + linkData);
             String value;
             // server, web server
             if (node.contains("Server")) {
@@ -272,8 +268,6 @@ public class NetworkToAWS {
             String vpcKey = vpc.getKey();
             // groupdata를 vpc안의 groupdata만 뽑기
             List<GroupData> vpcGroupDataList = diagramDTOService.getNestedGroupDataList(groupDataList, vpcKey);
-
-            System.out.println("vpcGroupData" + vpcGroupDataList);
 
             GroupData az = addResourceService.addAvailabilityZone(groupDataList);
             az.setGroup(vpcKey);
@@ -465,7 +459,6 @@ public class NetworkToAWS {
             if(groupdata.getKey().contains("Firewall Public")){
                 count_firewall_endpoints.add(groupdata.getKey());
             }
-            System.out.println("Friewall" + groupdata);
         }
 
         // LinkData Public Subnet 별로 순서 정하기
@@ -476,7 +469,6 @@ public class NetworkToAWS {
         Iterator<LinkData> iterator = linkDataList.iterator();
         while (iterator.hasNext()) {
             LinkData linkData = iterator.next();
-            System.out.println("sortedlinkData" + linkData);
             if (linkData.getFrom().contains("Shield")) {
                 iterator.remove();
             }
