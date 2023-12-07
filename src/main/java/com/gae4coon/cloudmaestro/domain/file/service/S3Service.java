@@ -34,6 +34,46 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
 
+    public boolean updateS3File(String fileName, String jsonContent, String base64ImgContent){
+        try {
+            // 버킷 내에 동일한 이름의 파일이 있는지 확인
+            if (!amazonS3Client.doesObjectExist(bucket, fileName+".json")) {
+                System.out.println(fileName + " 파일이 존재하지 않습니다.");
+                return false;
+            }
+
+            try {
+                System.out.println(fileName + " 파일을 업데이트합니다.");
+                // json
+                InputStream inputStream = new ByteArrayInputStream(jsonContent.getBytes(StandardCharsets.UTF_8));
+                ObjectMetadata metadata = new ObjectMetadata();
+                metadata.setContentType("application/json");
+                metadata.setContentLength(jsonContent.length());
+                amazonS3Client.putObject(new PutObjectRequest(bucket, fileName + ".json", inputStream, metadata));
+                System.out.println(fileName + " 저장");
+
+                // image
+                byte[] imageBytes = Base64.getDecoder().decode(base64ImgContent);
+
+                InputStream imgInputStream = new ByteArrayInputStream(imageBytes);
+                ObjectMetadata imgMetadata = new ObjectMetadata();
+                imgMetadata.setContentType("image/png");
+                imgMetadata.setContentLength(imageBytes.length);
+                amazonS3Client.putObject(new PutObjectRequest(bucket, fileName + ".png", imgInputStream, imgMetadata));
+                System.out.println(fileName + " 저장");
+
+                return true;
+
+            } catch (SdkClientException e) {
+                throw new RuntimeException(e);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println(fileName + " 저장 실패");
+            return false;
+        }
+    }
+
     public boolean deleteS3File(String fileName) {
         try {
             amazonS3Client.deleteObject(bucket, fileName+".json");
