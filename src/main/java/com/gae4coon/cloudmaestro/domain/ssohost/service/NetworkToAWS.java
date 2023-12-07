@@ -22,6 +22,7 @@ public class NetworkToAWS {
     public void managedAllNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
         // 서비스 노드 관리 (lift & shift 시 변경되는 노드들 (ips, ids, anti ddos..)
         managedReplaceNode(nodeDataList, groupDataList, linkDataList);
+        // 위치 정보 수정
         locationService2.setNodeLocation(nodeDataList, groupDataList,linkDataList);
         // nodeData에 없는 link정보 삭제
         diagramDTOService.removeNullLink(nodeDataList, groupDataList, linkDataList);

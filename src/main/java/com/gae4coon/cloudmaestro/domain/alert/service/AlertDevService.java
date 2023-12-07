@@ -7,12 +7,15 @@ import java.util.List;
 
 @Service
 public class AlertDevService {
-//    public List<String> alertDev(List<GroupData> groupDataList) {
-//        for(GroupData groupData : groupDataList){
-//            if(groupData.getGroup().contains("dev") || groupData.getGroup().contains("DEV")){
-//
-//            }
-//        }
-//
-//    }
+    public boolean alertDev(List<GroupData> groupDataList) {
+        for(GroupData groupData : groupDataList){
+            if(groupData.getText().contains("dev") ||
+                    groupData.getText().contains("DEV")) {
+                System.out.println("Dev groupData" + groupData);
+                return true;
+            }
+        }
+        System.out.println("Dev groupDataalse" + groupDataList);
+        return false;
+    }
 }

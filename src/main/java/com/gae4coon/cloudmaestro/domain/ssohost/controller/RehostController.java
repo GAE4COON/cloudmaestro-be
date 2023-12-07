@@ -58,11 +58,6 @@ public class RehostController {
             // 전체 노드 관리 & location 위치 정보
             networkToAWS.managedAllNode(nodeDataList, groupDataList, linkDataList);
 
-            // 위치 정보 수정 ,,, ,하하
-
-
-            //setNoLinkLocation.noLinkGroup(nodeDataList, groupDataList,linkDataList);
-
 
             HashMap<String, Object> response = diagramDtoService.dtoComplete(nodeDataList, groupDataList, unique(linkDataList), cost);
             System.out.println("response"+ response);

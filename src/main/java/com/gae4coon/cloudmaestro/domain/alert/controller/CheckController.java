@@ -6,11 +6,7 @@ import com.gae4coon.cloudmaestro.domain.alert.dto.inputDto;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
 import com.gae4coon.cloudmaestro.domain.alert.service.AlertDevService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
-import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
-import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
-import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
-import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
-import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -130,28 +126,24 @@ public class CheckController {
         }
     }
     @PostMapping("/dev-check")
-    public ResponseEntity<?> DevCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
-        HashMap result = new HashMap<>();
+    public ResponseEntity<?> DevCheck(@RequestBody(required = false) String postData) throws JsonProcessingException {
+        Map<String, Object> result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
-        System.out.println("inputData: "+inputData);
+        boolean state = false;
+
+        System.out.println("inputdata: " + postData);
         try {
-            if (inputData.getDiagramData()!=null) {
-                GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
-//                System.out.println("diagramData:" + diagramData);
-                // diagramData formatter
-                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
+            if (postData != null) {
+                GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
+                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(model);
 
                 List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
                 List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
                 List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-                //boolean result = AlertDevService.alertDev(groupDataList);
-
-            }else {
-                HashMap<String, String> check = new HashMap<>();
-                check.put("status", "success");
-                result.put("result", check);
+                state = alertDevService.alertDev(groupDataList);
             }
+            result.put("status", state);
 
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
