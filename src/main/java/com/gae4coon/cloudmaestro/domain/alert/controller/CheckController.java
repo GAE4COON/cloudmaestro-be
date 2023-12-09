@@ -9,12 +9,16 @@ import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.json.JSONParser;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,10 +132,12 @@ public class CheckController {
     @PostMapping("/dev-check")
     public ResponseEntity<?> DevCheck(@RequestBody(required = false) String postData) throws JsonProcessingException {
         Map<String, Object> result = new HashMap<>();
+        Map<String, Object> result2 = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
-        boolean state = false;
+        boolean alertstate = false;
+        boolean gatewayapi = false;
 
-        System.out.println("inputdata: " + postData);
+        result2.put("result",postData);
         try {
             if (postData != null) {
                 GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
@@ -141,9 +147,12 @@ public class CheckController {
                 List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
                 List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-                state = alertDevService.alertDev(groupDataList);
+                alertstate = alertDevService.alertDev(groupDataList);
+                gatewayapi = alertDevService.alertGateway(linkDataList,nodeDataList);
+
             }
-            result.put("status", state);
+            result.put("status", alertstate);
+            result.put("gatewayapi",gatewayapi);
 
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
