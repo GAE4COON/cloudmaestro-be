@@ -35,11 +35,11 @@ public class BackupService {
 //        GroupData newGroup;
 
         if(requireDiagramDTO.getRequirementData().getBackup().size()!= 0){
-            if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
-                generalBackup(nodeDataList, groupDataList);
-            };
             if(requireDiagramDTO.getRequirementData().getBackup().contains("중앙관리")){
                 centralBackup(nodeDataList,linkDataList, groupDataList);
+            };
+            if(requireDiagramDTO.getRequirementData().getBackup().contains("일반")){
+                generalBackup(nodeDataList, groupDataList);
             };
         }
 
@@ -247,7 +247,9 @@ public class BackupService {
             }
         }
 
-        if(regionList.size()<2 && regionList.size()>0){
+        System.out.println("regionList: "+regionList);
+
+        if(regionList.size()==1){
             GroupData newGroup = addRegionGroup(groupDataList);
             regionList.add(newGroup);
         }else{
@@ -313,11 +315,13 @@ public class BackupService {
             }
 
             Point2D regionLoc = selectLocation2(region2Node);
+            System.out.println("regionLoc: "+regionLoc);
 
             backup2.setLoc("" + (location.getX() + 300) + " " + ((regionLoc.getY()-(regionLoc.getX()-location.getY()))+900));
         }else {
             backup2.setLoc("" + (location.getX() + 600) + " " + location.getY());
         }
+
         LinkData newlink = new LinkData();
         newlink.setFrom("Backup " + (number+1));
         newlink.setTo("Backup " + number);
