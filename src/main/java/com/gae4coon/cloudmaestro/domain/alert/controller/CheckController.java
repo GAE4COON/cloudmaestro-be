@@ -107,6 +107,14 @@ public class CheckController {
                     HashMap ResponseMap = diagramCheckService.APICheck(nodeDataList, groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 }
+                else if (inputData.getCheckOption().equals("Logging")) {
+                    HashMap ResponseMap = diagramCheckService.Loggingcheck(nodeDataList, inputData.getNewData());
+                    result.put("result", ResponseMap);
+                }
+                else if (inputData.getCheckOption().equals("Backup")) {
+                    HashMap ResponseMap = diagramCheckService.Backupcheck(nodeDataList, inputData.getNewData());
+                    result.put("result", ResponseMap);
+                }
                 else if (inputData.getCheckOption().equals("Database")) {
                     HashMap ResponseMap = diagramCheckService.DBcheck(groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
