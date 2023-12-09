@@ -11,13 +11,35 @@ import java.util.Set;
 public class DbAccessGuideAlertService {
     public String dbCheck(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData>linkDataList){
         Set<String> databaseGroups = new HashSet<>();
-        String result = "";
+        Set<String> databaseNodes = new HashSet<>();
+        Set<String> ec2Groups = new HashSet<>();
+
+        String result = "false";
         for (NodeData node : nodeDataList) {
             if ("Database".equals(node.getType())) {
                 databaseGroups.add(node.getGroup());
+                databaseNodes.add(node.getKey());
+            }
+            if ("EC2".contains(node.getText())) {
+                ec2Groups.add(node.getGroup());
             }
         }
-        System.out.println("DB Group:"+databaseGroups);
+
+        for (LinkData link : linkDataList) {
+            if (databaseGroups.contains(link.getTo()) && !ec2Groups.contains(link.getFrom()) && !link.getFrom().contains("EC2")) {
+                result = "true";
+                break;
+            }
+        }
+
+
+        for (LinkData link : linkDataList) {
+            if (databaseNodes.contains(link.getTo()) && !ec2Groups.contains(link.getFrom()) && !link.getFrom().contains("EC2")) {
+                result = "true";
+                break;
+            }
+        }
+
         return result;
     }
 }

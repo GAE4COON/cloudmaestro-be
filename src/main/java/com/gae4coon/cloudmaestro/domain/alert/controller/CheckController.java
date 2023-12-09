@@ -162,7 +162,7 @@ public class CheckController {
 
 
 
-    @PostMapping("/guide-alert")
+    @PostMapping("/log-guide-alert")
     public HashMap logAnalysis(@RequestBody List<LinkData> linkData){
         HashMap result = new HashMap<>();
         for (LinkData link : linkData) {
@@ -195,6 +195,7 @@ public class CheckController {
     @PostMapping("/db-guide-alert")
     public HashMap dbAccess(@RequestBody String diagram) throws JsonProcessingException {
         HashMap result = new HashMap<>();
+        String dbCheckResult;
         try {
             ObjectMapper mapper = new ObjectMapper();
             GraphLinksModel model = mapper.readValue(diagram, GraphLinksModel.class);
@@ -203,11 +204,12 @@ public class CheckController {
             List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
             List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
             List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
-            result.put("result",dbAccessGuideAlertService.dbCheck(nodeDataList,groupDataList,linkDataList));
-            System.out.println("diagram" + responseArray);
+            dbCheckResult=dbAccessGuideAlertService.dbCheck(nodeDataList,groupDataList,linkDataList);
+            result.put("result",dbCheckResult);
+            //System.out.println("result: "+result);
         } catch (Exception e) {
         }
-        return result;
+        return ResponseEntity.ok().body(result).getBody();
     }
     private boolean checkForS3(String currentTo, List<LinkData> linkData, Set<String> visited) {
         if (visited.contains(currentTo)) {
