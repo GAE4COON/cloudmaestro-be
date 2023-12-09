@@ -137,38 +137,6 @@ public class CheckController {
             return ResponseEntity.ok().body(result);
         }
     }
-    @PostMapping("/dev-check")
-    public ResponseEntity<?> DevCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
-        HashMap result = new HashMap<>();
-        ObjectMapper mapper = new ObjectMapper();
-        System.out.println("inputData: "+inputData);
-        try {
-            if (inputData.getDiagramData()!=null) {
-                GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
-//                System.out.println("diagramData:" + diagramData);
-                // diagramData formatter
-                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
-
-                List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
-                List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
-                List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
-
-                //boolean result = AlertDevService.alertDev(groupDataList);
-
-            }else {
-                HashMap<String, String> check = new HashMap<>();
-                check.put("status", "success");
-                result.put("result", check);
-            }
-
-            return ResponseEntity.ok().body(result);
-        } catch (Exception e) {
-            result.put("result", "error");
-            System.out.println("Error: " + e.getMessage());
-            return ResponseEntity.ok().body(result);
-        }
-    }
-
 
 
     @PostMapping("/log-guide-alert")
@@ -198,6 +166,40 @@ public class CheckController {
         } catch (Exception e) {
         }
         return ResponseEntity.ok().body(result).getBody();
+    }
+
+    @PostMapping("/dev-check")
+    public ResponseEntity<?> DevCheck(@RequestBody(required = false) String postData) throws JsonProcessingException {
+        HashMap result = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        System.out.println("inputData: "+postData);
+        boolean status = false;
+        boolean apigateway = false;
+        try {
+            if (postData!=null) {
+                GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
+
+                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(model);
+                List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
+                List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
+                List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+                Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
+
+                status = alertDevService.alertDev(groupDataList);
+                apigateway = alertDevService.alertGateway(linkDataList,nodeDataList);
+            }else {
+                result.put("result", status);
+            }
+            result.put("status",status);
+            result.put("gatewayapi",apigateway);
+
+
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            result.put("result", "error");
+            System.out.println("Error: " + e.getMessage());
+            return ResponseEntity.ok().body(result);
+        }
     }
 
 
