@@ -7,6 +7,7 @@ import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
 import com.gae4coon.cloudmaestro.domain.alert.service.AlertDevService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DbAccessGuideAlertService;
+import com.gae4coon.cloudmaestro.domain.alert.service.LogConnectService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -30,7 +31,7 @@ public class CheckController {
     private final DiagramDTOService diagramDTOService;
     private final AlertDevService alertDevService;
     private final DbAccessGuideAlertService dbAccessGuideAlertService;
-
+    private final LogConnectService logConnectService;
     @PostMapping("/alert-check")
     public ResponseEntity<?> alertCheck(@RequestBody LinkData postData) {
 //        if(bindingResult.hasErrors()){
@@ -173,30 +174,9 @@ public class CheckController {
     @PostMapping("/log-guide-alert")
     public HashMap logAnalysis(@RequestBody List<LinkData> linkData){
         HashMap result = new HashMap<>();
-        for (LinkData link : linkData) {
-            if (link.getFrom().contains("Athena")) {
-                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
-                    System.out.println("success");
-                    result.put("result","true");
-                    return ResponseEntity.ok().body(result).getBody();
-
-                }
-            }
-            if (link.getFrom().contains("OpenSearch")) {
-                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
-                    result.put("result","true");
-                    return ResponseEntity.ok().body(result).getBody();
-                }
-            }
-            if (link.getFrom().contains("QuickSight")) {
-                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
-                    result.put("result","true");
-                    return ResponseEntity.ok().body(result).getBody();
-                }
-            }
-        }
-        result.put("result","false");
-
+        String logCheckResult;
+        logCheckResult = logConnectService.LogConnectCheck(linkData);
+        result.put("result",logCheckResult);
         return ResponseEntity.ok().body(result).getBody();
     }
 
@@ -219,25 +199,6 @@ public class CheckController {
         }
         return ResponseEntity.ok().body(result).getBody();
     }
-    private boolean checkForS3(String currentTo, List<LinkData> linkData, Set<String> visited) {
-        if (visited.contains(currentTo)) {
-            return false;
-        }
 
-        if (currentTo.contains("S3")) {
-            return true;
-        }
-
-        for (LinkData nextLink : linkData) {
-            if (nextLink.getFrom().contains(currentTo)) {
-                visited.add(currentTo);
-                if (checkForS3(nextLink.getTo(), linkData, visited)) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
 
 }
