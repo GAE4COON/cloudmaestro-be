@@ -4,8 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputDto;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
+import com.gae4coon.cloudmaestro.domain.alert.service.AlertDevService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
-import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -18,9 +18,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/v1/alert-api")
@@ -29,6 +27,7 @@ public class CheckController {
 
     private final DiagramCheckService diagramCheckService;
     private final DiagramDTOService diagramDTOService;
+    private final AlertDevService alertDevService;
 
     @PostMapping("/alert-check")
     public ResponseEntity<?> alertCheck(@RequestBody LinkData postData) {
@@ -134,6 +133,90 @@ public class CheckController {
             System.out.println("Error: " + e.getMessage());
             return ResponseEntity.ok().body(result);
         }
+    }
+    @PostMapping("/dev-check")
+    public ResponseEntity<?> DevCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
+        HashMap result = new HashMap<>();
+        ObjectMapper mapper = new ObjectMapper();
+        System.out.println("inputData: "+inputData);
+        try {
+            if (inputData.getDiagramData()!=null) {
+                GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
+//                System.out.println("diagramData:" + diagramData);
+                // diagramData formatter
+                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
+
+                List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
+                List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
+                List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+
+                //boolean result = AlertDevService.alertDev(groupDataList);
+
+            }else {
+                HashMap<String, String> check = new HashMap<>();
+                check.put("status", "success");
+                result.put("result", check);
+            }
+
+            return ResponseEntity.ok().body(result);
+        } catch (Exception e) {
+            result.put("result", "error");
+            System.out.println("Error: " + e.getMessage());
+            return ResponseEntity.ok().body(result);
+        }
+    }
+
+
+
+    @PostMapping("/guide-alert")
+    public HashMap logAnalysis(@RequestBody List<LinkData> linkData){
+        HashMap result = new HashMap<>();
+        for (LinkData link : linkData) {
+            if (link.getFrom().contains("Athena")) {
+                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
+                    System.out.println("success");
+                    result.put("result","true");
+                    return ResponseEntity.ok().body(result).getBody();
+
+                }
+            }
+            if (link.getFrom().contains("OpenSearch")) {
+                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
+                    result.put("result","true");
+                    return ResponseEntity.ok().body(result).getBody();
+                }
+            }
+            if (link.getFrom().contains("QuickSight")) {
+                if (checkForS3(link.getTo(), linkData, new HashSet<>())) {
+                    result.put("result","true");
+                    return ResponseEntity.ok().body(result).getBody();
+                }
+            }
+        }
+        result.put("result","false");
+
+        return ResponseEntity.ok().body(result).getBody();
+    }
+
+    private boolean checkForS3(String currentTo, List<LinkData> linkData, Set<String> visited) {
+        if (visited.contains(currentTo)) {
+            return false;
+        }
+
+        if (currentTo.contains("S3")) {
+            return true;
+        }
+
+        for (LinkData nextLink : linkData) {
+            if (nextLink.getFrom().contains(currentTo)) {
+                visited.add(currentTo);
+                if (checkForS3(nextLink.getTo(), linkData, visited)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
 }
