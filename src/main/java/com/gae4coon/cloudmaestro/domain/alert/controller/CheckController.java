@@ -6,6 +6,7 @@ import com.gae4coon.cloudmaestro.domain.alert.dto.inputDto;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
 import com.gae4coon.cloudmaestro.domain.alert.service.AlertDevService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
+import com.gae4coon.cloudmaestro.domain.alert.service.DbAccessGuideAlertService;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
 import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
@@ -28,6 +29,7 @@ public class CheckController {
     private final DiagramCheckService diagramCheckService;
     private final DiagramDTOService diagramDTOService;
     private final AlertDevService alertDevService;
+    private final DbAccessGuideAlertService dbAccessGuideAlertService;
 
     @PostMapping("/alert-check")
     public ResponseEntity<?> alertCheck(@RequestBody LinkData postData) {
@@ -190,6 +192,23 @@ public class CheckController {
         return ResponseEntity.ok().body(result).getBody();
     }
 
+    @PostMapping("/db-guide-alert")
+    public HashMap dbAccess(@RequestBody String diagram) throws JsonProcessingException {
+        HashMap result = new HashMap<>();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            GraphLinksModel model = mapper.readValue(diagram, GraphLinksModel.class);
+
+            Map<String, Object> responseArray = diagramDTOService.dtoGenerator(model);
+            List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
+            List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
+            List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
+            result.put("result",dbAccessGuideAlertService.dbCheck(nodeDataList,groupDataList,linkDataList));
+            System.out.println("diagram" + responseArray);
+        } catch (Exception e) {
+        }
+        return result;
+    }
     private boolean checkForS3(String currentTo, List<LinkData> linkData, Set<String> visited) {
         if (visited.contains(currentTo)) {
             return false;
