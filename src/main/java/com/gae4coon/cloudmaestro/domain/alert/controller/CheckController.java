@@ -6,19 +6,19 @@ import com.gae4coon.cloudmaestro.domain.alert.dto.inputDto;
 import com.gae4coon.cloudmaestro.domain.alert.dto.inputNodeDto;
 import com.gae4coon.cloudmaestro.domain.alert.service.AlertDevService;
 import com.gae4coon.cloudmaestro.domain.alert.service.DiagramCheckService;
-import com.gae4coon.cloudmaestro.domain.ssohost.dto.*;
+import com.gae4coon.cloudmaestro.domain.requirements.dto.RequireDTO;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.GraphLinksModel;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.GroupData;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.LinkData;
+import com.gae4coon.cloudmaestro.domain.ssohost.dto.NodeData;
 import com.gae4coon.cloudmaestro.domain.ssohost.service.DiagramDTOService;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.json.JSONParser;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -130,29 +130,28 @@ public class CheckController {
         }
     }
     @PostMapping("/dev-check")
-    public ResponseEntity<?> DevCheck(@RequestBody(required = false) String postData) throws JsonProcessingException {
-        Map<String, Object> result = new HashMap<>();
-        Map<String, Object> result2 = new HashMap<>();
+    public ResponseEntity<?> DevCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
+        HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
-        boolean alertstate = false;
-        boolean gatewayapi = false;
-
-        result2.put("result",postData);
+        System.out.println("inputData: "+inputData);
         try {
-            if (postData != null) {
-                GraphLinksModel model = mapper.readValue(postData, GraphLinksModel.class);
-                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(model);
+            if (inputData.getDiagramData()!=null) {
+                GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
+//                System.out.println("diagramData:" + diagramData);
+                // diagramData formatter
+                Map<String, Object> responseArray = diagramDTOService.dtoGenerator(diagramData);
 
                 List<NodeData> nodeDataList = (List<NodeData>) responseArray.get("nodeDataArray");
                 List<GroupData> groupDataList = (List<GroupData>) responseArray.get("groupDataArray");
                 List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
 
-                alertstate = alertDevService.alertDev(groupDataList);
-                gatewayapi = alertDevService.alertGateway(linkDataList,nodeDataList);
+                //boolean result = AlertDevService.alertDev(groupDataList);
 
+            }else {
+                HashMap<String, String> check = new HashMap<>();
+                check.put("status", "success");
+                result.put("result", check);
             }
-            result.put("status", alertstate);
-            result.put("gatewayapi",gatewayapi);
 
             return ResponseEntity.ok().body(result);
         } catch (Exception e) {
