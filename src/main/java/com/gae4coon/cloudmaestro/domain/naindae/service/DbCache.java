@@ -34,7 +34,7 @@ public class DbCache {
             newLoc = (rightMostNodeLocation.getX()+100) + " " + (rightMostNodeLocation.getY());
             NodeData rdsReplicaNode = new NodeData();
             rdsReplicaNode.setKey("RDS Read Replica"+num); // NAT 키를 고유하게 만듦
-            rdsReplicaNode.setText("RDS Read Replica"+num);
+            rdsReplicaNode.setText("RDS Read Replica");
             rdsReplicaNode.setLoc(newLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
             rdsReplicaNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-RDS_48.svg");
             rdsReplicaNode.setType("Arch_Database");
@@ -44,7 +44,7 @@ public class DbCache {
             NodeData cacheNode = new NodeData();
             newLoc = (rightMostNodeLocation.getX()+200) + " " + (rightMostNodeLocation.getY());
             cacheNode.setKey("ElastiCache"+num); // NAT 키를 고유하게 만듦
-            cacheNode.setText("ElastiCache"+num);
+            cacheNode.setText("ElastiCache");
             cacheNode.setLoc(newLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
             cacheNode.setSource("/img/AWS_icon/Arch_Database/Arch_Amazon-ElastiCache_48.svg");
             cacheNode.setType("Database");
