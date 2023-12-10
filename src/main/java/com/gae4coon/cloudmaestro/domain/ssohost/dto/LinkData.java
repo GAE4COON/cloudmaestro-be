@@ -1,5 +1,5 @@
 package com.gae4coon.cloudmaestro.domain.ssohost.dto;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,6 +15,8 @@ public class LinkData {
     private String from;
     private String to;
     private int key;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private int uniqueLinkId;
     @Builder
     LinkData(String from, String to) {
         this.from = from;
