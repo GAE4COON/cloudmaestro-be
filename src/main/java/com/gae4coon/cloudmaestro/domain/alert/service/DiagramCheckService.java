@@ -22,7 +22,7 @@ public class DiagramCheckService {
         Matcher matcher = pattern.matcher(linkData.getFrom());
         if (matcher.find()) {
             System.out.println(matcher.group(0));
-            if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && matcher.group(0).equals("Firewall")) {
+            if (linkData.getTo().contains("IDS") || linkData.getTo().contains("IPS") && matcher.group(0).contains("Firewall")) {
                 check.put("status", "fail");
                 check.put("message", "Firewall 다음에는 IPS, IDS가 올 수 없습니다.");
             } else {
@@ -146,7 +146,7 @@ public class DiagramCheckService {
         List<String> checkgr = new ArrayList<>();
 
         List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
-        System.out.println("BPgroup"+ BPgroup);
+
 
         if(groupDataList != null) {
             if (newData.getGroup() != null) {
@@ -164,9 +164,55 @@ public class DiagramCheckService {
                 if (!containsPrivateSubnet && !BPgroup.contains(newData.getGroup())) {
                     flag = true;
                     check.put("message", "인터넷에 연결할 필요가 없는 VPC내의 DB는 클러스터는 Private Subnet에 배치해야합니다.");
-                    System.out.println("??check");
                 }
             }
+        }
+
+        if (flag) {
+            check.put("status", "fail");
+        }else{
+            check.put("status", "success");
+        }
+        return check;
+    }
+
+    public HashMap<String, String> Loggingcheck(List<NodeData> nodedatalist, NodeData newData) {
+        boolean flag = false;
+        HashMap<String, String> check = new HashMap<>();
+        List<String> checknode = new ArrayList<>();
+
+        for (NodeData item: nodedatalist) {
+            if (item.getText().equals("S3") || item.getText().equals("CloudTrail") || item.getText().equals("CloudWatch")){
+                checknode.add(item.getKey());
+            }
+        }
+
+        if (checknode.size()==1 && checknode.get(0).equals(newData.getKey())){
+            flag = true;
+            check.put("message", "클라우드 서비스 고객은 이벤트 로깅을위한 요구 사항을 정의하고 클라우드 서비스가 이러한 요구 사항을 충족하는지 확인해야합니다.");
+        }
+
+        if (flag) {
+            check.put("status", "fail");
+        }else{
+            check.put("status", "success");
+        }
+        return check;
+    }
+
+    public HashMap<String, String> Backupcheck(List<NodeData> nodedatalist, NodeData newData) {
+        boolean flag = false;
+        HashMap<String, String> check = new HashMap<>();
+        List<String> checknode = new ArrayList<>();
+
+        for (NodeData item: nodedatalist) {
+            if (item.getText().equals("Backup") || item.getText().equals("S3")){
+                checknode.add(item.getKey());
+            }
+        }
+        if (checknode.size()==1 && checknode.get(0).equals(newData.getKey())){
+            flag = true;
+            check.put("message", "클라우드 서비스 공급자가 클라우드 서비스의 일부로 백업 기능을 제공하는 경우 클라우드 서비스 고객은 클라우드 서비스 공급자에게 백업 기능의 사양을 요청해야합니다. 클라우드 서비스 고객은 백업 요구 사항을 충족하는지 확인하여야 합니다.");
         }
 
         if (flag) {

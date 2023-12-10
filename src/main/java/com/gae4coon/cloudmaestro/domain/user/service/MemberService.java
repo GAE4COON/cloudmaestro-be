@@ -71,4 +71,63 @@ public class MemberService {
         return "success";
     }
 
+    public String userNameModify(String userid, String username){
+        Member existingUser = this.memberRepository.findByUserId(userid);
+        if(existingUser == null) {
+            throw new RuntimeException(userid + "가 없습니다.");
+        }
+
+        var encodedUserPw = passwordEncoder.encode(existingUser.getUserPw());
+
+        Member member = Member.builder()
+                .userId(existingUser.getUserId())
+                .userPw(existingUser.getUserPw())
+                .userName(username)
+                .email(existingUser.getEmail())
+                .role(Member.UserRole.member)
+                .build();
+
+        this.memberRepository.save(member);
+        return "success";
+    }
+
+    public String userPWModify(String userid, String userpw){
+        Member existingUser = this.memberRepository.findByUserId(userid);
+        if(existingUser == null) {
+            throw new RuntimeException(userid + "가 없습니다.");
+        }
+
+        var encodedUserPw = passwordEncoder.encode(userpw);
+        System.out.println(userpw+"변경되었습니다");
+
+
+        Member member = Member.builder()
+                .userId(existingUser.getUserId())
+                .userPw(encodedUserPw)
+                .userName(existingUser.getUserName())
+                .email(existingUser.getEmail())
+                .role(Member.UserRole.member)
+                .build();
+
+        this.memberRepository.save(member);
+        return "success";
+    }
+
+
+
+
+    public String userPwCheck(String userid, String userpw){
+        Member existingUser = this.memberRepository.findByUserId(userid);
+        if(existingUser == null) {
+            throw new RuntimeException(userid + "가 없습니다.");
+        }
+
+
+        if(!passwordEncoder.matches(userpw, existingUser.getUserPw())){
+            throw new RuntimeException(existingUser.getUserPw()+"가 다릅니다.");
+        }
+
+        return "success";
+    }
+
 }
