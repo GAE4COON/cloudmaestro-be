@@ -251,7 +251,6 @@ public class Location2Service {
             }
         }
 
-        //System.out.println("vpc_count" + vpc_count);
         return vpc_count;
     }
 
