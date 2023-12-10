@@ -1,6 +1,7 @@
 package com.gae4coon.cloudmaestro.domain.mypage.entity;
 
 
+import com.gae4coon.cloudmaestro.domain.BaseTimeEntity;
 import com.gae4coon.cloudmaestro.domain.user.entity.Member;
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,7 +12,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @Table(name = "diagram")
-public class Diagram{
+public class Diagram extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "diagram_id", nullable = false, length = 256)
