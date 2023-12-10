@@ -244,14 +244,13 @@ public class Location2Service {
     public List<String> countVPCsForFirewallEndpoints(List<String> count_firewall_endpoints, List<GroupData> groupDataList) {
         List<String> vpc_count = new ArrayList<>();
 
-
-        for (String count_firewall_endpoint : count_firewall_endpoints) {
-            for (GroupData groupData : groupDataList) {
-                if (groupData.getGroup()!=null&&groupData.getKey().contains(count_firewall_endpoint)) {
-                    vpc_count.add(groupData.getGroup());
-                }
+        for(GroupData groupdata : groupDataList){
+            if(groupdata.getKey().contains("VPC") ||
+                groupdata.getKey().contains("vpc")){
+                vpc_count.add(groupdata.getKey());
             }
         }
+
         return vpc_count;
     }
 
