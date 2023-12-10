@@ -71,7 +71,6 @@ public class AvailableService {
 
                             List<String> serverNodes = zoneRequirements.get(i).getServerNode();
                             List<LinkData> deleteLink = new ArrayList<>();
-                            System.out.println("zoneRequirements" + zoneRequirements);
 
                             if (zoneRequirements.get(i).getServerNode().size() > 0) {
                                 ServerNode(serverNodes, linkDataList, groupDataList, nodeDataList,
@@ -409,7 +408,6 @@ public class AvailableService {
                     }
                 }
             }
-            System.out.println("deleteLink "+deleteLink);
             nodeDataList.removeAll(exceptNode2); // 삭제 목록에 있는 모든 노드 제거
 
         }
@@ -447,7 +445,6 @@ public class AvailableService {
             }
         }
 
-        System.out.println("excpetNOde" + exceptNode.size());
         if(exceptNode.isEmpty()){
             for(NodeData nodedata : nodeDataList){
                 if(nodedata.getKey().equals(node)){
@@ -477,7 +474,6 @@ public class AvailableService {
     public void addOriginalNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String originalprivatesubnetname, int autoIndex, int text_index,String node) {
         GroupData AutoGroup = new GroupData();
         if(!exceptNode.isEmpty()) {
-            System.out.println("exceptNode ::  들어와라");
             for (NodeData nodedata : nodeDataList) {
                 if (nodedata.getKey().equals(exceptNode.get(0))) {
                     nodedata.setGroup("Auto Scaling group" + autoIndex);
@@ -492,9 +488,7 @@ public class AvailableService {
             }
         }
         GroupData AutoGroup2 = new GroupData();
-        System.out.println("exceptNode ::  "+ exceptNode);
         if(exceptNode.isEmpty()){
-            System.out.println("hello ");
             for(NodeData nodedata : nodeDataList){
                 if(nodedata.getKey().equals(node)){
                     nodedata.setGroup("Auto Scaling group" + autoIndex);
@@ -803,7 +797,6 @@ public class AvailableService {
                            double node_y, int key, String privateSubnetName,
                            String originalprivatesubnetname, List<LinkData> deleteLink, String vpc, String az) {
 
-        System.out.println("serverNode" + serverNode);
         int text_index;
         List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화
         for(String node : serverNode){
@@ -845,8 +838,7 @@ public class AvailableService {
 
             }
             if(node.contains("EC2")){
-                System.out.println("nodeEC2 " + node);
-                System.out.println("exceptNode2 " + exceptNode2);
+
                 boolean exit = true;
                 boolean nolink = true;
                 for(String except : exceptNode2){
@@ -855,10 +847,9 @@ public class AvailableService {
                     }
                 }
                 if (exceptNode2.isEmpty() || exit) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
-                    System.out.println("exceptNode21 " + exceptNode2);
+
                     exceptNode2 = ExceptandAddInvidiualNode(nodeDataList, linkDataList, groupDataList, node);
                     // Available 에 Node 넣기
-                    System.out.println("exceptNode22 " + exceptNode2);
                     text_index = Auto_index;
                     addOriginalNode(exceptNode2, groupDataList, nodeDataList, originalprivatesubnetname, Auto_index, text_index, node);
                     Auto_index += 1;
