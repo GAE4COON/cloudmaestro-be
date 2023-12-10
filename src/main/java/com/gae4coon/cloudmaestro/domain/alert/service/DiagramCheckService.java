@@ -146,7 +146,7 @@ public class DiagramCheckService {
         List<String> checkgr = new ArrayList<>();
 
         List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
-        System.out.println("BPgroup"+ BPgroup);
+
 
         if(groupDataList != null) {
             if (newData.getGroup() != null) {
@@ -164,7 +164,6 @@ public class DiagramCheckService {
                 if (!containsPrivateSubnet && !BPgroup.contains(newData.getGroup())) {
                     flag = true;
                     check.put("message", "인터넷에 연결할 필요가 없는 VPC내의 DB는 클러스터는 Private Subnet에 배치해야합니다.");
-                    System.out.println("??check");
                 }
             }
         }
