@@ -46,15 +46,8 @@ public class MemberController {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
 
-
-    @GetMapping("/userTest")
-    public List<Member> member() {
-        List<Member> memberEntityList = this.memberService.getList();
-        return memberEntityList;
-    }
-
     @PostMapping("/id-dup-check")
-    public ResponseEntity<HashMap<String, Object>> idCheck(@RequestBody UserIdDupDto dto) {
+    public ResponseEntity<?> idCheck(@RequestBody UserIdDupDto dto) {
         try {
             HashMap<String, Object> result = memberService.idOverlap(dto.getUserId());
             return ResponseEntity.ok().body(result);
@@ -66,7 +59,7 @@ public class MemberController {
     }
 
     @PostMapping("/mailConfirm")
-    public ResponseEntity<HashMap<String, Object>> mailConfirm(@RequestBody EmailAuthRequestDto emailDto) throws MessagingException, UnsupportedEncodingException {
+    public ResponseEntity<?> mailConfirm(@RequestBody EmailAuthRequestDto emailDto) throws MessagingException, UnsupportedEncodingException {
         memberService.emailOverlap(emailDto.getEmail());
         String authCode = emailService.sendAuthMail(emailDto.getEmail());
         HashMap<String, Object> codeResult = new HashMap<>();
@@ -75,7 +68,7 @@ public class MemberController {
     }
 
     @PostMapping("/authCode")
-    public ResponseEntity<HashMap<String, Object>> sendEmailAndCode(@RequestBody EmailCodeDto dto) throws NoSuchAlgorithmException {
+    public ResponseEntity<?> sendEmailAndCode(@RequestBody EmailCodeDto dto) throws NoSuchAlgorithmException {
         if (emailService.verifyEmailCode(dto.getEmail(), dto.getCode())) {
             HashMap<String, Object> codeResult = new HashMap<>();
             codeResult.put("result", true);
@@ -89,7 +82,7 @@ public class MemberController {
     }
 
     @PostMapping("/sign-up")
-    public ResponseEntity<HashMap<String, String>> signUpProcess(@RequestBody @Valid UserJoinRequestDto dto, BindingResult bindingResult){
+    public ResponseEntity<?> signUpProcess(@RequestBody @Valid UserJoinRequestDto dto, BindingResult bindingResult){
         if(bindingResult.hasErrors()){
            return new ResponseEntity(HttpStatus.BAD_REQUEST);
         }
@@ -108,7 +101,7 @@ public class MemberController {
     }
 
     @PostMapping("/sign-in")
-    public ResponseEntity<Object> signInProcess(@RequestBody @Valid UserLoginRequestDto dto){
+    public ResponseEntity<?> signInProcess(@RequestBody @Valid UserLoginRequestDto dto){
         try {
             Member user1 = memberService.findById(dto.getUser_id());
             System.out.println("dtd:" + dto);
@@ -134,6 +127,66 @@ public class MemberController {
             return ResponseEntity.ok().body("a");
     }
 }
+
+    @PostMapping("/my-user")
+    public ResponseEntity<?> myUser(@RequestBody UserIdDupDto dto){
+        try {
+            HashMap<String, String> result = new HashMap<>();
+            System.out.println("check??? "+dto.getUserId());
+
+            Member user1 = memberService.findById(dto.getUserId());
+            if (user1.getUserId()!=null){
+                result.put("user_id", user1.getUserId());
+                result.put("name", user1.getUserName());
+                result.put("email", user1.getEmail());
+            }
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e) {
+            System.out.println("error:"+ e);
+            return ResponseEntity.ok().body("error");
+        }
+    }
+
+    @PostMapping("/my-modify-name")
+    public ResponseEntity<?> myNameFix(@RequestBody @Valid UserNameDto dto){
+        try {
+            HashMap<String, String> result = new HashMap<>();
+            String res=memberService.userNameModify(dto.getUserId(), dto.getUserName());
+            result.put("result", res);
+
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e) {
+            System.out.println("error:"+ e);
+            return ResponseEntity.ok().body("error");
+        }
+    }
+
+    @PostMapping("/my-modify-pw")
+    public ResponseEntity<?> myPWFix(@RequestBody @Valid UserPWDto dto){
+        try {
+            HashMap<String, String> result = new HashMap<>();
+            String res=memberService.userPWModify(dto.getUserId(), dto.getUserPw());
+            result.put("result", res);
+
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e) {
+            System.out.println("error:"+ e);
+            return ResponseEntity.ok().body("error");
+        }
+    }
+    @PostMapping("/my-check-pw")
+    public ResponseEntity<?> myPWcheck(@RequestBody @Valid UserPWDto dto){
+        try {
+            HashMap<String, String> result = new HashMap<>();
+            String res=memberService.userPwCheck(dto.getUserId(), dto.getUserPw());
+            result.put("result", res);
+
+            return ResponseEntity.ok().body(result);
+        }catch (Exception e) {
+            System.out.println("error:"+ e);
+            return ResponseEntity.ok().body("error");
+        }
+    }
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<String> handleRuntimeException(RuntimeException e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
