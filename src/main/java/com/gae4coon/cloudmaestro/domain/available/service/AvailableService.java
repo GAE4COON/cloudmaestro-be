@@ -71,6 +71,7 @@ public class AvailableService {
 
                             List<String> serverNodes = zoneRequirements.get(i).getServerNode();
                             List<LinkData> deleteLink = new ArrayList<>();
+                            System.out.println("zoneRequirements" + zoneRequirements);
 
                             if (zoneRequirements.get(i).getServerNode().size() > 0) {
                                 ServerNode(serverNodes, linkDataList, groupDataList, nodeDataList,
@@ -111,8 +112,20 @@ public class AvailableService {
         GroupData privateSubnetNode = createGroupData(privateSubnetName, "group",  az + "a",  "rgb(0,164,166)",null);
         groupDataList.add(privateSubnetNode);
 
+
         GroupData availableNode = createGroupData(az+"a", "AWS_Groups",vpc,"rgb(0,164,166)",null);
-        groupDataList.add(availableNode);
+        //groupDataList.add(availableNode);
+
+        boolean exists = false;
+        for(GroupData groupData : groupDataList){
+            if(groupData.getText().equals(availableNode.getText())){
+                exists = true;
+                break;
+            }
+        }
+        if (!exists) {
+            groupDataList.add(availableNode);
+        }
 
         // link 정보 연결하기
         LinkData pubToPriv = createLinkData(publicSubnetName, privateSubnetName, key - 1);
@@ -124,7 +137,7 @@ public class AvailableService {
 
         key -= 1;
         NodeData natNode = makeNat(linkDataList,nodeDataList,publicSubnetName,nat_node_x, nat_node_y,key,vpc);
-        nat_node_x += 10; nat_node_y += 400;
+        nat_node_x += 200; nat_node_y += 400;
         // nat 기준으로 node data 설정_
         node_x = nat_node_x + 430; node_y = nat_node_y - 460;
     }
@@ -169,7 +182,7 @@ public class AvailableService {
         nat_node_x = coordinates[0];
         nat_node_y = coordinates[1];
 
-        alb_node_x += 200; alb_node_y += 100;
+        alb_node_x += 200; alb_node_y -=10;
         nat_node_x += 600; nat_node_y += 100;
 
         int key = -10;
@@ -240,9 +253,11 @@ public class AvailableService {
                         }
                     }
                     boolean includeEc2 = false;
+                    boolean includelink2 = false;
                     // 같은 To를 향한 node 중에 auto scaling group이 있다면 ?
                     for (LinkData linkData : linkDataList) {
                         if (linkData.getTo().equals(To)) {
+                            includelink2 = true;
                             for (NodeData nodeData : nodeDataList) {
                                 if (nodeData.getKey().equals(linkData.getFrom()) &&
                                         nodeData.getGroup().contains("Auto Scaling")) {
@@ -253,6 +268,17 @@ public class AvailableService {
                             }
                         }
                     }
+                    if(!includelink2){
+                        for(NodeData nodedata : nodeDataList){
+                            if(nodedata.getKey().equals(node) &&
+                                    nodedata.getGroup().contains("Auto Scaling")){
+                                node = nodedata.getKey();
+                                includeEc2 = true;
+                                break;
+                            }
+                        }
+                    }
+
 
                     for (LinkData linkdata : linkDataList) {
                         if (linkdata.getFrom().contains("ALB") && linkdata.getTo().equals(node)) {
@@ -301,8 +327,8 @@ public class AvailableService {
                 }
 
                 alb_index += 1;
-                alb_node_x += 220;
-                alb_node_y += 10;
+                alb_node_x += 100;
+                alb_node_y -= 10;
 
             }
 
@@ -367,27 +393,30 @@ public class AvailableService {
 
     public void removeNode(List<String> exceptNode, List<LinkData> linkDataList, List<NodeData> nodeDataList,List<LinkData> deleteLink) {
         List<NodeData> exceptNode2 = new ArrayList<>(); // 올바른 리스트 초기화
-
-        for (int i = 0; i < exceptNode.size(); i++) {
-            for (NodeData nodedata : nodeDataList) {
-                if (nodedata.getKey().equals(exceptNode.get(i)) && nodedata.getGroup().contains("Auto Scaling group")) {
-                    // Auto Scaling group에 속하는 노드는 제외
-                } else if (nodedata.getKey().equals(exceptNode.get(i))) {
-                    // Auto Scaling group에 속하지 않는 노드는 삭제 목록에 추가
-                    for(LinkData linkdata : linkDataList){
-                        if(linkdata.getFrom().equals(nodedata.getKey())){
-                            deleteLink.add(linkdata);
+        if(!exceptNode.isEmpty()) {
+            for (int i = 0; i < exceptNode.size(); i++) {
+                for (NodeData nodedata : nodeDataList) {
+                    if (nodedata.getKey().equals(exceptNode.get(i)) && nodedata.getGroup().contains("Auto Scaling group")) {
+                        // Auto Scaling group에 속하는 노드는 제외
+                    } else if (nodedata.getKey().equals(exceptNode.get(i))) {
+                        // Auto Scaling group에 속하지 않는 노드는 삭제 목록에 추가
+                        for (LinkData linkdata : linkDataList) {
+                            if (linkdata.getFrom().equals(nodedata.getKey())) {
+                                deleteLink.add(linkdata);
+                            }
                         }
+                        exceptNode2.add(nodedata);
                     }
-                    exceptNode2.add(nodedata);
                 }
             }
+            System.out.println("deleteLink "+deleteLink);
+            nodeDataList.removeAll(exceptNode2); // 삭제 목록에 있는 모든 노드 제거
+
         }
-        nodeDataList.removeAll(exceptNode2); // 삭제 목록에 있는 모든 노드 제거
-    }
+   }
 
 
-    public void addCopyNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String privateSubnetName, int autoIndex, int text_index) {
+    public void addCopyNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String privateSubnetName, int autoIndex, int text_index,String node) {
         GroupData AutoGroup = new GroupData();
         AutoGroup.setIsGroup(true);
         AutoGroup.setStroke("rgb(237,113,0)");
@@ -398,44 +427,93 @@ public class AvailableService {
         groupDataList.add(AutoGroup);
 
         List<NodeData> newNodes = new ArrayList<>();
-        for(NodeData nodedata : nodeDataList){
-            if(nodedata.getKey().equals(exceptNode.get(0))){
-                NodeData copiedNode = new NodeData();
-                node_x += 200;
-                String newLoc = (node_x) + " " + (node_y);
+        if(! exceptNode.isEmpty()) {
+            for (NodeData nodedata : nodeDataList) {
+                if (nodedata.getKey().equals(exceptNode.get(0))) {
+                    NodeData copiedNode = new NodeData();
+                    node_x += 200;
+                    String newLoc = (node_x) + " " + (node_y);
 
-                copiedNode.setText(nodedata.getText());
-                copiedNode.setType(nodedata.getType());
-                copiedNode.setKey(nodedata.getKey() + "a");
-                copiedNode.setIsGroup(null);
-                copiedNode.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
-                copiedNode.setGroup("Auto Scaling group" + autoIndex);
-                copiedNode.setLoc(newLoc);
-                newNodes.add(copiedNode);
+                    copiedNode.setText(nodedata.getText());
+                    copiedNode.setType(nodedata.getType());
+                    copiedNode.setKey(nodedata.getKey() + "a");
+                    copiedNode.setIsGroup(null);
+                    copiedNode.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
+                    copiedNode.setGroup("Auto Scaling group" + autoIndex);
+                    copiedNode.setLoc(newLoc);
+                    newNodes.add(copiedNode);
 
+                }
             }
         }
+
+        System.out.println("excpetNOde" + exceptNode.size());
+        if(exceptNode.isEmpty()){
+            for(NodeData nodedata : nodeDataList){
+                if(nodedata.getKey().equals(node)){
+                    NodeData copiedNode = new NodeData();
+                    node_x += 200;
+                    String newLoc = (node_x) + " " + (node_y);
+
+                    copiedNode.setText(nodedata.getText());
+                    copiedNode.setType(nodedata.getType());
+                    copiedNode.setKey(nodedata.getKey() + "a");
+                    copiedNode.setIsGroup(null);
+                    copiedNode.setSource("/img/AWS_icon/Arch_Compute/Arch_Amazon-EC2_48.svg");
+                    copiedNode.setGroup("Auto Scaling group" + autoIndex);
+                    copiedNode.setLoc(newLoc);
+                    newNodes.add(copiedNode);
+
+                }
+            }
+        }
+
 
         nodeDataList.addAll(newNodes);
 
 
     }
 
-    public void addOriginalNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String originalprivatesubnetname, int autoIndex, int text_index) {
+    public void addOriginalNode(List<String> exceptNode, List<GroupData> groupDataList, List<NodeData> nodeDataList, String originalprivatesubnetname, int autoIndex, int text_index,String node) {
         GroupData AutoGroup = new GroupData();
-        for(NodeData nodedata : nodeDataList){
-            if(nodedata.getKey().equals(exceptNode.get(0))){
-                nodedata.setGroup("Auto Scaling group" + autoIndex);
-                AutoGroup.setIsGroup(true);
-                AutoGroup.setStroke("rgb(237,113,0)");
-                AutoGroup.setText("Auto Scaling group" + text_index);
-                AutoGroup.setKey("Auto Scaling group" + autoIndex);
-                AutoGroup.setType("AWS_Groups");
-                AutoGroup.setGroup(originalprivatesubnetname);
+        if(!exceptNode.isEmpty()) {
+            System.out.println("exceptNode ::  들어와라");
+            for (NodeData nodedata : nodeDataList) {
+                if (nodedata.getKey().equals(exceptNode.get(0))) {
+                    nodedata.setGroup("Auto Scaling group" + autoIndex);
+                    AutoGroup.setIsGroup(true);
+                    AutoGroup.setStroke("rgb(237,113,0)");
+                    AutoGroup.setText("Auto Scaling group" + text_index);
+                    AutoGroup.setKey("Auto Scaling group" + autoIndex);
+                    AutoGroup.setType("AWS_Groups");
+                    AutoGroup.setGroup(originalprivatesubnetname);
 
+                }
             }
         }
-        groupDataList.add(AutoGroup);
+        GroupData AutoGroup2 = new GroupData();
+        System.out.println("exceptNode ::  "+ exceptNode);
+        if(exceptNode.isEmpty()){
+            System.out.println("hello ");
+            for(NodeData nodedata : nodeDataList){
+                if(nodedata.getKey().equals(node)){
+                    nodedata.setGroup("Auto Scaling group" + autoIndex);
+                    AutoGroup2.setIsGroup(true);
+                    AutoGroup2.setStroke("rgb(237,113,0)");
+                    AutoGroup2.setText("Auto Scaling group" + text_index);
+                    AutoGroup2.setKey("Auto Scaling group" + autoIndex);
+                    AutoGroup2.setType("AWS_Groups");
+                    AutoGroup2.setGroup(originalprivatesubnetname);
+
+                }
+            }
+        }
+        if (AutoGroup != null && AutoGroup.getIsGroup()) {
+            groupDataList.add(AutoGroup);
+        }
+        if (AutoGroup2 != null && AutoGroup2.getIsGroup()) {
+            groupDataList.add(AutoGroup2);
+        }
 
 
     }
@@ -725,7 +803,7 @@ public class AvailableService {
                            double node_y, int key, String privateSubnetName,
                            String originalprivatesubnetname, List<LinkData> deleteLink, String vpc, String az) {
 
-
+        System.out.println("serverNode" + serverNode);
         int text_index;
         List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화
         for(String node : serverNode){
@@ -767,23 +845,29 @@ public class AvailableService {
 
             }
             if(node.contains("EC2")){
+                System.out.println("nodeEC2 " + node);
+                System.out.println("exceptNode2 " + exceptNode2);
                 boolean exit = true;
+                boolean nolink = true;
                 for(String except : exceptNode2){
                     if(except.equals(node)){
                         exit = false;
                     }
                 }
                 if (exceptNode2.isEmpty() || exit) { // 리스트가 비어있지 않고, 특정 node가 포함되지 않은 경우
-
+                    System.out.println("exceptNode21 " + exceptNode2);
                     exceptNode2 = ExceptandAddInvidiualNode(nodeDataList, linkDataList, groupDataList, node);
                     // Available 에 Node 넣기
+                    System.out.println("exceptNode22 " + exceptNode2);
                     text_index = Auto_index;
-                    addOriginalNode(exceptNode2, groupDataList, nodeDataList, originalprivatesubnetname, Auto_index, text_index);
+                    addOriginalNode(exceptNode2, groupDataList, nodeDataList, originalprivatesubnetname, Auto_index, text_index, node);
                     Auto_index += 1;
-                    addCopyNode(exceptNode2, groupDataList, nodeDataList, privateSubnetName, Auto_index, text_index);
+                    addCopyNode(exceptNode2, groupDataList, nodeDataList, privateSubnetName, Auto_index, text_index, node);
 
                     removeNode(exceptNode2, linkDataList, nodeDataList,deleteLink);
+
                 }
+
             }
 
             Auto_index += 1;
