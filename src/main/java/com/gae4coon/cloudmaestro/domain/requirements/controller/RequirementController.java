@@ -18,12 +18,10 @@ import java.util.*;
 public class RequirementController {
     private final AllRequirementService allRequirementService;
     private final DiagramDTOService diagramDtoService;
-
-
     @PostMapping(value = "/userRequirement")
     public ResponseEntity<?> userRequirement(@RequestBody RequireDiagramDTO requireDiagramDTO) throws JsonProcessingException {
 
-        allRequirementService.addRequirement(requireDiagramDTO.getFileName(), requireDiagramDTO.getRequirementData());
+        allRequirementService.addRequirement(requireDiagramDTO.getRequirementData());
 
         HashMap<String, Object> response = allRequirementService.requirement(requireDiagramDTO);
 

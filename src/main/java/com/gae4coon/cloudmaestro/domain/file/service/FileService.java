@@ -65,7 +65,6 @@ public class FileService {
         }
 
         workbook.close();
-        System.out.println(jsonList);
         return jsonList;
     }
 
@@ -118,7 +117,6 @@ public class FileService {
 
                 tempNode.addProperty("type", "Network_icon");
                 if(tempNode.get("text")==null){
-                    System.out.println("null exception"+tempNode);
                 }
                 String textValue = tempNode.get("text").getAsString();
                 String keyValue = null;
