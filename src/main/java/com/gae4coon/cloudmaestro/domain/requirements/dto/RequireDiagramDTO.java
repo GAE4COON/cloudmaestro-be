@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 public class RequireDiagramDTO {
     private RequireDTO requirementData;
     private String diagramData;
-    private String fileName;
 }
