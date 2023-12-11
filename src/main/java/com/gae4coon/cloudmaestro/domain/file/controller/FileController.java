@@ -44,7 +44,6 @@ public class FileController {
     @PostMapping(value = "/summary")
     public ResponseEntity<?> requestSummary(@RequestBody Map<String, Object> cost){
 
-        System.out.println("cost "+cost);
         fileService.summaryFileParse(cost);
         return ResponseEntity.ok(fileService.summaryFileParse(cost));
     }

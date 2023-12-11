@@ -48,8 +48,6 @@ public class RegionService {    //여기서 이미 dnsmulti에서 리전 하나�
                 groupDataList.addAll(newGroupDataList);
             }
 
-        }else {
-            System.out.println();
         }
     }
 

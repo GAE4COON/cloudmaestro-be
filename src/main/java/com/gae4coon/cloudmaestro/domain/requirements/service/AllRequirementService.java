@@ -45,11 +45,10 @@ public class AllRequirementService {
     private final CloudFrontDistribution cloudFrontDistribution;
     private final RequireRepository requireRepository;
 
-    public void addRequirement(String fileName, RequireDTO requireDTO){
+    public void addRequirement(RequireDTO requireDTO){
         Require require = Require.builder()
                 .industrial(requireDTO.getIndustrial())
                 .backup(!requireDTO.getBackup().isEmpty())
-                .fileName(fileName)
                 .build();
 
         requireRepository.save(require);

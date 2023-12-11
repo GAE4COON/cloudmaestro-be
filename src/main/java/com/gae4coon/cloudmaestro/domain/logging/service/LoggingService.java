@@ -131,13 +131,11 @@ public class LoggingService {
 
             for(NodeData s3: s3List){
                 LinkData link = diagramDTOService.getLinkDataByTo(linkDataList, s3.getKey());
-                System.out.println(link);
                 if(link!=null && link.getFrom().contains("CloudWatch")){
                     cloudTrails3List.add(s3);
                 }
 
                 LinkData link2 = diagramDTOService.getLinkDataByFrom(linkDataList, s3.getKey());
-                System.out.println(link2);
                 if(link2!=null && link2.getTo().contains("CloudWatch")){
                     cloudTrails3List.add(s3);
                 }
@@ -145,7 +143,6 @@ public class LoggingService {
         }
         // 연결된 s3 없으면 생성
         if(cloudTrails3List.isEmpty()){
-            System.out.println("new");
             NodeData s3 = addResourceService.addS3Bucket(nodeDataList);
             s3.setGroup("Region");
             s3.setLoc("600 -750");

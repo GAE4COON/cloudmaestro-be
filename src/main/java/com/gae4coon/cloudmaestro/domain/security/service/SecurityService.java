@@ -158,6 +158,7 @@ public class SecurityService{
 
     private void setNetworkFW() {
         // network firewall있으면 endpoint만 검사
+        List<GroupData> vpcList = diagramDTOService.getGroupListByText(groupDataList, "VPC");
 
         if (!diagramDTOService.isNodeDataContains(nodeDataList, "Network Firewall")) {
             // add Network Firewall into Region
@@ -168,11 +169,13 @@ public class SecurityService{
         }
 
         // create Network Firewall Group in VPC
-        GroupData groupData = addResourceService.addPublicsubnet();
-        groupData.setKey("Firewall Public Subnet");
-        groupData.setText("Firewall Public Subnet");
-        groupData.setGroup("VPC");
-        groupDataList.add(groupData);
+        for (GroupData vpc:vpcList) {
+            GroupData groupData = addResourceService.addPublicsubnet();
+            groupData.setKey("Firewall Public Subnet");
+            groupData.setText("Firewall Public Subnet");
+            groupData.setGroup(vpc.getKey());
+            groupDataList.add(groupData);
+        }
 
         // add Network Firewall endpoint into Firewall Public Subnet
         NodeData nodeData = addResourceService.addNetworkFirewallEndpoints();
@@ -292,8 +295,6 @@ public class SecurityService{
             if (ALBLinkList == null) continue;
 
             for(LinkData ALBLink : ALBLinkList) {
-                System.out.println("alb" + ALBLink);
-
                 // ALB와 연결된 from 데이터의 group확인
                 NodeData ALBToNode = diagramDTOService.getNodeDataByKey(nodeDataList, ALBLink.getTo());
                 if (ALBToNode != null) {
