@@ -124,7 +124,7 @@ public class MemberController {
             result.put("result", tokenInfo);
             result.put("status", "success");
             System.out.println(tokenInfo);
-            return ResponseEntity.ok().body(tokenInfo);
+            return ResponseEntity.ok().body(result);
         }catch (Exception e) {
             System.out.println("error:"+ e);
             result.put("status", "error");
