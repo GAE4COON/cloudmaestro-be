@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @Builder
 @NoArgsConstructor
@@ -12,4 +14,6 @@ import lombok.NoArgsConstructor;
 public class MyArchitectureDTO{
     private Long key;
     private String title;
+    private LocalDateTime createdDate;
+    private LocalDateTime modifiedDate;
 }
