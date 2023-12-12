@@ -70,6 +70,7 @@ public class FileController {
         String diagramData = request.getDiagramData();
         String fileImg = request.getFileImg();
 
+
         String fileName = request.getFileName()+"_"+principal.getName();
 
         // put s3

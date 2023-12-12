@@ -42,7 +42,9 @@ public class NetworkService {
         List<MyArchitectureDTO> diagramFiles = diagramRepository.findByUserId(userId).stream()
                 .map(diagram -> new MyArchitectureDTO(
                         diagram.getDiagramId(),
-                        diagram.getDiagramFile()
+                        diagram.getDiagramFile(),
+                        diagram.getCreatedDate(),
+                        diagram.getModifiedDate()
                 ))
             .collect(Collectors.toList());
 
