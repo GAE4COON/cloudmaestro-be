@@ -102,6 +102,7 @@ public class MemberController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signInProcess(@RequestBody @Valid UserLoginRequestDto dto){
+        HashMap<String, Object> result = new HashMap<>();
         try {
             Member user1 = memberService.findById(dto.getUser_id());
             System.out.println("dtd:" + dto);
@@ -120,11 +121,15 @@ public class MemberController {
             System.out.println("test: " + user.getUserId());
 
             TokenInfo tokenInfo = jwtTokenProvider.generateToken(authentication, user.getUserId());
+            result.put("result", tokenInfo);
+            result.put("status", "success");
             System.out.println(tokenInfo);
             return ResponseEntity.ok().body(tokenInfo);
         }catch (Exception e) {
-            System.out.println("errror:"+ e);
-            return ResponseEntity.ok().body("a");
+            System.out.println("error:"+ e);
+            result.put("status", "error");
+            result.put("result", e);
+            return ResponseEntity.ok().body(result);
     }
 }
 
