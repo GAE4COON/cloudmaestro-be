@@ -46,7 +46,6 @@ public class NetworkService {
                 ))
             .collect(Collectors.toList());
 
-        System.out.println("diagramFiles"+diagramFiles);
         return diagramFiles;
     }
 
