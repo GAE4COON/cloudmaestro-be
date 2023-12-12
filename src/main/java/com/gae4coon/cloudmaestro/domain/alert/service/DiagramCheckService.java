@@ -105,7 +105,7 @@ public class DiagramCheckService {
         List<String> checkgr = new ArrayList<>();
 
         List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
-        System.out.println("APICheck BPgroup"+ BPgroup);
+//        System.out.println("APICheck BPgroup"+ BPgroup);
 
         if(groupDataList != null) {
             if(newData.getGroup().contains("VPC")) {
@@ -213,6 +213,29 @@ public class DiagramCheckService {
         if (checknode.size()==1 && checknode.get(0).equals(newData.getKey())){
             flag = true;
             check.put("message", "클라우드 서비스 공급자가 클라우드 서비스의 일부로 백업 기능을 제공하는 경우 클라우드 서비스 고객은 클라우드 서비스 공급자에게 백업 기능의 사양을 요청해야합니다. 클라우드 서비스 고객은 백업 요구 사항을 충족하는지 확인하여야 합니다.");
+        }
+
+        if (flag) {
+            check.put("status", "fail");
+        }else{
+            check.put("status", "success");
+        }
+        return check;
+    }
+
+    public HashMap<String, String> Ec2Check(List<NodeData> nodedatalist) {
+        boolean flag = false;
+        HashMap<String, String> check = new HashMap<>();
+        List<String> checknode = new ArrayList<>();
+
+        for (NodeData item: nodedatalist) {
+            if (item.getText().equals("EC2")){
+                checknode.add(item.getKey());
+            }
+        }
+        if (checknode.size()>=1){
+            flag = true;
+            check.put("message", "EC2 사용 시 IMDSv1을 사용할 경우 XSS 취약점에 노출될 수 있습니다. IMDSv2 이상의 버전 사용을 권고합니다.");
         }
 
         if (flag) {

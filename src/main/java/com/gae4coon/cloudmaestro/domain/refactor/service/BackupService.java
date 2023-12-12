@@ -44,6 +44,7 @@ public class BackupService {
         }
 
         int cnt = 0;
+        System.out.println(requireDiagramDTO.getRequirementData().getZones());
         for (ZoneDTO zone: requireDiagramDTO.getRequirementData().getZones()) {
             if(zone.getFunction()!=null){
                 bpService.bpsearch(zone.getFunction(), nodeDataList, linkDataList, groupDataList, cnt);

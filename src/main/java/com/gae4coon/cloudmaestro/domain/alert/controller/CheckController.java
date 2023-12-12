@@ -92,7 +92,7 @@ public class CheckController {
     public ResponseEntity<?> nodeCheck(@RequestBody inputNodeDto inputData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
-        System.out.println("inputData: "+inputData);
+//        System.out.println("inputData: "+inputData);
         try {
             if (inputData.getDiagramData()!=null) {
                 GraphLinksModel diagramData = mapper.readValue(inputData.getDiagramData(), GraphLinksModel.class);
@@ -119,7 +119,11 @@ public class CheckController {
                 else if (inputData.getCheckOption().equals("Database")) {
                     HashMap ResponseMap = diagramCheckService.DBcheck(groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
-                } else {
+                }
+                else if (inputData.getCheckOption().equals("EC2")) {
+                    HashMap ResponseMap = diagramCheckService.Ec2Check(nodeDataList);
+                    result.put("result", ResponseMap);
+                }else {
                     HashMap<String, String> check = new HashMap<>();
                     check.put("status", "success");
                     result.put("result", check);
@@ -172,7 +176,7 @@ public class CheckController {
     public ResponseEntity<?> DevCheck(@RequestBody(required = false) String postData) throws JsonProcessingException {
         HashMap result = new HashMap<>();
         ObjectMapper mapper = new ObjectMapper();
-        System.out.println("inputData: "+postData);
+//        System.out.println("inputData: "+postData);
         boolean status = false;
         boolean apigateway = false;
         try {
