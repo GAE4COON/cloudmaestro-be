@@ -49,23 +49,25 @@ public class BPService {
         try {
 
         for (NodeData node:nodeDataList) {
-            String location =node.getLoc();
-            if (location.equals("loc")) {
-                continue;
-            }
-            String[] locParts = location.split(" ");
+            if (node.getLoc() != null) {
+                String location = node.getLoc();
+                if (location.equals("loc")) {
+                    continue;
+                }
+                String[] locParts = location.split(" ");
 
 
-            double x = Double.parseDouble(locParts[0]);
-            double y = Double.parseDouble(locParts[1]);
+                double x = Double.parseDouble(locParts[0]);
+                double y = Double.parseDouble(locParts[1]);
 
-            if (x < -100000 || x > 100000) continue;
+                if (x < -100000 || x > 100000) continue;
 
-            if (x > maxX) {
-                maxX = x;
-            }
-            if (y > maxY) {
-                maxY = y;
+                if (x > maxX) {
+                    maxX = x;
+                }
+                if (y > maxY) {
+                    maxY = y;
+                }
             }
         }
 
