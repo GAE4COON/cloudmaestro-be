@@ -70,6 +70,7 @@ public class AllRequirementService {
         Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
 
         loggingService.logging(requirementData, nodeDataList, groupDataList, linkDataList);
+        System.out.println("logging1");
         availableService.availalbeService(requireDiagramDTO,nodeDataList,groupDataList,linkDataList);
         dnsMultiService.getRequirementDns(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
         regionService.getRegion(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
@@ -80,6 +81,7 @@ public class AllRequirementService {
         securityService.security(requirementData, nodeDataList, groupDataList, linkDataList);
         loggingService.logging2(requirementData, nodeDataList, groupDataList, linkDataList);
         backupService.requirementParsing(requireDiagramDTO, nodeDataList, linkDataList, groupDataList);
+        System.out.println("logging2");
 
 
 
