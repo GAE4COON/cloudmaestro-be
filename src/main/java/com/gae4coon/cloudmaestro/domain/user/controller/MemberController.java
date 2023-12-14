@@ -60,11 +60,22 @@ public class MemberController {
 
     @PostMapping("/mailConfirm")
     public ResponseEntity<?> mailConfirm(@RequestBody EmailAuthRequestDto emailDto) throws MessagingException, UnsupportedEncodingException {
-        memberService.emailOverlap(emailDto.getEmail());
-        String authCode = emailService.sendAuthMail(emailDto.getEmail());
         HashMap<String, Object> codeResult = new HashMap<>();
-        codeResult.put("result", true);
-        return ResponseEntity.ok().body(codeResult);
+        try {
+
+            if (memberService.emailOverlap(emailDto.getEmail())) {
+                codeResult.put("result", false);
+            } else {
+                String authCode = emailService.sendAuthMail(emailDto.getEmail());
+                codeResult.put("result", true);
+
+            }
+            return ResponseEntity.ok().body(codeResult);
+
+        }catch (Exception e){
+            codeResult.put("result", "error");
+            return ResponseEntity.ok().body(codeResult);
+        }
     }
 
     @PostMapping("/authCode")
