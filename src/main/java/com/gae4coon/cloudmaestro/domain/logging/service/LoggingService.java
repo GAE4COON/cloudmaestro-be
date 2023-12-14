@@ -63,6 +63,7 @@ public class LoggingService {
             switch (global) {
                 case "로깅":
                         setLogging1();
+                        break;
                 case "opensearch":
                     setOpenSearch();
                     break;
@@ -97,11 +98,17 @@ public class LoggingService {
 
     private void setLogging1(){
         setLogAnalyze();
+    }
 
+    private void setLogAnalyze() {
+        setOpenSearch();
+        setAthena();
+        setQuickSight();
     }
     private void setLogging2(){
         setLogCollectStore();
     }
+
 
     private void setLogCollectStore() {
         List<NodeData> cloudTrailList = diagramDTOService.getNodeListByText(nodeDataList, "CloudTrail");
@@ -183,11 +190,7 @@ public class LoggingService {
         linkDataList.addAll(uniqueLink);
     }
 
-    private void setLogAnalyze() {
-        setOpenSearch();
-        setAthena();
-        setQuickSight();
-    }
+
 
     private void setCloudTrail() {
         NodeData cloudTrail = addResourceService.addCloudTrail();
@@ -236,6 +239,7 @@ public class LoggingService {
     }
 
     private void setOpenSearch() {
+        System.out.println("setOpenSearch 호출");
         NodeData cloudWatchNode = diagramDTOService.getNodeDataByText(nodeDataList, "CloudWatch");
         if(cloudWatchNode==null){
             cloudWatchNode = addResourceService.addCloudWatch();
