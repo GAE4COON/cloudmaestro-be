@@ -63,7 +63,6 @@ public class EmailService {
         mailMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(mail));
         mailMessage.setFrom(new InternetAddress(configEmail));
         mailSender.send(mailMessage);
-
         redisUtil.setDataExpire(mail, authKey, 60L * 3L); //3분
         System.out.println("confirm reids!");
 
