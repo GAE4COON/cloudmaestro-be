@@ -101,7 +101,6 @@ public class NetworkToAWS {
 //            }
 //
 //        }
-
     }
 
     public void managedReplaceNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
