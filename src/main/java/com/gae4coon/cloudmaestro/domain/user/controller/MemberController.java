@@ -165,15 +165,16 @@ public class MemberController {
 
     @PostMapping("/my-modify-name")
     public ResponseEntity<?> myNameFix(@RequestBody @Valid UserNameDto dto){
+        HashMap<String, String> result = new HashMap<>();
         try {
-            HashMap<String, String> result = new HashMap<>();
             String res=memberService.userNameModify(dto.getUserId(), dto.getUserName());
             result.put("result", res);
 
             return ResponseEntity.ok().body(result);
         }catch (Exception e) {
             System.out.println("error:"+ e);
-            return ResponseEntity.ok().body("error");
+            result.put("result", "error");
+            return ResponseEntity.ok().body(result);
         }
     }
 

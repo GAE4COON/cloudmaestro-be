@@ -74,8 +74,9 @@ public class MemberService {
         if(existingUser == null) {
             throw new RuntimeException(userid + "가 없습니다.");
         }
-
-        var encodedUserPw = passwordEncoder.encode(existingUser.getUserPw());
+        if(existingUser.getUserName().equals(username)) {
+            throw new RuntimeException(username + "동일한 이름으로 변경할 수 없습니다.");
+        }
 
         Member member = Member.builder()
                 .userId(existingUser.getUserId())
