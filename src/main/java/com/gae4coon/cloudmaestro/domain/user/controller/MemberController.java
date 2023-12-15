@@ -165,42 +165,44 @@ public class MemberController {
 
     @PostMapping("/my-modify-name")
     public ResponseEntity<?> myNameFix(@RequestBody @Valid UserNameDto dto){
+        HashMap<String, String> result = new HashMap<>();
         try {
-            HashMap<String, String> result = new HashMap<>();
             String res=memberService.userNameModify(dto.getUserId(), dto.getUserName());
             result.put("result", res);
 
             return ResponseEntity.ok().body(result);
         }catch (Exception e) {
             System.out.println("error:"+ e);
-            return ResponseEntity.ok().body("error");
+            result.put("result", "error");
+            return ResponseEntity.ok().body(result);
         }
     }
 
     @PostMapping("/my-modify-pw")
     public ResponseEntity<?> myPWFix(@RequestBody @Valid UserPWDto dto){
+        HashMap<String, String> result = new HashMap<>();
         try {
-            HashMap<String, String> result = new HashMap<>();
             String res=memberService.userPWModify(dto.getUserId(), dto.getUserPw());
             result.put("result", res);
 
             return ResponseEntity.ok().body(result);
         }catch (Exception e) {
-            System.out.println("error:"+ e);
-            return ResponseEntity.ok().body("error");
+            result.put("result", "error");
+            return ResponseEntity.ok().body(result);
         }
     }
     @PostMapping("/my-check-pw")
     public ResponseEntity<?> myPWcheck(@RequestBody @Valid UserPWDto dto){
+        HashMap<String, String> result = new HashMap<>();
         try {
-            HashMap<String, String> result = new HashMap<>();
             String res=memberService.userPwCheck(dto.getUserId(), dto.getUserPw());
             result.put("result", res);
 
             return ResponseEntity.ok().body(result);
         }catch (Exception e) {
             System.out.println("error:"+ e);
-            return ResponseEntity.ok().body("error");
+            result.put("result", "error");
+            return ResponseEntity.ok().body(result);
         }
     }
     @ExceptionHandler(RuntimeException.class)
