@@ -179,6 +179,7 @@ public class MemberController {
             return ResponseEntity.ok().body("error");
         }
     }
+
     @PostMapping("/my-check-pw")
     public ResponseEntity<?> myPWcheck(@RequestBody @Valid UserPWDto dto){
         try {
