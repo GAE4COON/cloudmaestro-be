@@ -68,6 +68,7 @@ public class CheckController {
 
                 if (inputData.getCheckOption().equals("VPC")) {
                     HashMap ResponseMap = diagramCheckService.vpcCheck(groupDataList, inputData.getNewData());
+                    System.out.println("ResponseMap+: " + ResponseMap);
                     result.put("result", ResponseMap);
                 } else {
                     HashMap<String, String> check = new HashMap<>();
@@ -106,6 +107,10 @@ public class CheckController {
 
                 if (inputData.getCheckOption().equals("API Gateway")) {
                     HashMap ResponseMap = diagramCheckService.APICheck(nodeDataList, groupDataList, inputData.getNewData());
+                    result.put("result", ResponseMap);
+                }
+                if (inputData.getCheckOption().equals("IGW")) {
+                    HashMap ResponseMap = diagramCheckService.IGWCheck(nodeDataList, groupDataList, inputData.getNewData());
                     result.put("result", ResponseMap);
                 }
                 else if (inputData.getCheckOption().equals("Logging")) {
