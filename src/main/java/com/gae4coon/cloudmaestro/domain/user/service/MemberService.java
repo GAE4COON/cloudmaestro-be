@@ -30,10 +30,8 @@ public class MemberService {
         return map;
     }
 
-    public HashMap<String, Object> emailOverlap(String email) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("result", memberRepository.existsByEmail(email));
-        return map;
+    public boolean emailOverlap(String email) {
+        return memberRepository.existsByEmail(email);
     }
 
     @Transactional(readOnly = true)

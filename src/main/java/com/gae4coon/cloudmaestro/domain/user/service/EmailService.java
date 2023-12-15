@@ -71,6 +71,7 @@ public class EmailService {
     }
     public Boolean verifyEmailCode(String email, String code) {
         String codeFoundByEmail = redisUtil.getData(email);
+
         if (codeFoundByEmail == null) {
             return false;
         }
