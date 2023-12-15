@@ -45,8 +45,6 @@ public class DiagramCheckService {
         if(groupDataList != null) {
             //BP 찾기
             List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
-//            System.out.println("vpcCheck BPgroup: "+BPgroup);
-
 
             for (GroupData group : groupDataList) {
                 //그룹 체크
@@ -65,6 +63,7 @@ public class DiagramCheckService {
                     checkgr.add(group);
                 }
             }
+
             if(flag != true) {
                 for (GroupData region : checkgr) {
                     List<String> vpcKeys = new ArrayList<>();
@@ -73,7 +72,7 @@ public class DiagramCheckService {
                             vpcKeys.add(group.getKey());
                         }
                     }
-//                    System.out.println("vpcCheck vpcKeys: "+vpcKeys);
+
                     regionVPC.put(region.getKey(), vpcKeys);
                 }
 
@@ -81,7 +80,10 @@ public class DiagramCheckService {
                     String key = entry.getKey(); // 키를 얻음
                     List<String> vpcs = entry.getValue(); // VPC 리스트
 
+                    System.out.println("vpcCheck vpcKeys: "+vpcs);
+
                     if (vpcs.size()>5){
+                        System.out.println(newData.getKey());
                         if (vpcs.contains(newData.getKey())) {
                             flag = true;
                             check.put("message", "VPC는 한 Region당 최대 5개까지 가능합니다.");
@@ -124,6 +126,48 @@ public class DiagramCheckService {
                     if (checkgr.contains(newData.getKey()) && !BPgroup.contains(newData.getGroup())) {
                         flag = true;
                         check.put("message", "VPC는 당 API GateWay는 한 개를 초과할 수 없습니다.");
+                        System.out.println("??check");
+                    }
+                }
+            }
+        }
+
+        if (flag) {
+            check.put("status", "fail");
+        }else{
+            check.put("status", "success");
+        }
+
+        System.out.println("check: " +check);
+        return check;
+    }
+
+
+    public HashMap<String, String> IGWCheck(List<NodeData> nodeDataList, List<GroupData> groupDataList, NodeData newData) {
+        boolean flag = false;
+        HashMap<String, String> check = new HashMap<>();
+        List<String> checkgr = new ArrayList<>();
+
+        List<String> BPgroup=alertGroupService.groupSearch("Module", groupDataList);
+//        System.out.println("APICheck BPgroup"+ BPgroup);
+
+        if(groupDataList != null) {
+            if(newData.getGroup().contains("VPC")) {
+                List<String> hhgroup = alertGroupService.groupSearch2(newData.getGroup(), groupDataList);
+                System.out.println("APICheck hhgroup" + hhgroup);
+
+                for (NodeData item : nodeDataList) {
+                    if (!(item.getGroup() == null) && hhgroup.contains(item.getGroup()) && item.getText().equals("Internet Gateway")) {
+                        checkgr.add(item.getKey());
+                    }
+                }
+                System.out.println("APICheck checkgr" + checkgr);
+                System.out.println("APICheck NewData" + newData.getKey());
+
+                if (checkgr.size() > 1) {
+                    if (checkgr.contains(newData.getKey()) && !BPgroup.contains(newData.getGroup())) {
+                        flag = true;
+                        check.put("message", "VPC는 당 Internet Gateway는 한 개를 초과할 수 없습니다.");
                         System.out.println("??check");
                     }
                 }
