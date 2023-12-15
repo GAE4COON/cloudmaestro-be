@@ -38,9 +38,9 @@ public class CloudFrontDistribution {
 
         if (!route53Exists) {
             NodeData routeNode = new NodeData();
-            routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
+            routeNode.setKey("Route 53");
             routeNode.setText("Route 53");
-            routeNode.setLoc(newLoc); // 계산된 위치 설정
+            routeNode.setLoc(newLoc);
             routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
             routeNode.setType("Networking-Content-Delivery");
             routeNode.setGroup("AWS Cloud");
