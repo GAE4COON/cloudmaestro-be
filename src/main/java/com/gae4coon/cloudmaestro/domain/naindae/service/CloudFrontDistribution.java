@@ -33,16 +33,17 @@ public class CloudFrontDistribution {
                 .collect(Collectors.toList());
 
         Point2D location = findRouteLoc(nodeDataList);
-        String newLoc = (location.getX()-350) + " " + (location.getY()+300);
-        String cdnLoc = (location.getX()-350) + " " + (location.getY()+150);
+        String newLoc = (location.getX()-100) + " " + (location.getY()+500);
+        String cdnLoc = (location.getX()-100) + " " + (location.getY()+350);
 
         if (!route53Exists) {
             NodeData routeNode = new NodeData();
-            routeNode.setKey("Route 53"); // NAT 키를 고유하게 만듦
+            routeNode.setKey("Route 53");
             routeNode.setText("Route 53");
-            routeNode.setLoc(newLoc); // 계산된 위치 설정
+            routeNode.setLoc(newLoc);
             routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
             routeNode.setType("Networking-Content-Delivery");
+            routeNode.setGroup("AWS Cloud");
             nodeDataList.add(routeNode);
         }
 
@@ -53,6 +54,7 @@ public class CloudFrontDistribution {
             cdnNode.setLoc(cdnLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
             cdnNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-CloudFront_48.svg");
             cdnNode.setType("Networking-Content-Delivery");
+            cdnNode.setGroup("AWS Cloud");
             nodeDataList.add(cdnNode);
         }
 

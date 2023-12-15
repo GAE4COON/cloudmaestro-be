@@ -52,6 +52,8 @@ public class DnsMultiService {
                 routeNode.setLoc(newLoc); // 계산된 위치 설정
                 routeNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-Route-53_48.svg");
                 routeNode.setType("Networking-Content-Delivery");
+                routeNode.setGroup("AWS Cloud");
+
                 nodeDataList.add(routeNode);
             }
 
@@ -61,6 +63,8 @@ public class DnsMultiService {
             cdnNode.setLoc(cdnLoc); // route53에서 x값을 오른쪽으로 설정해줘야함
             cdnNode.setSource("/img/AWS_icon/Arch_Networking-Content-Delivery/Arch_Amazon-CloudFront_48.svg");
             cdnNode.setType("Networking-Content-Delivery");
+            cdnNode.setGroup("AWS Cloud");
+
             nodeDataList.add(cdnNode);
 
             newLinkDataList = addRouteLink(nodeDataList,newNodeDataList, newLinkDataList);
