@@ -75,7 +75,8 @@ public class SpringConfig {
                 "https://localhost:3000",
                 "http://localhost:3000",
                 "http://cloudmaestro.site",
-                "https://cloudmaestro.site"
+                "https://cloudmaestro.site",
+                "https://oncloud.k-paas.org"
         ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE"));
         configuration.setAllowedHeaders(Arrays.asList("X-Requested-With", "Content-Type", "Authorization", "X-XSRF-token"));

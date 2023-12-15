@@ -227,7 +227,8 @@ public class AvailableService {
                     // 이미 기존에 있는 그룹일테니깐 ... 그 그룹에다가 선택을 하는 거지 ...
                     for (GroupData groupdata : groupDataList) {
 
-                        if (groupdata.getKey().equals(security_group)) {
+                        if (groupdata.getKey() != null &&
+                                groupdata.getKey().equals(security_group)) {
                             GroupData new_security_group = groupdata;
                             addLinkSecurityGroup(new_security_group, linkDataList, AlbNode, key -= 1);
                             includeGroup = false;
@@ -563,23 +564,34 @@ public class AvailableService {
     }
 
     public void ExceptNode(String node, List<NodeData> nodeDataList, List<GroupData> groupDataList, List<NodeData> exceptNode) {
+        System.out.println("node :: " + node);
+        System.out.println("nodeDataList :: "+ nodeDataList);
+        System.out.println("groupDataList :: " + groupDataList);
+        System.out.println("exceptNode :: " + exceptNode);
+
+
         for(NodeData nodedata : nodeDataList){
             if(nodedata.getGroup().equals(node)){
                 exceptNode.add(nodedata);
             }
         }
+        System.out.println("exceptNode1 :: " + exceptNode);
         if(exceptNode.size() >=2){
             for (int i = 1; i < exceptNode.size(); i++) {
                 nodeDataList.remove(exceptNode.get(i));
             }
         }
+        System.out.println("exceptNode2 :: " + exceptNode);
         List<GroupData> exceptgroup = new ArrayList<>();
         for(GroupData groupData : groupDataList){
-            if(groupData.getKey().equals(node)){
+            if(groupData.getKey() != null &&
+                groupData.getKey().equals(node)){
+                System.out.println("groupData :: " + groupData);
                 exceptgroup.add(groupData);
             }
         }
 
+        System.out.println("exceptNode3 :: " + exceptNode);
         groupDataList.remove(exceptgroup.get(0));
 
     }
@@ -800,45 +812,11 @@ public class AvailableService {
         int text_index;
         List<String> exceptNode2 = new ArrayList<>();  // 리스트 초기화
         for(String node : serverNode){
+            System.out.println("serverNode는 : " + serverNode + node);
             List<NodeData> exceptNode = new ArrayList<>();
             // Node 1개만 빼고 제외하기
-            if (node.contains("Security Group")){
-                // 먼저 노드 하나만 빼고 제외하기
-                ExceptNode(node, nodeDataList, groupDataList, exceptNode);
-                text_index =  Auto_index;
-                // 기존에 있는 그룹을 Auto Group으로 변화시키기
-                GroupData newAutoGroup =  createAutoGroup(node, Auto_index, text_index,nodeDataList, groupDataList,originalprivatesubnetname);
-
-                Auto_index += 1;
-
-                // 일단 AutoGroup은 복사를 한다.
-                GroupData CopyAutoGroup = createAutoGroup(node + "a" , Auto_index, text_index, nodeDataList, groupDataList,privateSubnetName);
-
-                // NodeData 순환하기
-                List<NodeData> newNodes = new ArrayList<>(); // 새로운 노드를 저장할 리스트
-
-                for (NodeData nodedata : nodeDataList) {
-                    if (nodedata.getGroup().equals(node)) {
-                        NodeData copiedNode = new NodeData();
-                        node_x += 200;
-                        String newLoc = (node_x) + " " + (node_y);
-
-                        copiedNode.setText(nodedata.getText());
-                        copiedNode.setType(nodedata.getType());
-                        copiedNode.setKey(nodedata.getKey() + "a");
-                        copiedNode.setSource(nodedata.getSource());
-                        copiedNode.setIsGroup(null);
-                        copiedNode.setGroup(CopyAutoGroup.getKey());
-                        copiedNode.setLoc(newLoc);
-                        newNodes.add(copiedNode); // 새 노드를 별도의 리스트에 추가
-                    }
-                }
-
-                nodeDataList.addAll(newNodes); // 순회가 끝난 후 새 노드들을 nodeDataList에 추가
-
-            }
             if(node.contains("EC2")){
-
+                System.out.println("Ec2 : " + node);
                 boolean exit = true;
                 boolean nolink = true;
                 for(String except : exceptNode2){
@@ -858,6 +836,42 @@ public class AvailableService {
                     removeNode(exceptNode2, linkDataList, nodeDataList,deleteLink);
 
                 }
+
+            }
+            if (node.contains("Security Group")){
+                // 먼저 노드 하나만 빼고 제외하기
+                System.out.println("SecurityGroup : " + node);
+                ExceptNode(node, nodeDataList, groupDataList, exceptNode);
+                text_index =  Auto_index;
+                System.out.println("SecurityGroup2 : " + node + nodeDataList + groupDataList + exceptNode);
+                // 기존에 있는 그룹을 Auto Group으로 변화시키기
+                GroupData newAutoGroup =  createAutoGroup(node, Auto_index, text_index,nodeDataList, groupDataList,originalprivatesubnetname);
+                Auto_index += 1;
+                // 일단 AutoGroup은 복사를 한다.
+                GroupData CopyAutoGroup = createAutoGroup(node + "a" , Auto_index, text_index, nodeDataList, groupDataList,privateSubnetName);
+
+                // NodeData 순환하기
+                List<NodeData> newNodes = new ArrayList<>(); // 새로운 노드를 저장할 리스트
+                System.out.println("newAutoGroup : " + newAutoGroup);
+                System.out.println("CopyAutoGroup : " + CopyAutoGroup);
+                for (NodeData nodedata : nodeDataList) {
+                    if (nodedata.getGroup().equals(node)) {
+                        NodeData copiedNode = new NodeData();
+                        node_x += 200;
+                        String newLoc = (node_x) + " " + (node_y);
+
+                        copiedNode.setText(nodedata.getText());
+                        copiedNode.setType(nodedata.getType());
+                        copiedNode.setKey(nodedata.getKey() + "a");
+                        copiedNode.setSource(nodedata.getSource());
+                        copiedNode.setIsGroup(null);
+                        copiedNode.setGroup(CopyAutoGroup.getKey());
+                        copiedNode.setLoc(newLoc);
+                        newNodes.add(copiedNode); // 새 노드를 별도의 리스트에 추가
+                    }
+                }
+
+                nodeDataList.addAll(newNodes); // 순회가 끝난 후 새 노드들을 nodeDataList에 추가
 
             }
 
