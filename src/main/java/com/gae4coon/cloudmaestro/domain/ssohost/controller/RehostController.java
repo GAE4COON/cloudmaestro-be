@@ -37,6 +37,8 @@ public class RehostController {
             List<LinkData> linkDataList = (List<LinkData>) responseArray.get("linkDataArray");
             Map<String, Object> cost = (Map<String, Object>) responseArray.get("cost");
 
+            addGroup(groupDataList, nodeDataList, linkDataList);
+
             // sg 추가 -> 관문 fw 있는 경우 nfw로 변경 후 vpc 추가
             securityGroupService.addSecurityGroup(nodeDataList, groupDataList, linkDataList);
             System.out.println("linkData" + linkDataList);
@@ -75,6 +77,59 @@ public class RehostController {
             System.out.println(e.getStackTrace());
 
             return null;
+        }
+
+    }
+
+    // 전체를 그룹으로 감싸기
+    public void addGroup(List<GroupData> groupDataList, List<NodeData> nodeDataList, List<LinkData> linkDataList) {
+        //find groupdata that has no parent and has no group node
+
+        boolean isNoGroupNode = false;
+        for(NodeData node: nodeDataList){
+            if(node.getGroup()==null){
+                isNoGroupNode = true;
+                break;
+            }
+        }
+
+        List<GroupData> noParentGroup = new ArrayList<>();
+        for (GroupData group : groupDataList) {
+            if (group.getGroup() == null) {
+                noParentGroup.add(group);
+            }
+        }
+
+//        if(!noParentGroup.isEmpty()&&isNoGroupNode){
+//            GroupData group = GroupData.builder()
+//                    .key("TEMPGROUP")
+//                    .text("TEMPGROUP")
+//                    .isGroup(true)
+//                    .stroke("rgb(122,161,22)")
+//                    .build();
+//
+//            groupDataList.add(group);
+//            for (GroupData noParent : noParentGroup) {
+//                noParent.setGroup("TEMPGROUP");
+//                System.out.println("noParent" + noParent);
+//            }
+//        }
+
+
+
+        //if groupdata==null, add all node group
+        if(groupDataList.isEmpty()){
+            GroupData group = GroupData.builder()
+                    .key("group")
+                    .text("group")
+                    .isGroup(true)
+                    .stroke("rgb(122,161,22)")
+                    .build();
+
+            groupDataList.add(group);
+            for (NodeData node : nodeDataList) {
+                node.setGroup("group");
+            }
         }
 
     }

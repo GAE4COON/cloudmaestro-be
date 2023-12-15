@@ -157,6 +157,14 @@ public class DiagramDTOService {
         }
         return linklist;
     }
+    public List<LinkData> getLinkDataListByTo(List<LinkData> linkDataList, String from){
+        List<LinkData> linklist = new ArrayList<>();
+        for (LinkData link : linkDataList) {
+            if(link.getFrom().equals(from))
+                linklist.add(link);
+        }
+        return linklist;
+    }
     public boolean isLink(List<LinkData> LinkDataList, String from, String to){
         for (LinkData link: LinkDataList){
             if(link.getFrom().contains(from) && link.getTo().contains(to)){
