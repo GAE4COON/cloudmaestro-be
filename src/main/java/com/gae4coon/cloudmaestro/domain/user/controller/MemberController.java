@@ -191,6 +191,7 @@ public class MemberController {
             return ResponseEntity.ok().body(result);
         }
     }
+
     @PostMapping("/my-check-pw")
     public ResponseEntity<?> myPWcheck(@RequestBody @Valid UserPWDto dto){
         HashMap<String, String> result = new HashMap<>();

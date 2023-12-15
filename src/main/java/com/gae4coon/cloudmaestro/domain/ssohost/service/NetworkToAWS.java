@@ -25,6 +25,82 @@ public class NetworkToAWS {
         locationService2.setNodeLocation(nodeDataList, groupDataList,linkDataList);
         // nodeData에 없는 link정보 삭제
         diagramDTOService.removeNullLink(nodeDataList, groupDataList, linkDataList);
+
+        // group안에 아무도 없는 그룹 삭제
+        List<GroupData> emptyGroupList = new ArrayList<>();
+
+        for(GroupData emptyGroup: groupDataList){
+            List<NodeData> nodeList = diagramDTOService.getNodeListByGroup(nodeDataList, emptyGroup.getKey());
+            List<GroupData> groupList = new ArrayList<>();
+            for(GroupData groupData: groupDataList){
+                if(groupData.getGroup()!=null && groupData.getGroup().equals(emptyGroup.getKey())){
+                    groupList.add(groupData);
+                }
+            }
+
+            if(nodeList.isEmpty()&&groupList.isEmpty()){
+                emptyGroupList.add(emptyGroup);
+            }
+        }
+        for(GroupData realEmpty: emptyGroupList){
+            groupDataList.remove(realEmpty);
+        }
+//
+//        List<GroupData> tmpGroupList = new ArrayList<>();
+//        for(GroupData groupData: groupDataList){
+//            if(groupData.getKey().contains("TEMPGROUP")){
+//                tmpGroupList.add(groupData);
+//            }
+//        }
+//        System.out.println("TEMPGROUP: "+tmpGroupList);
+//
+//        if(!tmpGroupList.isEmpty()){
+//            for(GroupData tmpGroup: tmpGroupList) {
+//                String tmpKey = tmpGroup.getKey();
+//
+//                // TEMPGROUP 삭제
+//                groupDataList.remove(tmpGroup);
+//                System.out.println("remove: "+tmpGroup.getKey());
+//
+//
+//                List<NodeData> nodeList = new ArrayList<>();
+//                for (NodeData node : nodeDataList) {
+//                    if (node.getGroup() != null && node.getGroup().equals(tmpKey))
+//                        nodeList.add(node);
+//                }
+//                for (NodeData nodeData : nodeList) {
+//                    System.out.println("remove: "+nodeData.getKey());
+//                    nodeDataList.remove(nodeData);
+//                }
+//
+//                // TEMPGROUP에 속한 링크 삭제
+//                List<LinkData> linklist = new ArrayList<>();
+//                for (LinkData link : linkDataList) {
+//                    if (link.getFrom().equals(tmpKey) || link.getTo().equals(tmpKey)) {
+//                        linklist.add(link);
+//                    }
+//                }
+//                for (LinkData link2 : linklist) {
+//                    System.out.println("remove: "+link2.getKey());
+//
+//                    linkDataList.remove(link2);
+//
+//                }
+//
+//                // TEMPGROUP에 속한 그룹 삭제
+//                List<GroupData> removeGroupList = new ArrayList<>();
+//                removeGroupList.addAll(groupDataList);
+//
+//                for (GroupData groupData : removeGroupList) {
+//                    if (groupData.getGroup() != null && groupData.getGroup().contains(tmpKey)) {
+//                        System.out.println("remove: "+groupData.getKey());
+//
+//                        groupDataList.remove(groupData);
+//                    }
+//                }
+//            }
+//
+//        }
     }
 
     public void managedReplaceNode(List<NodeData> nodeDataList, List<GroupData> groupDataList, List<LinkData> linkDataList){
